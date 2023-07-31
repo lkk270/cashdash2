@@ -1,10 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, Sparkles } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 import { Poppins } from "next/font/google";
+import { Menu, Sparkles } from "lucide-react";
+
+import Logo from "@/components/logo";
 import { Button } from "@/components/ui/button";
+import { ModeToggle } from "@/components/mode-toggle";
+import { MobileSidebar } from "@/components/mobile-sidebar";
 
 import { cn } from "@/lib/utils";
 
@@ -13,31 +17,35 @@ const font = Poppins({
   subsets: ["latin"],
 });
 
-const Navbar = () => {
+export const Navbar = () => {
   return (
-    <div className="fixed z-50 flex items-center justify-between w-full px-4 py-2 border-b border-primary/10 bg-secondary">
+    <div className="fixed z-50 flex items-center justify-between w-full h-16 px-4 py-2 border-b border-primary/10 bg-secondary">
       <div className="flex items-center">
-        <Menu className="block md:hidden" />
+        <MobileSidebar />
         <Link href="/">
-          <h1
+          {/* <h1
             className={cn(
-              "hidden text-xl font-bold md:block md:text-3xl text-primary",
+              "px-3 text-xl font-bold sm:text-3xl text-primary",
               font.className
             )}
           >
             CashDash
-          </h1>
+          </h1> */}
+          <div className="px-3">
+            <Logo />
+          </div>
         </Link>
       </div>
       <div className="flex items-center gap-x-3">
-        <Button size="sm">
-          Upgrade
-          <Sparkles className="w-4 h-4 ml-2 text-white fill-white" />
-        </Button>
+        <div className="flex items-center sm:flex gap-x-3">
+          <Button variant="premium" size="sm">
+            Upgrade
+            <Sparkles className="w-4 h-4 ml-2 text-white fill-white" />
+          </Button>
+          <ModeToggle />
+        </div>
         <UserButton afterSignOutUrl="/" />
       </div>
     </div>
   );
 };
-
-export default Navbar;
