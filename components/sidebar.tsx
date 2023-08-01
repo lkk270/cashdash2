@@ -10,6 +10,7 @@ import {
   ShoppingCart,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import Logo from "@/components/logo";
 import { usePathname, useRouter } from "next/navigation";
 
 import { cn } from "@/lib/utils";
@@ -53,12 +54,12 @@ export const Sidebar = ({ isPro }: SidebarProps) => {
     {
       icon: CreditCard,
       href: "/payment",
-      label: "Wallet",
+      label: "Money",
       pro: false,
     },
     {
       icon: Scale,
-      href: "/",
+      href: "/legal",
       label: "Legal",
       pro: false,
     },
@@ -72,13 +73,15 @@ export const Sidebar = ({ isPro }: SidebarProps) => {
 
   return (
     <div className="flex flex-col h-full space-y-4 overflow-y-scroll text-primary bg-secondary">
+      <div className="px-3 sm:hidden">
+        <Logo />
+      </div>
       <div className="flex justify-center flex-1 p-3">
         <div className="space-y-2">
           {routes.map((route, index) => (
-            <>
+            <div key={route.href}>
               <div
                 onClick={() => onNavigate(route.href, route.pro)}
-                key={route.href}
                 className={cn(
                   "text-muted-foreground text-xs group flex p-3 w-full justify-start font-medium cursor-pointer hover:text-primary hover:bg-primary/10 rounded-lg transition",
                   pathname === route.href && "bg-primary/10 text-primary"
@@ -92,7 +95,7 @@ export const Sidebar = ({ isPro }: SidebarProps) => {
               {(index === 2 || index === 5) && (
                 <Separator className="bg-primary/10" />
               )}
-            </>
+            </div>
           ))}
         </div>
       </div>

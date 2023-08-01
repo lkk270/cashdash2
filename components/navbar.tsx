@@ -39,7 +39,7 @@ export const Navbar = () => {
       <div className="flex items-center gap-x-3">
         <div className="flex items-center sm:flex gap-x-3">
           <Button variant="premium" size="sm">
-            Upgrade
+            Remove Ads
             <Sparkles className="w-4 h-4 ml-2 text-white fill-white" />
           </Button>
           <ModeToggle />

@@ -22,6 +22,9 @@ export default function RootLayout({
     <ClerkProvider
       appearance={{
         baseTheme: dark,
+        layout: {
+          termsPageUrl: "https://clerk.com/terms",
+        },
       }}
     >
       <html lang="en" suppressHydrationWarning>
