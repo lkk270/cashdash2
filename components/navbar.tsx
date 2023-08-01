@@ -22,7 +22,7 @@ export const Navbar = () => {
     <div className="fixed z-50 flex items-center justify-between w-full h-16 px-4 py-2 border-b border-primary/10 bg-secondary">
       <div className="flex items-center">
         <MobileSidebar />
-        <Link href="/">
+        <Link href="/dashboard">
           {/* <h1
             className={cn(
               "px-3 text-xl font-bold sm:text-3xl text-primary",

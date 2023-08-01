@@ -41,7 +41,7 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
   });
 
   if (!lobby) {
-    redirect(`/dashboard/${gameId}`);
+    redirect(`/game/${gameId}`);
   }
 
   return <LobbyClient lobby={lobby} />;
