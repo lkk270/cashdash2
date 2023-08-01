@@ -25,7 +25,11 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
     },
   });
 
-  const categories = await prismadb.category.findMany();
+  const categories = await prismadb.category.findMany({
+    orderBy: {
+      createdAt: "asc",
+    },
+  });
   return (
     <div className="h-full p-4 space-y-2 ">
       <Categories data={categories} />

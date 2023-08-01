@@ -9,13 +9,15 @@ datasource db {
 }
 
 model Category {
-  id    String @id @default(uuid())
-  name  String
-  games Game[]
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  games     Game[]
 }
 
 model Game {
-  id          String   @id @default(cuid())
+  id          String   @id @default(uuid())
   name        String
   description String
   imageSrc    String
@@ -24,12 +26,26 @@ model Game {
   scores      Score[]
   category    Category @relation(fields: [categoryId], references: [id])
   categoryId  String
+  lobbies     Lobby[]
 
   @@index([categoryId])
 }
 
+model Lobby {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  Game        Game     @relation(fields: [gameId], references: [id])
+  gameId      String
+  scores      Score[]
+
+  @@index([gameId])
+}
+
 model Score {
-  id          String   @id @default(cuid())
+  id          String   @id @default(uuid())
   gameId      String
   userId      String
   name        String
@@ -37,6 +53,8 @@ model Score {
   imageSrc    String
   createdAt   DateTime @default(now())
   game        Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  Lobby       Lobby?   @relation(fields: [lobbyId], references: [id])
+  lobbyId     String?
 
   @@unique([gameId, userId]) // This allows a user to have a score for each game
 }
