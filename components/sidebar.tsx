@@ -35,7 +35,7 @@ export const Sidebar = ({ isPro }: SidebarProps) => {
   const routes = [
     {
       icon: Home,
-      href: "/",
+      href: "/dashboard",
       label: "Home",
       pro: false,
     },
