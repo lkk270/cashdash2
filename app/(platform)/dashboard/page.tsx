@@ -9,7 +9,7 @@ interface DashboardPageProps {
 }
 
 const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
-  const data = await prismadb.game.findMany({
+  const games = await prismadb.game.findMany({
     where: {
       categoryId: searchParams.categoryId,
     },
@@ -33,7 +33,7 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
   return (
     <div className="h-full p-4 space-y-2 ">
       <Categories data={categories} />
-      <Games data={data} />
+      <Games data={games} />
     </div>
   );
 };

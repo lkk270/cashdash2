@@ -4,6 +4,7 @@ const db = new PrismaClient();
 
 async function main() {
   try {
+    await db.lobby.deleteMany();
     await db.game.deleteMany();
     await db.category.deleteMany();
 
@@ -20,7 +21,7 @@ async function main() {
       data: { name: "Trivia" },
     });
 
-    const minesweeper =  await db.game.create({
+    const minesweeper = await db.game.create({
       data: {
         name: "Minesweeper",
         description: "Classic minesweeper game. Win as fast as you can!",
@@ -30,14 +31,28 @@ async function main() {
       },
     });
 
-    await db.lobby.create({
-      data: {
-        name: "Novice",
-        description: "Novice for those with an average completion time of greater than 5 minutes.",
-        gameId: minesweeper.id,
-      },
+    await db.lobby.createMany({
+      data: [
+        {
+          name: "Novice",
+          description:
+            "Novice is open to new players or to anyone with an average completion time of greater than 10 minutes.",
+          gameId: minesweeper.id,
+        },
+        {
+          name: "Pro",
+          description:
+            "Pro is open to new players or to anyone with an average completion of greater than 5 minutes.",
+          gameId: minesweeper.id,
+        },
+        {
+          name: "Expert",
+          description:
+            "Expert is open to everyone.",
+          gameId: minesweeper.id,
+        },
+      ],
     });
-
   } catch (error) {
     console.error("Error seeding default categories:", error);
   } finally {

@@ -3,8 +3,8 @@ import { auth, redirectToSignIn } from "@clerk/nextjs";
 import prismadb from "@/lib/prismadb";
 import { redirect } from "next/navigation";
 import { GameClient } from "./components/client";
-import { Navbar } from "@/components/navbar";
-import { Sidebar } from "@/components/sidebar";
+import { DashboardLayout } from "@/components/dashboard-layout";
+import { Suspense } from "react";
 
 interface GameIdPageProps {
   params: {
@@ -24,17 +24,9 @@ const GameIdPage = async ({ params }: GameIdPageProps) => {
       id: params.gameId,
     },
     include: {
-      scores: {
+      lobbies: {
         orderBy: {
           createdAt: "asc",
-        },
-        where: {
-          userId,
-        },
-      },
-      _count: {
-        select: {
-          scores: true,
         },
       },
     },
@@ -44,16 +36,7 @@ const GameIdPage = async ({ params }: GameIdPageProps) => {
     return redirect("/dashboard");
   }
 
-  return (
-    <div className="h-full">
-      <Navbar />
-      <div className="fixed inset-y-0 flex-col hidden w-20 mt-16 md:flex">
-        <Sidebar />
-      </div>
-    </div>
-  );
-
-  // <GameClient game={game} />;
+  return <DashboardLayout children={<GameClient data={game.lobbies} />} />;
 };
 
 export default GameIdPage;

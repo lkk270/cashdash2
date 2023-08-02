@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { Game } from "@prisma/client";
@@ -32,7 +34,7 @@ export const Games = ({ data }: GamesProps) => {
                 />
               </div>
               <p className="font-bold">{item.name}</p>
-              <p className="text-xs">{item.description}</p>
+              <p className="text-xs text-left">{item.description}</p>
             </CardHeader>
             <CardFooter className="flex items-center justify-between text-xs text-muted-foreground">
               <div className="flex items-center">
