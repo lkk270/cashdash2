@@ -12,7 +12,7 @@ interface LobbyIdPageProps {
 }
 
 const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
-  const { userId } = auth();
+  const { userId, user } = auth();
   const gameId = params.gameId;
 
   if (!userId) {

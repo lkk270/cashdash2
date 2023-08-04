@@ -37,7 +37,7 @@ export const Navbar = () => {
       <div className="flex items-center gap-x-3">
         <div className="flex items-center sm:flex gap-x-3">
           <Button variant="premium" size="sm">
-            <Ban className="w-4 h-4 mr-2 mr-3 text-white" />
+            <Ban className="w-4 h-4 mr-3 text-white" />
             Ads
           </Button>
           <ModeToggle />

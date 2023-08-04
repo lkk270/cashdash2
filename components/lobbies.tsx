@@ -3,22 +3,25 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Lobby } from "@prisma/client";
+import { Lobby, GameAverageScore } from "@prisma/client";
 import { Play } from "lucide-react";
 
 import { Card, CardFooter, CardHeader } from "@/components/ui/card";
 
 interface LobbiesProps {
-  data: Lobby[];
+  data: {
+    lobbies: Lobby[];
+    averageScores: GameAverageScore[];
+  };
 }
 
 export const Lobbies = ({ data }: LobbiesProps) => {
   const pathname = usePathname();
-
+  const averageScore = (data.averageScores.length > 0 ? data.averageScores[0] : null);
   return (
     <div className="flex justify-center">
       <div className="grid justify-center grid-cols-1 gap-2 px-10 pb-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {data.map((item) => (
+        {data.lobbies.map((item) => (
           <Card
             key={item.name}
             className="max-w-lg transition border-0 cursor-pointer bg-primary/10 rounded-xl hover:opacity-75"

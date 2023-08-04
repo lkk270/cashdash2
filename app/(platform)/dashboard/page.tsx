@@ -16,13 +16,6 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
     orderBy: {
       name: "desc",
     },
-    include: {
-      _count: {
-        select: {
-          scores: true,
-        },
-      },
-    },
   });
 
   const categories = await prismadb.category.findMany({

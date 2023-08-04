@@ -16,46 +16,64 @@ model Category {
   games     Game[]
 }
 
+enum ScoreType {
+  time
+  points
+}
+
 model Game {
-  id          String   @id @default(uuid())
-  name        String
-  description String
-  imageSrc    String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  scores      Score[]
-  category    Category @relation(fields: [categoryId], references: [id])
-  categoryId  String
-  lobbies     Lobby[]
+  id            String             @id @default(uuid())
+  name          String
+  description   String
+  imageSrc      String
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  category      Category           @relation(fields: [categoryId], references: [id])
+  categoryId    String
+  lobbies       Lobby[]
+  averageScores GameAverageScore[]
+  scoreType     ScoreType
 
   @@index([categoryId])
 }
 
 model Lobby {
-  id          String   @id @default(uuid())
-  name        String
-  description String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  game        Game     @relation(fields: [gameId], references: [id])
-  gameId      String
-  scores      Score[]
+  id               String   @id @default(uuid())
+  name             String
+  description      String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  scoreRestriction Float
+  difficulty       Int      @default(0)
+  gameId           String
+  game             Game     @relation(fields: [gameId], references: [id])
+
+  scores Score[]
 
   @@index([gameId])
 }
 
 model Score {
-  id             String   @id @default(uuid())
-  gameId         String
-  userId         String
-  lobbyId        String
-  createdAt      DateTime @default(now())
-  completionTime Decimal
-  score          Decimal
-  game           Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  Lobby          Lobby    @relation(fields: [lobbyId], references: [id])
+  id        String   @id @default(uuid())
+  userId    String
+  lobbyId   String
+  createdAt DateTime @default(now())
+  score     Float //can be either a score or a time in milliseconds
+  Lobby     Lobby    @relation(fields: [lobbyId], references: [id])
 
   // @@unique([gameId, userId, lobbyId]) // This allows a user to have a score for each game
   @@index([lobbyId])
+}
+
+model GameAverageScore {
+  id           String   @id @default(uuid())
+  userId       String
+  gameId       String
+  game         Game     @relation(fields: [gameId], references: [id])
+  timesPlayed  Int
+  averageScore Float
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
   @@index([gameId])
 }

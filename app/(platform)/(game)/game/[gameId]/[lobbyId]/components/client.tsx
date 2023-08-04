@@ -1,5 +1,3 @@
-"use client";
-
 import { Lobby, Score } from "@prisma/client";
 
 import { GameLobbyHeader } from "@/components/game-lobby-header";

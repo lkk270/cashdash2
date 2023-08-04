@@ -21,7 +21,14 @@ export const LobbyHeader = () => {
           <ChevronLeft className="w-8 h-8" />
         </Button>
       </div>
-      <h1 className="items-center">Choose a tier</h1>
+
+      <div className="text-sm text-center text-zinc-400">
+        <h1 className="items-center text-4xl font-bold">Choose a tier</h1>
+        <p className="mt-4">
+          To maintain an even playing field, better players are restricted to
+          higher tiers
+        </p>
+      </div>
       <div className="flex items-center gap-x-2"></div>
     </div>
   );
