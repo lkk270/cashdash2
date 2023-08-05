@@ -1,8 +1,10 @@
-import { redirect } from "next/navigation";
-import { auth, redirectToSignIn } from "@clerk/nextjs";
+import { redirect } from 'next/navigation';
+import { auth, redirectToSignIn } from '@clerk/nextjs';
 
-import prismadb from "@/lib/prismadb";
-import { LobbyClient } from "./components/client";
+import prismadb from '@/lib/prismadb';
+import { LobbyClient } from './components/client';
+
+import { isValidLobbyAccess } from '@/lib/utils';
 
 interface LobbyIdPageProps {
   params: {
@@ -26,12 +28,13 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
     include: {
       scores: {
         orderBy: {
-          createdAt: "asc",
+          createdAt: 'asc',
         },
         where: {
           userId,
         },
       },
+      game: {},
       _count: {
         select: {
           scores: true,
@@ -42,7 +45,7 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
 
   if (!lobby) {
     redirect(`/game/${gameId}`);
-  }
+  } 
 
   return <LobbyClient lobby={lobby} />;
 };

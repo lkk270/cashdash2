@@ -47,8 +47,7 @@ model Lobby {
   difficulty       Int      @default(0)
   gameId           String
   game             Game     @relation(fields: [gameId], references: [id])
-
-  scores Score[]
+  scores           Score[]
 
   @@index([gameId])
 }

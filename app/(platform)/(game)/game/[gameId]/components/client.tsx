@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { Game, Lobby, GameAverageScore } from "@prisma/client";
+import { Game, Lobby, GameAverageScore } from '@prisma/client';
 
-import { cn } from "@/lib/utils";
-import { Lobbies } from "@/components/lobbies";
-import { LobbyHeader } from "@/components/lobby-header";
+import { cn } from '@/lib/utils';
+import { Lobbies } from '@/components/lobbies';
+import { LobbyHeader } from '@/components/lobby-header';
 
 // interface GameClientPageProps {
 //   data: Lobby[];
@@ -24,6 +24,7 @@ interface GameClientPageProps {
 }
 
 export const GameClient = async ({ data }: GameClientPageProps) => {
+  console.log(data);
   return (
     <div className="h-full p-4 space-y-2">
       <div className="flex justify-center w-full p-1 pb-5">

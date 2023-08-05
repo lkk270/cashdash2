@@ -21,7 +21,7 @@ const GameIdPage = async ({ params }: GameIdPageProps) => {
     return redirectToSignIn;
   }
 
-  console.log(userId);
+  // console.log(userId);
 
   const game = await prismadb.game.findUnique({
     where: {
