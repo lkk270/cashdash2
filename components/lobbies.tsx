@@ -31,7 +31,7 @@ export const Lobbies = ({ data }: LobbiesProps) => {
           });
 
           return (
-            <div key={item.name}>
+            <>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -74,7 +74,7 @@ export const Lobbies = ({ data }: LobbiesProps) => {
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-            </div>
+            </>
           );
         })}
       </div>
