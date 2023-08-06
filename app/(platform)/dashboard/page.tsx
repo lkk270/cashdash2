@@ -1,6 +1,6 @@
-import prismadb from "@/lib/prismadb";
-import { Categories } from "@/components/categories";
-import { Games } from "@/components/games";
+import prismadb from '@/lib/prismadb';
+import { Categories } from '@/components/categories';
+import { Games } from '@/components/games';
 
 interface DashboardPageProps {
   searchParams: {
@@ -14,13 +14,13 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
       categoryId: searchParams.categoryId,
     },
     orderBy: {
-      name: "desc",
+      name: 'desc',
     },
   });
 
   const categories = await prismadb.category.findMany({
     orderBy: {
-      createdAt: "asc",
+      createdAt: 'asc',
     },
   });
   return (

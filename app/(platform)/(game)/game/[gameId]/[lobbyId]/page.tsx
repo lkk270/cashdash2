@@ -3,8 +3,9 @@ import { auth, redirectToSignIn } from '@clerk/nextjs';
 
 import prismadb from '@/lib/prismadb';
 import { LobbyClient } from './components/client';
-
+import { DashboardLayout } from '@/components/dashboard-layout';
 import { isValidLobbyAccess } from '@/lib/utils';
+import { EmptyState } from '@/components/empty-state';
 
 interface LobbyIdPageProps {
   params: {
@@ -16,6 +17,7 @@ interface LobbyIdPageProps {
 const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
   const { userId, user } = auth();
   const gameId = params.gameId;
+  let isValidAccess = false;
 
   if (!userId) {
     return redirectToSignIn;
@@ -43,9 +45,43 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
     },
   });
 
+  if (lobby) {
+    const game = await prismadb.game.findUnique({
+      where: {
+        id: lobby.gameId,
+      },
+      include: {
+        averageScores: {
+          where: {
+            userId: userId,
+          },
+        },
+      },
+    });
+    if (game) {
+      isValidAccess = isValidLobbyAccess({
+        scoreType: game.scoreType,
+        averageScore: game.averageScores[0].averageScore,
+        scoreRestriction: lobby.scoreRestriction,
+      });
+    }
+  }
   if (!lobby) {
     redirect(`/game/${gameId}`);
-  } 
+  }
+  if (isValidAccess === false) {
+    return (
+      <DashboardLayout
+        children={
+          <EmptyState
+            withBackButton={true}
+            title="👾 Invalid Access 👾"
+            subtitle="You're too good of a player to access this tier! 👾"
+          />
+        }
+      />
+    );
+  }
 
   return <LobbyClient lobby={lobby} />;
 };

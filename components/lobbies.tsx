@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -9,6 +10,7 @@ import { Game, Lobby, GameAverageScore } from '@prisma/client';
 import { isValidLobbyAccess } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Card, CardFooter, CardHeader } from '@/components/ui/card';
+
 interface LobbiesProps {
   data: Game & {
     lobbies: Lobby[];
@@ -24,14 +26,14 @@ export const Lobbies = ({ data }: LobbiesProps) => {
     <div className="flex justify-center">
       <div className="grid justify-center grid-cols-1 gap-2 px-10 pb-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {data.lobbies.map((item) => {
-          let disableCard = isValidLobbyAccess({
+          let disableCard = !isValidLobbyAccess({
             scoreType: scoreType,
             averageScore: averageScore,
             scoreRestriction: item.scoreRestriction,
           });
 
           return (
-            <>
+            <React.Fragment key={item.name}>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -74,7 +76,7 @@ export const Lobbies = ({ data }: LobbiesProps) => {
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-            </>
+            </React.Fragment>
           );
         })}
       </div>

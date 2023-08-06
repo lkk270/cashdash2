@@ -24,7 +24,6 @@ interface GameClientPageProps {
 }
 
 export const GameClient = async ({ data }: GameClientPageProps) => {
-  console.log(data);
   return (
     <div className="h-full p-4 space-y-2">
       <div className="flex justify-center w-full p-1 pb-5">

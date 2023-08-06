@@ -10,16 +10,16 @@ export function isValidLobbyAccess(inputs: {
   averageScore: number | null;
   scoreRestriction: number;
 }): boolean {
-  let disableCard = false;
+  let isValidLobbyAccess = true;
 
   if (inputs.averageScore !== null) {
     if (
       (inputs.scoreType === 'time' && inputs.averageScore < inputs.scoreRestriction) ||
       (inputs.scoreType === 'points' && inputs.averageScore > inputs.scoreRestriction)
     ) {
-      disableCard = true;
+      isValidLobbyAccess = false;
     }
   }
 
-  return disableCard;
+  return isValidLobbyAccess;
 }

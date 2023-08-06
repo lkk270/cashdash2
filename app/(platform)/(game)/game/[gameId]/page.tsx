@@ -1,12 +1,12 @@
-import { auth, redirectToSignIn } from "@clerk/nextjs";
+import { auth, redirectToSignIn } from '@clerk/nextjs';
 
-import prismadb from "@/lib/prismadb";
-import { redirect } from "next/navigation";
+import prismadb from '@/lib/prismadb';
+import { redirect } from 'next/navigation';
 
-import { GameClient } from "./components/client";
-import { DashboardLayout } from "@/components/dashboard-layout";
-import { Suspense } from "react";
-import { link } from "fs";
+import { GameClient } from './components/client';
+import { DashboardLayout } from '@/components/dashboard-layout';
+import { Suspense } from 'react';
+import { link } from 'fs';
 
 interface GameIdPageProps {
   params: {
@@ -21,8 +21,6 @@ const GameIdPage = async ({ params }: GameIdPageProps) => {
     return redirectToSignIn;
   }
 
-  // console.log(userId);
-
   const game = await prismadb.game.findUnique({
     where: {
       id: params.gameId,
@@ -30,7 +28,7 @@ const GameIdPage = async ({ params }: GameIdPageProps) => {
     include: {
       lobbies: {
         orderBy: {
-          difficulty: "asc",
+          difficulty: 'asc',
         },
       },
       averageScores: {
@@ -42,10 +40,10 @@ const GameIdPage = async ({ params }: GameIdPageProps) => {
   });
 
   if (!game) {
-    return redirect("/dashboard");
+    return redirect('/dashboard');
   }
   if (game.averageScores.length === 0) {
-    throw new Error("Invalid game");
+    throw new Error('Invalid game');
   }
 
   return <DashboardLayout children={<GameClient data={game} />} />;
