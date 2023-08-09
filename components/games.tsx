@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import Link from "next/link";
-import { Game } from "@prisma/client";
-import { Play } from "lucide-react";
+import Image from 'next/image';
+import Link from 'next/link';
+import { Game } from '@prisma/client';
+import { Play } from 'lucide-react';
 
-import { Card, CardFooter, CardHeader } from "@/components/ui/card";
+import { Card, CardFooter, CardHeader } from '@/components/ui/card';
 
 interface GamesProps {
   data: Game[];

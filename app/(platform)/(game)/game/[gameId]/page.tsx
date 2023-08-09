@@ -5,8 +5,6 @@ import { redirect } from 'next/navigation';
 
 import { GameClient } from './components/client';
 import { DashboardLayout } from '@/components/dashboard-layout';
-import { Suspense } from 'react';
-import { link } from 'fs';
 
 interface GameIdPageProps {
   params: {

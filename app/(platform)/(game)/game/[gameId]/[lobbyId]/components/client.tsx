@@ -1,7 +1,9 @@
 'use client';
 
 import { Lobby, Score } from '@prisma/client';
-import { GameLobbyHeader } from '@/components/game-lobby-header';
+import { GameNavbar } from '@/components/game-navbar';
+import { ScoresTable } from '@/components/scores-table';
+import { LobbyHeader } from '@/components/lobby-header';
 
 interface LobbyClientProps {
   lobby: Lobby & {
@@ -14,9 +16,16 @@ interface LobbyClientProps {
 
 export const LobbyClient = ({ lobby }: LobbyClientProps) => {
   return (
-    <div className="w-full h-full max-w-4xl mx-auto">
-      <div className="flex flex-col h-full p-4 space-y-2">
-        <GameLobbyHeader lobby={lobby} />
+    <div>
+      <GameNavbar lobby={lobby} />
+      <div className="fixed inset-y-0 flex-col hidden mt-16 ml-8 w-30 xl:flex">
+        <ScoresTable />
+      </div>
+      <div className="pt-16 md:pl-20">
+        <div className="space-y-2 ">
+          <div className="flex justify-center w-full p-1 pb-5">GAME</div>
+          {/* <Lobbies data={data} /> */}
+        </div>
       </div>
     </div>
   );

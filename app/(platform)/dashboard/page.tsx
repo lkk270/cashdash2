@@ -1,6 +1,7 @@
 import prismadb from '@/lib/prismadb';
 import { Categories } from '@/components/categories';
 import { Games } from '@/components/games';
+import { ScoresTable } from '@/components/scores-table';
 
 interface DashboardPageProps {
   searchParams: {

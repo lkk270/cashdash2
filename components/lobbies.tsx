@@ -5,8 +5,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Game, Lobby, GameAverageScore } from '@prisma/client';
-// import { Play } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 
+import { Button } from '@/components/ui/button';
 import { isValidLobbyAccess } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Card, CardFooter, CardHeader } from '@/components/ui/card';
@@ -21,10 +22,11 @@ export const Lobbies = ({ data }: LobbiesProps) => {
   const pathname = usePathname();
   const averageScore = data.averageScores.length > 0 ? data.averageScores[0].averageScore : null;
   const scoreType = data.scoreType;
+  const beatTitle = scoreType === 'time' ? 'Time' : 'Score';
 
   return (
     <div className="flex justify-center">
-      <div className="grid justify-center grid-cols-1 gap-2 px-10 pb-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid justify-center grid-cols-1 gap-2 px-10 pb-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
         {data.lobbies.map((item) => {
           let disableCard = !isValidLobbyAccess({
             scoreType: scoreType,
@@ -61,12 +63,14 @@ export const Lobbies = ({ data }: LobbiesProps) => {
                           <p className="text-xs text-left">{item.description}</p>
                         </CardHeader>
                         <CardFooter className="flex items-center justify-between text-xs text-muted-foreground">
-                          {/* <div className="flex items-center">
-                  <Play className="w-3 h-3 mr-1" />
-                  {item._count.scores}
-                </div> */}
+                          <div className="flex items-center">
+                            <ArrowUpRight className="w-3 h-3 mr-1" />
+                            {beatTitle} to beat:
+                            {item.scoreRestriction}
+                          </div>
                         </CardFooter>
                       </Link>
+                      {/* <Button>Score</Button> */}
                     </Card>
                   </TooltipTrigger>
                   <TooltipContent>
