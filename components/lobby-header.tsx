@@ -2,10 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { ChevronLeft } from 'lucide-react';
-
-import Logo from '@/components/logo';
 import { Button } from '@/components/ui/button';
-import { ModeToggle } from '@/components/mode-toggle';
 
 export const LobbyHeader = () => {
   const router = useRouter();
@@ -24,9 +21,7 @@ export const LobbyHeader = () => {
           To maintain an even playing field, better players are restricted to higher tiers
         </p>
       </div>
-      <div className="flex items-center gap-x-2">
-        <Button>TIME LEFT</Button>{' '}
-      </div>
+      <div className="flex items-center gap-x-2">{/* <Button>TIME LEFT</Button> */}</div>
     </div>
   );
 };

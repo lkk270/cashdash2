@@ -15,7 +15,8 @@ interface LobbyIdPageProps {
 }
 
 const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
-  const { userId, user } = auth();
+  const { userId } = auth();
+  let game = null;
   const gameId = params.gameId;
   let isValidAccess = false;
 
@@ -46,7 +47,7 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
   });
 
   if (lobby) {
-    const game = await prismadb.game.findUnique({
+    game = await prismadb.game.findUnique({
       where: {
         id: lobby.gameId,
       },
@@ -81,9 +82,9 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
         }
       />
     );
+  } else if (game) {
+    return <LobbyClient game={game} lobby={lobby} />;
   }
-
-  return <LobbyClient lobby={lobby} />;
 };
 
 export default LobbyIdPage;

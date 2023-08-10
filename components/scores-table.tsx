@@ -8,9 +8,16 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Lobby } from '@prisma/client';
+
 import { Star } from 'lucide-react';
 
+import { CountdownTimer } from '@/components/countdown-timer';
 import { Button } from '@/components/ui/button';
+
+interface ScoresTableProps {
+  lobby: Lobby;
+}
 
 const invoices = [
   {
@@ -66,7 +73,7 @@ const invoices = [
     paymentStatus: '4:12',
   },
 ];
-export function ScoresTable() {
+export const ScoresTable = ({ lobby }: ScoresTableProps) => {
   const [isVisible, setIsVisible] = useState(true);
   const toggleTable = () => {
     setIsVisible(!isVisible);
@@ -86,32 +93,44 @@ export function ScoresTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {invoices.map((invoice, i) => (
-              <TableRow key={invoice.invoice} className="border-b border-primary/10">
-                <TableCell
-                  style={{ width: '160px', wordBreak: 'break-all' }}
-                  className="flex items-start space-x-2"
+            {invoices.map((invoice, i) => {
+              let tableValueColor =
+                i === 0
+                  ? '#FFD700'
+                  : i === 1
+                  ? '#C0C0C0'
+                  : i === 2
+                  ? '#CD7F32'
+                  : i < lobby.numRewards
+                  ? '#429ADD'
+                  : '';
+
+              return (
+                <TableRow
+                  style={{ color: tableValueColor }}
+                  key={invoice.invoice}
+                  className={`border-b border-primary/10 ${
+                    i < lobby.numRewards ? 'font-extrabold' : ''
+                  }`}
                 >
-                  {/* <span className="flex font-bold">
+                  <TableCell
+                    style={{ width: '160px', wordBreak: 'break-all' }}
+                    className="flex items-start space-x-2 "
+                  >
+                    {/* <span className="flex font-bold">
                     <Star />
                     <span className="whitespace-nowrap">{i + 100}.</span>
                   </span> */}
-                  <span
-                    className="font-bold whitespace-nowrap"
-                    style={{
-                      color: i === 0 ? '#FFD700' : i === 1 ? '#C0C0C0' : i === 2 ? '#CD7F32' : '',
-                    }}
-                  >
-                    {i + 1}.
-                  </span>
-                  <span className="flex-grow">{invoice.invoice}</span>
-                </TableCell>
-                <TableCell>{invoice.paymentStatus}</TableCell>
-              </TableRow>
-            ))}
+                    <span className="whitespace-nowrap">{i + 1}.</span>
+                    <span className="flex-grow">{invoice.invoice}</span>
+                  </TableCell>
+                  <TableCell>{invoice.paymentStatus}</TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       )}
     </div>
   );
-}
+};

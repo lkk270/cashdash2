@@ -46,6 +46,8 @@ model Lobby {
   scoreRestriction Float
   difficulty       Int      @default(0)
   gameId           String
+  numRewards       Int      @default(3)
+  expiredDateTime  DateTime @default(now())
   game             Game     @relation(fields: [gameId], references: [id])
   scores           Score[]
 

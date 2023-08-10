@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { isValidLobbyAccess } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Card, CardFooter, CardHeader } from '@/components/ui/card';
+import { CountdownTimer } from '@/components/countdown-timer';
 
 interface LobbiesProps {
   data: Game & {
@@ -26,7 +27,7 @@ export const Lobbies = ({ data }: LobbiesProps) => {
 
   return (
     <div className="flex justify-center">
-      <div className="grid justify-center grid-cols-1 gap-2 px-10 pb-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
+      <div className="grid justify-center grid-cols-1 gap-2 px-10 pb-10 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3">
         {data.lobbies.map((item) => {
           let disableCard = !isValidLobbyAccess({
             scoreType: scoreType,
@@ -45,6 +46,13 @@ export const Lobbies = ({ data }: LobbiesProps) => {
                         disableCard ? 'opacity-40' : 'hover:opacity-75 cursor-pointer'
                       }`}
                     >
+                      <div className="flex justify-center pt-4">
+                        <CountdownTimer
+                          textSize={'text-sm'}
+                          targetDate={new Date('2023-08-11T17:36:00Z')}
+                        />
+                      </div>
+                      {/* <Button>HEE</Button> */}
                       <Link
                         href={disableCard ? pathname : `${pathname}/${item.id}`}
                         onClick={disableCard ? (event) => event.preventDefault() : undefined}

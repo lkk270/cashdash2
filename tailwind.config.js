@@ -25,6 +25,12 @@ module.exports = {
       },
     },
     extend: {
+      backgroundImage: {
+        gradient: 'linear-gradient(to right, purple, pink)',
+      },
+      backgroundClip: {
+        text: 'text',
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
