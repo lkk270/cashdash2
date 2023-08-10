@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Game, Lobby, GameAverageScore } from '@prisma/client';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, Trophy } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { isValidLobbyAccess } from '@/lib/utils';
@@ -46,13 +46,22 @@ export const Lobbies = ({ data }: LobbiesProps) => {
                         disableCard ? 'opacity-40' : 'hover:opacity-75 cursor-pointer'
                       }`}
                     >
-                      <div className="flex justify-center pt-4">
+                      <div className="relative flex items-center justify-center pt-4">
+                        <Button
+                          title="Details"
+                          onClick={() => {}}
+                          size="icon"
+                          variant="ghost"
+                          className="absolute top-0 right-0"
+                        >
+                          <Trophy className="w-6 h-6" />
+                        </Button>
                         <CountdownTimer
                           textSize={'text-sm'}
                           targetDate={new Date('2023-08-11T17:36:00Z')}
                         />
                       </div>
-                      {/* <Button>HEE</Button> */}
+
                       <Link
                         href={disableCard ? pathname : `${pathname}/${item.id}`}
                         onClick={disableCard ? (event) => event.preventDefault() : undefined}
@@ -73,9 +82,9 @@ export const Lobbies = ({ data }: LobbiesProps) => {
                         <CardFooter className="flex items-center justify-between text-xs text-muted-foreground">
                           <div className="flex items-center">
                             <ArrowUpRight className="w-3 h-3 mr-1" />
-                            {beatTitle} to beat:
-                            {item.scoreRestriction}
+                            Current best {beatTitle.toLowerCase()}: {item.scoreRestriction}
                           </div>
+                          <div>Top {item.numRewards} scores</div>
                         </CardFooter>
                       </Link>
                       {/* <Button>Score</Button> */}
