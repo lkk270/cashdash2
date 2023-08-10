@@ -24,7 +24,7 @@ export const GameNavbar = ({ lobby }: LobbyHeaderProps) => {
   const backPath = pathname.split('/').slice(0, -1).join('/');
 
   return (
-    <div className="w-full h-full max-w-4xl mx-auto">
+    <div className="w-full max-w-4xl mx-auto">
       <div className="flex flex-col h-full p-4 space-y-2">
         <div className="flex items-center justify-between w-full pb-4 border-b border-primary/10">
           <div className="flex items-center gap-x-2">

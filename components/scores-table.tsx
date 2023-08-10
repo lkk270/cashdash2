@@ -8,6 +8,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Star } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 
 const invoices = [
@@ -39,27 +41,44 @@ const invoices = [
     invoice: 'ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ',
     paymentStatus: '5:23',
   },
+  {
+    invoice: 'xaxi2',
+    paymentStatus: '3:40',
+  },
+  {
+    invoice: 'dantheman',
+    paymentStatus: '3:59',
+  },
+  {
+    invoice: 'leetheeel',
+    paymentStatus: '4:12',
+  },
+  {
+    invoice: 'xaxi2',
+    paymentStatus: '3:40',
+  },
+  {
+    invoice: 'dantheman',
+    paymentStatus: '3:59',
+  },
+  {
+    invoice: 'leetheeel',
+    paymentStatus: '4:12',
+  },
 ];
 export function ScoresTable() {
-  // 1. Set up the state variable
   const [isVisible, setIsVisible] = useState(true);
-
-  // 2. Create the event handler function
   const toggleTable = () => {
     setIsVisible(!isVisible);
   };
 
   return (
-    <div className="flex flex-col h-full space-y-4 overflow-y-scroll text-primary bg-secondary">
-      {/* 3. Attach the event handler to the button and display the text based on the isVisible value */}
-      <Button variant="default" onClick={toggleTable}>
-        {isVisible ? 'Hide' : 'Show'}
-      </Button>
-
-      {/* 4. Adjust the rendered output based on the isVisible value */}
+    <div className="flex flex-col justify-center h-full space-y-3 overflow-y-scroll text-primary bg-secondary">
+      <div className="flex justify-center">
+        <h1 className="text-xl font-bold">Top 100 Scores</h1>
+      </div>
       {isVisible && (
         <Table>
-          {/* <TableCaption>A list of your recent invoices.</TableCaption> */}
           <TableHeader>
             <TableRow className="border-b border-primary/10">
               <TableHead>Username</TableHead>
@@ -67,15 +86,26 @@ export function ScoresTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {invoices.map((invoice) => (
+            {invoices.map((invoice, i) => (
               <TableRow key={invoice.invoice} className="border-b border-primary/10">
                 <TableCell
-                  style={{ width: '150px', wordBreak: 'break-all' }}
-                  className="font-medium"
+                  style={{ width: '160px', wordBreak: 'break-all' }}
+                  className="flex items-start space-x-2"
                 >
-                  {invoice.invoice}
+                  {/* <span className="flex font-bold">
+                    <Star />
+                    <span className="whitespace-nowrap">{i + 100}.</span>
+                  </span> */}
+                  <span
+                    className="font-bold whitespace-nowrap"
+                    style={{
+                      color: i === 0 ? '#FFD700' : i === 1 ? '#C0C0C0' : i === 2 ? '#CD7F32' : '',
+                    }}
+                  >
+                    {i + 1}.
+                  </span>
+                  <span className="flex-grow">{invoice.invoice}</span>
                 </TableCell>
-
                 <TableCell>{invoice.paymentStatus}</TableCell>
               </TableRow>
             ))}
