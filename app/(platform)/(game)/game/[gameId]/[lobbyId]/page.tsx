@@ -73,6 +73,7 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
   if (isValidAccess === false) {
     return (
       <DashboardLayout
+        isPro={true}
         children={
           <EmptyState
             withBackButton={true}
@@ -82,9 +83,8 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
         }
       />
     );
-  } else if (game) {
-    return <LobbyClient game={game} lobby={lobby} />;
   }
+  return <LobbyClient game={game!} lobby={lobby} />;
 };
 
 export default LobbyIdPage;

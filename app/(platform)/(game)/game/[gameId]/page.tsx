@@ -3,6 +3,7 @@ import { auth, redirectToSignIn } from '@clerk/nextjs';
 import prismadb from '@/lib/prismadb';
 import { redirect } from 'next/navigation';
 
+import { checkSubscription } from '@/lib/subscription';
 import { GameClient } from './components/client';
 import { DashboardLayout } from '@/components/dashboard-layout';
 
@@ -14,6 +15,7 @@ interface GameIdPageProps {
 
 const GameIdPage = async ({ params }: GameIdPageProps) => {
   const { userId } = auth();
+  const isPro = await checkSubscription();
 
   if (!userId) {
     return redirectToSignIn;
@@ -44,7 +46,7 @@ const GameIdPage = async ({ params }: GameIdPageProps) => {
     throw new Error('Invalid game');
   }
 
-  return <DashboardLayout children={<GameClient data={game} />} />;
+  return <DashboardLayout isPro={isPro} children={<GameClient data={game} />} />;
 };
 
 export default GameIdPage;

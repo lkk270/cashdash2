@@ -9,13 +9,19 @@ import Logo from '@/components/logo';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
 import { MobileSidebar } from '@/components/mobile-sidebar';
+import { useProModal } from '@/hooks/use-pro-modal';
 
 const font = Poppins({
   weight: '600',
   subsets: ['latin'],
 });
 
-export const Navbar = () => {
+interface NavbarProps {
+  isPro: boolean;
+}
+
+export const Navbar = ({ isPro }: NavbarProps) => {
+  const proModal = useProModal();
   return (
     <div className="fixed z-50 flex items-center justify-between w-full h-16 px-4 py-2 border-b border-primary/10 bg-secondary">
       <div className="flex items-center">
@@ -36,10 +42,17 @@ export const Navbar = () => {
       </div>
       <div className="flex items-center gap-x-3">
         <div className="flex items-center sm:flex gap-x-3">
-          <Button variant="premium" size="sm" className="hidden xs:flex">
-            <Ban className="w-4 h-4 mr-3 text-white" />
-            Ads
-          </Button>
+          {!isPro && (
+            <Button
+              onClick={proModal.onOpen}
+              variant="premium"
+              size="sm"
+              className="hidden xs:flex"
+            >
+              <Ban className="w-4 h-4 mr-3 text-white" />
+              Ads
+            </Button>
+          )}
           <Bell />
           <ModeToggle />
         </div>
