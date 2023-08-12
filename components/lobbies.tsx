@@ -5,13 +5,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Game, Lobby, GameAverageScore } from '@prisma/client';
-import { ArrowUpRight, Trophy } from 'lucide-react';
+import { ArrowUpRight, Crown, HelpCircle } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { isValidLobbyAccess } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Card, CardFooter, CardHeader } from '@/components/ui/card';
 import { CountdownTimer } from '@/components/countdown-timer';
+import { convertMillisecondsToMinSec } from '@/lib/utils';
 
 interface LobbiesProps {
   data: Game & {
@@ -47,6 +48,9 @@ export const Lobbies = ({ data }: LobbiesProps) => {
                       }`}
                     >
                       <div className="relative flex items-center justify-center pt-4">
+                        <div className="absolute top-0 left-0 flex pt-3 pl-2 text-sm gap-x-1">
+                          <Crown className="w-5 h-5" />${item.firstPlace}
+                        </div>
                         <Button
                           title="Details"
                           onClick={() => {}}
@@ -54,11 +58,11 @@ export const Lobbies = ({ data }: LobbiesProps) => {
                           variant="ghost"
                           className="absolute top-0 right-0"
                         >
-                          <Trophy className="w-6 h-6" />
+                          <HelpCircle className="w-6 h-6" />
                         </Button>
                         <CountdownTimer
                           textSize={'text-sm'}
-                          targetDate={new Date('2023-08-11T17:36:00Z')}
+                          targetDate={new Date(Date.UTC(2023, 7, 11, 16, 0, 0))}
                         />
                       </div>
 
@@ -82,9 +86,10 @@ export const Lobbies = ({ data }: LobbiesProps) => {
                         <CardFooter className="flex items-center justify-between text-xs text-muted-foreground">
                           <div className="flex items-center">
                             <ArrowUpRight className="w-3 h-3 mr-1" />
-                            Current best {beatTitle.toLowerCase()}: {item.scoreRestriction}
+                            Current best {beatTitle.toLowerCase()}:{' '}
+                            {convertMillisecondsToMinSec(item.scoreRestriction)}
                           </div>
-                          <div>Top {item.numRewards} scores</div>
+                          <div>$ Top {item.numRewards} scores</div>
                         </CardFooter>
                       </Link>
                       {/* <Button>Score</Button> */}

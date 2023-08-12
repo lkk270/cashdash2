@@ -18,7 +18,7 @@ export const CountdownTimer = ({ targetDate, textSize }: CountdownProps) => {
 
   useEffect(() => {
     const updateTimer = () => {
-      const now = new Date().getTime();
+      const now = Date.now();
       const distance = targetDate.getTime() - now;
 
       if (distance <= 0) {
@@ -45,10 +45,12 @@ export const CountdownTimer = ({ targetDate, textSize }: CountdownProps) => {
 
   return (
     <div className="flex space-x-4">
-      <div className="flex flex-col items-center">
-        <div className={`font-bold ${textSize}`}>{timeLeft.days}</div>
-        <div className={`${textSize}`}>Days</div>
-      </div>
+      {timeLeft.days > 0 && (
+        <div className="flex flex-col items-center">
+          <div className={`font-bold ${textSize}`}>{timeLeft.days}</div>
+          <div className={`${textSize}`}>Days</div>
+        </div>
+      )}
       <div className="flex flex-col items-center">
         <div className={`font-bold ${textSize}`}>{timeLeft.hours}</div>
         <div className={`${textSize}`}>Hours</div>

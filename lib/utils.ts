@@ -20,6 +20,12 @@ export function isValidLobbyAccess(inputs: {
       isValidLobbyAccess = false;
     }
   }
-
   return isValidLobbyAccess;
 }
+
+export const convertMillisecondsToMinSec = (ms: number): string => {
+  const total_seconds: number = Math.floor(ms / 1000);
+  const minutes: number = Math.floor(total_seconds / 60);
+  const seconds: number = total_seconds % 60;
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+};

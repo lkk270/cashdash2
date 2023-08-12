@@ -25,7 +25,6 @@ interface LobbyHeaderProps {
 }
 
 export const GameNavbar = ({ lobby, game }: LobbyHeaderProps) => {
-  console.log(game);
   const router = useRouter();
   const pathname = usePathname();
   const backPath = pathname.split('/').slice(0, -1).join('/');
@@ -36,7 +35,12 @@ export const GameNavbar = ({ lobby, game }: LobbyHeaderProps) => {
         <div className="flex items-center justify-between w-full pb-4 border-b border-primary/10">
           <div className="flex items-center gap-x-2">
             <MobileScoresTable lobby={lobby} />
-            <Button onClick={() => router.push(backPath)} size="icon" variant="gradient1">
+            <Button
+              onClick={() => router.push(backPath)}
+              size="icon"
+              variant="gradient1"
+              className="hidden sm:flex"
+            >
               <ChevronLeft className="w-8 h-8" />
             </Button>
             <div className="items-center hidden pl-3 sm:flex gap-x-3">
