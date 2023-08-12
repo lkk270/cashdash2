@@ -1,18 +1,14 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import Link from "next/link";
-import { Game } from "@prisma/client";
-import { Play } from "lucide-react";
+import Image from 'next/image';
+import Link from 'next/link';
+import { Game } from '@prisma/client';
+import { Play } from 'lucide-react';
 
-import { Card, CardFooter, CardHeader } from "@/components/ui/card";
+import { Card, CardFooter, CardHeader } from '@/components/ui/card';
 
 interface GamesProps {
-  data: (Game & {
-    _count: {
-      scores: number;
-    };
-  })[];
+  data: Game[];
 }
 
 export const Games = ({ data }: GamesProps) => {
@@ -37,10 +33,10 @@ export const Games = ({ data }: GamesProps) => {
               <p className="text-xs text-left">{item.description}</p>
             </CardHeader>
             <CardFooter className="flex items-center justify-between text-xs text-muted-foreground">
-              <div className="flex items-center">
+              {/* <div className="flex items-center">
                 <Play className="w-3 h-3 mr-1" />
                 {item._count.scores}
-              </div>
+              </div> */}
             </CardFooter>
           </Link>
         </Card>

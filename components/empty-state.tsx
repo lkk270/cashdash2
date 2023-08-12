@@ -1,17 +1,18 @@
-"use client";
-import Image from "next/image";
+'use client';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
-import { Heading } from "@/components/heading";
+import { Heading } from '@/components/heading';
+import { Button } from '@/components/ui/button';
 
 interface EmptyStateProps {
-  title?: string;
-  subtitle?: string;
+  withBackButton?: boolean;
+  title: string;
+  subtitle: string;
 }
 
-const EmptyState: React.FC<EmptyStateProps> = ({
-  title = "Uh Oh",
-  subtitle = "Something went wrong!",
-}) => {
+export const EmptyState = ({ title, subtitle, withBackButton }: EmptyStateProps) => {
+  const router = useRouter();
   return (
     <div
       className="
@@ -25,16 +26,13 @@ const EmptyState: React.FC<EmptyStateProps> = ({
     >
       <Heading center title={title} subtitle={subtitle} />
       <div className="relative w-60 h-60">
-        <Image
-          draggable={false}
-          height={600}
-          width={600}
-          src="/images/empty.png"
-          alt="Empty"
-        />
+        <Image draggable={false} height={600} width={600} src="/images/empty.png" alt="Empty" />
       </div>
+      {withBackButton ? (
+        <Button variant="default" size="sm" onClick={() => router.push('/dashboard')}>
+          Go back to dashboard
+        </Button>
+      ) : null}
     </div>
   );
 };
-
-export default EmptyState;

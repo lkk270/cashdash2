@@ -1,10 +1,10 @@
-import { auth, redirectToSignIn } from "@clerk/nextjs";
+import { auth, redirectToSignIn } from '@clerk/nextjs';
 
-import prismadb from "@/lib/prismadb";
-import { redirect } from "next/navigation";
-import { GameClient } from "./components/client";
-import { DashboardLayout } from "@/components/dashboard-layout";
-import { Suspense } from "react";
+import prismadb from '@/lib/prismadb';
+import { redirect } from 'next/navigation';
+
+import { GameClient } from './components/client';
+import { DashboardLayout } from '@/components/dashboard-layout';
 
 interface GameIdPageProps {
   params: {
@@ -26,17 +26,25 @@ const GameIdPage = async ({ params }: GameIdPageProps) => {
     include: {
       lobbies: {
         orderBy: {
-          createdAt: "asc",
+          difficulty: 'asc',
+        },
+      },
+      averageScores: {
+        where: {
+          userId: userId,
         },
       },
     },
   });
 
   if (!game) {
-    return redirect("/dashboard");
+    return redirect('/dashboard');
+  }
+  if (game.averageScores.length === 0) {
+    throw new Error('Invalid game');
   }
 
-  return <DashboardLayout children={<GameClient data={game.lobbies} />} />;
+  return <DashboardLayout children={<GameClient data={game} />} />;
 };
 
 export default GameIdPage;

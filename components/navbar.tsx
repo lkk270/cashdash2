@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { UserButton } from "@clerk/nextjs";
-import { Poppins } from "next/font/google";
-import { Ban } from "lucide-react";
+import Link from 'next/link';
+import { UserButton } from '@clerk/nextjs';
+import { Poppins } from 'next/font/google';
+import { Ban, Bell } from 'lucide-react';
 
-import Logo from "@/components/logo";
-import { Button } from "@/components/ui/button";
-import { ModeToggle } from "@/components/mode-toggle";
-import { MobileSidebar } from "@/components/mobile-sidebar";
+import Logo from '@/components/logo';
+import { Button } from '@/components/ui/button';
+import { ModeToggle } from '@/components/mode-toggle';
+import { MobileSidebar } from '@/components/mobile-sidebar';
 
 const font = Poppins({
-  weight: "600",
-  subsets: ["latin"],
+  weight: '600',
+  subsets: ['latin'],
 });
 
 export const Navbar = () => {
@@ -36,10 +36,11 @@ export const Navbar = () => {
       </div>
       <div className="flex items-center gap-x-3">
         <div className="flex items-center sm:flex gap-x-3">
-          <Button variant="premium" size="sm">
-            <Ban className="w-4 h-4 mr-2 mr-3 text-white" />
+          <Button variant="premium" size="sm" className="hidden xs:flex">
+            <Ban className="w-4 h-4 mr-3 text-white" />
             Ads
           </Button>
+          <Bell />
           <ModeToggle />
         </div>
         <UserButton afterSignOutUrl="/" />

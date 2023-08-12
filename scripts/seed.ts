@@ -25,6 +25,7 @@ async function main() {
       data: {
         name: "Minesweeper",
         description: "Classic minesweeper game. Win as fast as you can!",
+        scoreType: "time",
         imageSrc:
           "https://res.cloudinary.com/ddr7l73bu/image/upload/v1690849407/games/minesweeper/minesweeperThumnail_h0ug24.jpg",
         categoryId: mostlySkillCategory.id,
@@ -37,18 +38,20 @@ async function main() {
           name: "Novice",
           description:
             "Novice is open to new players or to anyone with an average completion time of greater than 10 minutes.",
+          scoreRestriction: 600000,
           gameId: minesweeper.id,
         },
         {
           name: "Pro",
           description:
             "Pro is open to new players or to anyone with an average completion of greater than 5 minutes.",
+          scoreRestriction: 300000,
           gameId: minesweeper.id,
         },
         {
           name: "Expert",
-          description:
-            "Expert is open to everyone.",
+          description: "Expert is open to everyone.",
+          scoreRestriction: 0,
           gameId: minesweeper.id,
         },
       ],

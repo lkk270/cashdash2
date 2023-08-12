@@ -1,8 +1,11 @@
-import { redirect } from "next/navigation";
-import { auth, redirectToSignIn } from "@clerk/nextjs";
+import { redirect } from 'next/navigation';
+import { auth, redirectToSignIn } from '@clerk/nextjs';
 
-import prismadb from "@/lib/prismadb";
-import { LobbyClient } from "./components/client";
+import prismadb from '@/lib/prismadb';
+import { LobbyClient } from './components/client';
+import { DashboardLayout } from '@/components/dashboard-layout';
+import { isValidLobbyAccess } from '@/lib/utils';
+import { EmptyState } from '@/components/empty-state';
 
 interface LobbyIdPageProps {
   params: {
@@ -13,7 +16,9 @@ interface LobbyIdPageProps {
 
 const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
   const { userId } = auth();
+  let game = null;
   const gameId = params.gameId;
+  let isValidAccess = false;
 
   if (!userId) {
     return redirectToSignIn;
@@ -26,12 +31,13 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
     include: {
       scores: {
         orderBy: {
-          createdAt: "asc",
+          createdAt: 'asc',
         },
         where: {
           userId,
         },
       },
+      game: {},
       _count: {
         select: {
           scores: true,
@@ -40,11 +46,45 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
     },
   });
 
+  if (lobby) {
+    game = await prismadb.game.findUnique({
+      where: {
+        id: lobby.gameId,
+      },
+      include: {
+        averageScores: {
+          where: {
+            userId: userId,
+          },
+        },
+      },
+    });
+    if (game) {
+      isValidAccess = isValidLobbyAccess({
+        scoreType: game.scoreType,
+        averageScore: game.averageScores[0].averageScore,
+        scoreRestriction: lobby.scoreRestriction,
+      });
+    }
+  }
   if (!lobby) {
     redirect(`/game/${gameId}`);
   }
-
-  return <LobbyClient lobby={lobby} />;
+  if (isValidAccess === false) {
+    return (
+      <DashboardLayout
+        children={
+          <EmptyState
+            withBackButton={true}
+            title="👾 Invalid Access 👾"
+            subtitle="You're too good of a player to access this tier! 👾"
+          />
+        }
+      />
+    );
+  } else if (game) {
+    return <LobbyClient game={game} lobby={lobby} />;
+  }
 };
 
 export default LobbyIdPage;

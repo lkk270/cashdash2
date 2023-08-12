@@ -1,38 +1,36 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import { dark, neobrutalism } from "@clerk/themes";
-import { ClerkProvider } from "@clerk/nextjs";
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import { dark, neobrutalism } from '@clerk/themes';
+import { ClerkProvider } from '@clerk/nextjs';
+import { Toaster } from '@/components/ui/toaster';
 
-import { cn } from "@/lib/utils";
-import { ThemeProvider } from "@/components/theme-provider";
+import { cn } from '@/lib/utils';
+import { ThemeProvider } from '@/components/theme-provider';
 
-import "./globals.css";
+import './globals.css';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: "Cash Dash",
-  description: "Cash Dash - Have fun, make cash",
+  title: 'Cash Dash',
+  description: 'Cash Dash - Have fun, make cash',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider
       appearance={{
         baseTheme: dark,
         layout: {
-          termsPageUrl: "https://clerk.com/terms",
+          termsPageUrl: 'https://clerk.com/terms',
         },
       }}
     >
       <html lang="en" suppressHydrationWarning>
-        <body className={cn("bg-secondary", inter.className)}>
+        <body className={cn('bg-secondary', inter.className)}>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
             {children}
+            <Toaster />
           </ThemeProvider>
         </body>
       </html>

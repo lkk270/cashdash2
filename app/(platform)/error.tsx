@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
-
-import EmptyState from "@/components/empty-state";
+import { useEffect } from 'react';
+import { DashboardLayout } from '@/components/dashboard-layout';
+import { EmptyState } from '@/components/empty-state';
 
 interface ErrorStateProps {
   error: Error;
@@ -13,7 +13,11 @@ const ErrorState: React.FC<ErrorStateProps> = ({ error }) => {
     console.error(error);
   }, [error]);
 
-  return <EmptyState title="Uh Oh" subtitle="Something went wrong!" />;
+  return (
+    <>
+      <DashboardLayout children={<EmptyState title="Uh Oh" subtitle="Something went wrong!" />} />
+    </>
+  );
 };
 
 export default ErrorState;
