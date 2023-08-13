@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dialog';
 import { useLobbyAboutModal } from '@/hooks/use-lobby-about-modal';
 import { Separator } from '@/components/ui/separator';
+import CountdownTimer from '@/components/countdown-timer';
 
 const orbitronFont = Orbitron({ subsets: ['latin'] });
 
@@ -44,8 +45,8 @@ export const LobbyAboutModal = () => {
           >
             {lobbyAboutModal.data?.gameName} {lobbyAboutModal.data?.lobby.name}
           </DialogTitle>
-          <DialogDescription className="space-y-2 text-center">
-            {/* <span className="mx-1 font-medium text-sky-500">Remove All Ads!</span> */}
+          <DialogDescription className="flex items-center justify-center space-y-2 text-center">
+            <CountdownTimer textSize={'text-sm'} targetDate={new Date('2024-08-10T17:36:00Z')} />
           </DialogDescription>
         </DialogHeader>
         <Separator />

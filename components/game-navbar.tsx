@@ -46,17 +46,25 @@ export const GameNavbar = ({ lobby, game }: LobbyHeaderProps) => {
             >
               <ChevronLeft className="w-8 h-8" />
             </Button>
-
-            <div className="items-center hidden pl-3 sm:flex gap-x-3">
-              <CountdownTimer textSize={'text-xl'} targetDate={new Date('2023-08-10T17:36:00Z')} />
+            <div className="flex items-center sm:hidden gap-x-2">
+              <Button
+                title="Details"
+                onClick={() => lobbyAboutModal.onOpen({ gameName: game.name, lobby: lobby })}
+                size="icon"
+                variant="ghost"
+              >
+                <Info className="w-6 h-6" />
+              </Button>
+            </div>
+            <div className="items-center hidden pl-3 lg:flex gap-x-3">
+              <CountdownTimer textSize={'text-sm'} targetDate={new Date('2024-08-10T17:36:00Z')} />
             </div>
           </div>
-
           {/* Center content */}
           <div className="flex flex-col items-center justify-center">
             <Logo />
             <span
-              className={`${orbitronFont.className} font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent`}
+              className={`${orbitronFont.className} font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent whitespace-nowrap`}
             >
               {game.name} {lobby.name}
             </span>
@@ -64,7 +72,7 @@ export const GameNavbar = ({ lobby, game }: LobbyHeaderProps) => {
 
           {/* Right content */}
           <div className="flex items-center justify-end gap-x-3">
-            <div className="flex items-center gap-x-2">
+            <div className="items-center hidden sm:flex gap-x-2">
               <Button
                 title="Details"
                 onClick={() => lobbyAboutModal.onOpen({ gameName: game.name, lobby: lobby })}
