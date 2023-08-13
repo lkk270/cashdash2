@@ -1,19 +1,11 @@
-"use client";
+'use client';
 
-import {
-  Home,
-  Plus,
-  Settings,
-  Scale,
-  HelpCircle,
-  CreditCard,
-  ShoppingCart,
-} from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-import Logo from "@/components/logo";
-import { usePathname, useRouter } from "next/navigation";
+import { Home, Plus, Settings, Scale, HelpCircle, CreditCard, ShoppingCart } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import Logo from '@/components/logo';
+import { usePathname, useRouter } from 'next/navigation';
 
-import { cn } from "@/lib/utils";
+import { cn } from '@/lib/utils';
 // import { useProModal } from "@/hooks/use-pro-modal";
 
 interface SidebarProps {
@@ -35,38 +27,38 @@ export const Sidebar = ({ isPro }: SidebarProps) => {
   const routes = [
     {
       icon: Home,
-      href: "/dashboard",
-      label: "Home",
+      href: '/dashboard',
+      label: 'Home',
       pro: false,
     },
     {
       icon: ShoppingCart,
-      href: "/store",
-      label: "Store",
+      href: '/store',
+      label: 'Store',
       pro: false,
     },
     {
       icon: Plus,
-      href: "/companion/new",
-      label: "Create",
+      href: '/companion/new',
+      label: 'Create',
       pro: true,
     },
     {
       icon: CreditCard,
-      href: "/payment",
-      label: "Money",
+      href: '/settings',
+      label: 'Money',
       pro: false,
     },
     {
       icon: Scale,
-      href: "/legal",
-      label: "Legal",
+      href: '/legal',
+      label: 'Legal',
       pro: false,
     },
     {
       icon: HelpCircle,
-      href: "/about",
-      label: "About",
+      href: '/about',
+      label: 'About',
       pro: false,
     },
   ];
@@ -83,8 +75,8 @@ export const Sidebar = ({ isPro }: SidebarProps) => {
               <div
                 onClick={() => onNavigate(route.href, route.pro)}
                 className={cn(
-                  "text-muted-foreground text-xs group flex p-3 w-full justify-start font-medium cursor-pointer hover:text-primary hover:bg-primary/10 rounded-lg transition",
-                  pathname === route.href && "bg-primary/10 text-primary"
+                  'text-muted-foreground text-xs group flex p-3 w-full justify-start font-medium cursor-pointer hover:text-primary hover:bg-primary/10 rounded-lg transition',
+                  pathname === route.href && 'bg-primary/10 text-primary'
                 )}
               >
                 <div className="flex flex-col items-center flex-1 gap-y-2">
@@ -92,9 +84,7 @@ export const Sidebar = ({ isPro }: SidebarProps) => {
                   {route.label}
                 </div>
               </div>
-              {(index === 2 || index === 5) && (
-                <Separator className="bg-primary/10" />
-              )}
+              {(index === 2 || index === 5) && <Separator className="bg-primary/10" />}
             </div>
           ))}
         </div>

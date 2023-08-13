@@ -5,8 +5,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Game, Lobby, GameAverageScore } from '@prisma/client';
-import { ArrowUpRight, Crown, HelpCircle } from 'lucide-react';
+import { ArrowUpRight, Crown, Info } from 'lucide-react';
 
+import { useLobbyAboutModal } from '@/hooks/use-lobby-about-modal';
 import { Button } from '@/components/ui/button';
 import { isValidLobbyAccess } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -21,6 +22,7 @@ interface LobbiesProps {
   };
 }
 export const Lobbies = ({ data }: LobbiesProps) => {
+  const lobbyAboutModal = useLobbyAboutModal();
   const pathname = usePathname();
   const averageScore = data.averageScores.length > 0 ? data.averageScores[0].averageScore : null;
   const scoreType = data.scoreType;
@@ -53,13 +55,16 @@ export const Lobbies = ({ data }: LobbiesProps) => {
                         </div>
                         <Button
                           title="Details"
-                          onClick={() => {}}
+                          onClick={() =>
+                            lobbyAboutModal.onOpen({ gameName: data.name, lobby: item })
+                          }
                           size="icon"
                           variant="ghost"
                           className="absolute top-0 right-0"
                         >
-                          <HelpCircle className="w-6 h-6" />
+                          <Info className="w-6 h-6" />
                         </Button>
+
                         <CountdownTimer
                           textSize={'text-sm'}
                           targetDate={new Date(Date.UTC(2023, 7, 11, 16, 0, 0))}

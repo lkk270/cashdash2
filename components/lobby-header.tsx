@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { HelpCircle } from 'lucide-react';
+import { Info } from 'lucide-react';
 
 export const LobbyHeader = () => {
   const router = useRouter();
@@ -23,7 +23,7 @@ export const LobbyHeader = () => {
         </p>
 
         <p className="flex justify-center mt-1 gap-x-1">
-          Click the <HelpCircle /> for more details & prize info
+          Click <Info /> for more details & prize info
         </p>
       </div>
       <div className="flex items-center gap-x-2">{/* <Button>TIME LEFT</Button> */}</div>
