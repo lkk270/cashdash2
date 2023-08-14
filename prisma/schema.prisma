@@ -48,6 +48,7 @@ model Lobby {
   gameId           String
   numRewards       Int      @default(3)
   expiredDateTime  DateTime @default(now())
+  startDateTime    DateTime @default(now())
   firstPlace       Float    @default(0)
   secondPlace      Float    @default(0)
   thirdPlace       Float    @default(0)

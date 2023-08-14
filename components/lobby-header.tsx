@@ -9,14 +9,14 @@ export const LobbyHeader = () => {
   const router = useRouter();
 
   return (
-    <div className="flex items-center justify-between w-full px-10 pb-4">
+    <div className="flex items-center justify-between w-full pb-4">
       <div className="items-center hidden sm:flex gap-x-2">
         <Button onClick={() => router.push('/dashboard')} size="icon" variant="ghost">
           <ChevronLeft className="w-8 h-8" />
         </Button>
       </div>
 
-      <div className="text-sm text-center text-zinc-400">
+      <div className="text-sm text-center text-primary/50">
         <h1 className="items-center text-4xl font-bold">Choose a tier</h1>
         <p className="mt-4">
           To maintain an even playing field, better players are restricted to higher tiers

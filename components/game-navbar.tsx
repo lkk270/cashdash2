@@ -30,7 +30,11 @@ export const GameNavbar = ({ lobby, game }: LobbyHeaderProps) => {
   const router = useRouter();
   const pathname = usePathname();
   const backPath = pathname.split('/').slice(0, -1).join('/');
-
+  const countdownData = {
+    textSize: 'text-sm',
+    expiredDateTime: lobby.expiredDateTime,
+    startDateTime: lobby.startDateTime,
+  };
   return (
     <div className="w-full max-w-4xl mx-auto">
       <div className="flex flex-col h-full p-4 space-y-2">
@@ -57,7 +61,7 @@ export const GameNavbar = ({ lobby, game }: LobbyHeaderProps) => {
               </Button>
             </div>
             <div className="items-center hidden pl-3 lg:flex gap-x-3">
-              <CountdownTimer textSize={'text-sm'} targetDate={new Date('2024-08-10T17:36:00Z')} />
+              <CountdownTimer data={countdownData} />
             </div>
           </div>
           {/* Center content */}

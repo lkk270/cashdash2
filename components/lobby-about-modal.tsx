@@ -21,7 +21,15 @@ const orbitronFont = Orbitron({ subsets: ['latin'] });
 export const LobbyAboutModal = () => {
   const lobbyAboutModal = useLobbyAboutModal();
   const [isMounted, setIsMounted] = useState(false);
-
+  const expiredDateTime =
+    lobbyAboutModal.data?.lobby.expiredDateTime || new Date(Date.now() - 5 * 60 * 1000); //if not found it will set a JavaScript Date object to represent 5 minutes in the past from the current time. But this will never happen.
+  const startDateTime =
+    lobbyAboutModal.data?.lobby.startDateTime || new Date(Date.now() - 5 * 60 * 1000); //""
+  const countdownData = {
+    textSize: 'text-sm',
+    expiredDateTime: expiredDateTime,
+    startDateTime: startDateTime,
+  };
   // Placeholder Data (same as before)
   const prizes = { first: '$500', second: '$300', third: '$100' };
   const userPlays = 10;
@@ -46,7 +54,7 @@ export const LobbyAboutModal = () => {
             {lobbyAboutModal.data?.gameName} {lobbyAboutModal.data?.lobby.name}
           </DialogTitle>
           <DialogDescription className="flex items-center justify-center space-y-2 text-center">
-            <CountdownTimer textSize={'text-sm'} targetDate={new Date('2024-08-10T17:36:00Z')} />
+            <CountdownTimer data={countdownData} />
           </DialogDescription>
         </DialogHeader>
         <Separator />

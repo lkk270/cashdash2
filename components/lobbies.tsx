@@ -30,13 +30,18 @@ export const Lobbies = ({ data }: LobbiesProps) => {
 
   return (
     <div className="flex justify-center">
-      <div className="grid justify-center grid-cols-1 gap-2 px-10 pb-10 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid justify-center grid-cols-1 gap-2 pb-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {data.lobbies.map((item) => {
           let disableCard = !isValidLobbyAccess({
             scoreType: scoreType,
             averageScore: averageScore,
             scoreRestriction: item.scoreRestriction,
           });
+          const countdownData = {
+            textSize: 'text-sm',
+            expiredDateTime: item.expiredDateTime,
+            startDateTime: item.startDateTime,
+          };
 
           return (
             <React.Fragment key={item.name}>
@@ -49,7 +54,7 @@ export const Lobbies = ({ data }: LobbiesProps) => {
                         disableCard ? 'opacity-40' : 'hover:opacity-75 cursor-pointer'
                       }`}
                     >
-                      <div className="relative flex items-center justify-center pt-4">
+                      <div className="relative flex items-center justify-center pt-4 text-primary/50">
                         <div className="absolute top-0 left-0 flex pt-3 pl-2 text-sm gap-x-1">
                           <Crown className="w-5 h-5" />${item.firstPlace}
                         </div>
@@ -64,11 +69,9 @@ export const Lobbies = ({ data }: LobbiesProps) => {
                         >
                           <Info className="w-6 h-6" />
                         </Button>
-
-                        <CountdownTimer
-                          textSize={'text-sm'}
-                          targetDate={new Date(Date.UTC(2023, 7, 11, 16, 0, 0))}
-                        />
+                        <div className="mt-3">
+                          <CountdownTimer data={countdownData} />
+                        </div>
                       </div>
 
                       <Link
