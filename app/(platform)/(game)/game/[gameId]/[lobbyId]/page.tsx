@@ -18,7 +18,10 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
   const { userId } = auth();
   let game = null;
   const gameId = params.gameId;
-  let isValidAccess = false;
+  let accessResult = {
+    isValid: false,
+    message: '',
+  };
 
   if (!userId) {
     return redirectToSignIn;
@@ -60,17 +63,21 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
       },
     });
     if (game) {
-      isValidAccess = isValidLobbyAccess({
+      accessResult = isValidLobbyAccess({
         scoreType: game.scoreType,
-        averageScore: game.averageScores[0].averageScore,
+        averageScore: game.averageScores[0]?.averageScore || null, // Handling possible undefined averageScores array
         scoreRestriction: lobby.scoreRestriction,
+        expiredDateTime: lobby.expiredDateTime,
+        startDateTime: lobby.startDateTime,
       });
     }
   }
+
   if (!lobby) {
     redirect(`/game/${gameId}`);
   }
-  if (isValidAccess === false) {
+
+  if (accessResult.isValid === false) {
     return (
       <DashboardLayout
         isPro={true}
@@ -78,7 +85,7 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
           <EmptyState
             withBackButton={true}
             title="👾 Invalid Access 👾"
-            subtitle="You're too good of a player to access this tier! 👾"
+            subtitle={accessResult.message}
           />
         }
       />

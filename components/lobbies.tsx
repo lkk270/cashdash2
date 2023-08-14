@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import { Game, Lobby, GameAverageScore } from '@prisma/client';
 import { ArrowUpRight, Crown, Info } from 'lucide-react';
 
+import { useToast } from '@/components/ui/use-toast';
 import { useLobbyAboutModal } from '@/hooks/use-lobby-about-modal';
 import { Button } from '@/components/ui/button';
 import { isValidLobbyAccess } from '@/lib/utils';
@@ -24,6 +25,7 @@ interface LobbiesProps {
 export const Lobbies = ({ data }: LobbiesProps) => {
   const lobbyAboutModal = useLobbyAboutModal();
   const pathname = usePathname();
+  const { toast } = useToast();
   const averageScore = data.averageScores.length > 0 ? data.averageScores[0].averageScore : null;
   const scoreType = data.scoreType;
   const beatTitle = scoreType === 'time' ? 'Time' : 'Score';
@@ -32,11 +34,14 @@ export const Lobbies = ({ data }: LobbiesProps) => {
     <div className="flex justify-center">
       <div className="grid justify-center grid-cols-1 gap-2 pb-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {data.lobbies.map((item) => {
-          let disableCard = !isValidLobbyAccess({
+          let accessResult = isValidLobbyAccess({
             scoreType: scoreType,
             averageScore: averageScore,
             scoreRestriction: item.scoreRestriction,
+            expiredDateTime: item.expiredDateTime,
+            startDateTime: item.startDateTime,
           });
+          let disableCard = !accessResult.isValid;
           const countdownData = {
             textSize: 'text-sm',
             expiredDateTime: item.expiredDateTime,
@@ -53,6 +58,16 @@ export const Lobbies = ({ data }: LobbiesProps) => {
                       className={`max-w-lg transition border-0 bg-primary/10 rounded-xl ${
                         disableCard ? 'opacity-40' : 'hover:opacity-75 cursor-pointer'
                       }`}
+                      onClick={(e) => {
+                        if (disableCard) {
+                          e.preventDefault();
+                          toast({
+                            title: 'Lobby restricted',
+                            description: accessResult.message,
+                            duration: 3000,
+                          });
+                        }
+                      }}
                     >
                       <div className="relative flex items-center justify-center pt-4 text-primary/50">
                         <div className="absolute top-0 left-0 flex pt-3 pl-2 text-sm gap-x-1">
@@ -103,10 +118,8 @@ export const Lobbies = ({ data }: LobbiesProps) => {
                       {/* <Button>Score</Button> */}
                     </Card>
                   </TooltipTrigger>
-                  <TooltipContent>
-                    <p>
-                      {disableCard ? "You're too good of a player for this tier 👾" : item.name}
-                    </p>
+                  <TooltipContent className="max-w-xs break-words">
+                    <p>{disableCard ? accessResult.message : item.name}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
