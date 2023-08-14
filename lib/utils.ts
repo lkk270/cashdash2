@@ -28,11 +28,11 @@ export function isValidLobbyAccess(inputs: {
 
   // Check if expiredDateTime or startDateTime is before the current Zulu time
   if (inputs.expiredDateTime < currentZuluTime && inputs.startDateTime < currentZuluTime) {
-    errorMessages.push('Lobby has expired');
+    errorMessages.push('This lobby has expired');
   }
 
   if (inputs.expiredDateTime < currentZuluTime && inputs.startDateTime > currentZuluTime) {
-    errorMessages.push('Lobby is not yet accessible');
+    errorMessages.push('This lobby is not yet accessible');
   }
 
   if (inputs.averageScore !== null) {
