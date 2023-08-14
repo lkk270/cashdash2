@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
 import { MobileSidebar } from '@/components/mobile-sidebar';
 import { useProModal } from '@/hooks/use-pro-modal';
+import { useUserCashModal } from '@/hooks/use-user-cash-modal';
 
 const font = Poppins({
   weight: '600',
@@ -17,11 +18,17 @@ const font = Poppins({
 });
 
 interface NavbarProps {
-  isPro: boolean;
+  userValues: {
+    isPro?: boolean;
+    userCash?: string;
+  };
 }
 
-export const Navbar = ({ isPro }: NavbarProps) => {
+export const Navbar = ({ userValues }: NavbarProps) => {
+  const isPro = userValues.isPro;
+  const userCash = userValues.userCash;
   const proModal = useProModal();
+  const userCashModal = useUserCashModal();
   return (
     <div className="fixed z-50 flex items-center justify-between w-full h-16 px-4 py-2 border-b border-primary/10 bg-secondary">
       <div className="flex items-center">
@@ -42,6 +49,16 @@ export const Navbar = ({ isPro }: NavbarProps) => {
       </div>
       <div className="flex items-center gap-x-3">
         <div className="flex items-center sm:flex gap-x-3">
+          {userCash && (
+            <Button
+              onClick={() => userCashModal.onOpen(userCash)}
+              variant="gradient2"
+              size="sm"
+              className="hidden xs:flex"
+            >
+              ${userCash}
+            </Button>
+          )}
           {!isPro && (
             <Button
               onClick={proModal.onOpen}
@@ -49,7 +66,7 @@ export const Navbar = ({ isPro }: NavbarProps) => {
               size="sm"
               className="hidden xs:flex"
             >
-              <Ban className="w-4 h-4 mr-3 text-white" />
+              <Ban className="w-4 h-4 mr-2 text-white" />
               Ads
             </Button>
           )}

@@ -4,6 +4,7 @@ import prismadb from '@/lib/prismadb';
 import { redirect } from 'next/navigation';
 
 import { checkSubscription } from '@/lib/subscription';
+import { getUserCash } from '@/lib/userCash';
 import { GameClient } from './components/client';
 import { DashboardLayout } from '@/components/dashboard-layout';
 
@@ -16,6 +17,8 @@ interface GameIdPageProps {
 const GameIdPage = async ({ params }: GameIdPageProps) => {
   const { userId } = auth();
   const isPro = await checkSubscription();
+  const userCash = await getUserCash();
+  const userValues = { isPro: isPro, userCash: userCash };
 
   if (!userId) {
     return redirectToSignIn;
@@ -46,7 +49,7 @@ const GameIdPage = async ({ params }: GameIdPageProps) => {
     throw new Error('Invalid game');
   }
 
-  return <DashboardLayout isPro={isPro} children={<GameClient data={game} />} />;
+  return <DashboardLayout userValues={userValues} children={<GameClient data={game} />} />;
 };
 
 export default GameIdPage;

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Game, Lobby } from '@prisma/client';
+import { Lobby } from '@prisma/client';
 
 interface useLobbyAboutModalStore {
   isOpen: boolean;

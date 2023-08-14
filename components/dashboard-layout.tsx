@@ -1,17 +1,19 @@
 import { Navbar } from '@/components/navbar';
 import { Sidebar } from '@/components/sidebar';
-import { checkSubscription } from '@/lib/subscription';
 
 export const DashboardLayout = async ({
-  isPro,
+  userValues,
   children,
 }: {
-  isPro: boolean;
+  userValues: {
+    isPro?: boolean;
+    userCash?: string;
+  };
   children: React.ReactNode;
 }) => {
   return (
     <div className="h-full">
-      <Navbar isPro={isPro} />
+      <Navbar userValues={userValues} />
       <div className="fixed inset-y-0 flex-col hidden w-20 mt-16 md:flex">
         <Sidebar />
       </div>

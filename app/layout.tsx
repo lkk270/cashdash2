@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import { ThemeProvider } from '@/components/theme-provider';
 import { ProModal } from '@/components/pro-modal';
 import { LobbyAboutModal } from '@/components/lobby-about-modal';
-
+import { UserCashModal } from '@/components/user-cash-modal';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -33,6 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
             <ProModal />
             <LobbyAboutModal />
+            <UserCashModal />
             {children}
             <Toaster />
           </ThemeProvider>

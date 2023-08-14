@@ -16,7 +16,7 @@ const ErrorState: React.FC<ErrorStateProps> = async ({ error }) => {
   return (
     <>
       <DashboardLayout
-        isPro={true}
+        userValues={{ isPro: undefined, userCash: undefined }}
         children={<EmptyState title="Uh Oh" subtitle="Something went wrong!" />}
       />
     </>

@@ -5,7 +5,10 @@ import { DashboardLayout } from '@/components/dashboard-layout';
 const Loading = () => {
   return (
     <>
-      <DashboardLayout isPro={true} children={<Loader />} />
+      <DashboardLayout
+        userValues={{ isPro: undefined, userCash: undefined }}
+        children={<Loader />}
+      />
     </>
   );
 };
