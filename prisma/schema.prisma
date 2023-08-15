@@ -96,7 +96,7 @@ model GameAverageScore {
   @@index([gameId])
 }
 
-model UserSubscription {
+model UserStripeSubscription {
   id                     String    @id @default(cuid())
   userId                 String    @unique
   stripeCustomerId       String?   @unique @map(name: "stripe_customer_id")
@@ -105,8 +105,44 @@ model UserSubscription {
   stripeCurrentPeriodEnd DateTime? @map(name: "stripe_current_period_end")
 }
 
+model UserStripeAccount {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  stripeAccountId     String?  @unique @map(name: "stripe_account_id") // ID provided by Stripe for Connect
+  stripeBankAccountId String?  @unique @map(name: "stripe_bank_account_id") // If you're storing specific bank accounts
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model UserPayout {
+  id             String       @id @default(cuid())
+  userId         String
+  amount         Float
+  status         PayoutStatus @default(PENDING)
+  stripePayoutId String?      @unique @map(name: "stripe_payout_id") // This is the ID from Stripe once the payout is initiated.
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+enum PayoutStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+// model UserPurchase {
+//   id           String   @id @default(cuid())
+//   userId       String
+//   itemId       String // Reference to the item being purchased
+//   amount       Int // Price in the smallest currency unit (e.g., cents)
+//   status       String // e.g., "Pending", "Shipped", "Delivered"
+//   purchaseDate DateTime @default(now())
+// }
+
 model UserCash {
-  id     String @id @default(cuid())
-  userId String @unique
-  cash   Float
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  cash      Float
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
 }

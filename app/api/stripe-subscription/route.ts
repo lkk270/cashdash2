@@ -16,15 +16,15 @@ export async function GET() {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const userSubscription = await prismadb.userSubscription.findUnique({
+    const userStripeSubscription = await prismadb.userStripeSubscription.findUnique({
       where: {
         userId,
       },
     });
 
-    if (userSubscription && userSubscription.stripeCustomerId) {
+    if (userStripeSubscription && userStripeSubscription.stripeCustomerId) {
       const stripeSession = await stripe.billingPortal.sessions.create({
-        customer: userSubscription.stripeCustomerId,
+        customer: userStripeSubscription.stripeCustomerId,
         return_url: settingsUrl,
       });
 

@@ -38,7 +38,7 @@ export const UserCashModal = () => {
         return;
       }
       return;
-      const response = await axios.get('/api/stripe');
+      const response = await axios.get('/api/stripe-subscription');
 
       window.location.href = response.data.url;
     } catch (error) {
