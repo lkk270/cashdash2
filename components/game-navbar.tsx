@@ -45,7 +45,7 @@ export const GameNavbar = ({ lobby, game }: LobbyHeaderProps) => {
             <Button
               onClick={() => router.push(backPath)}
               size="icon"
-              variant="gradient1"
+              variant="default"
               className="hidden sm:flex"
             >
               <ChevronLeft className="w-8 h-8" />

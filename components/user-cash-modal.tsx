@@ -29,10 +29,10 @@ export const UserCashModal = () => {
   const onWithdraw = async () => {
     try {
       setLoading(true);
-      if (parseFloat(userCashModal.userCash) <= 0) {
+      if (parseFloat(userCashModal.userCash) < 5) {
         setLoading(false);
         toast({
-          description: 'You cannot withdraw $0.00',
+          description: 'You cannot withdraw less than $5',
           variant: 'destructive',
         });
         return;

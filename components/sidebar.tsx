@@ -1,6 +1,6 @@
 'use client';
 
-import { Home, Plus, Settings, Scale, HelpCircle, CreditCard, ShoppingCart } from 'lucide-react';
+import { Home, Plus, LineChart, Scale, HelpCircle, CreditCard, ShoppingCart } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import Logo from '@/components/logo';
 import { usePathname, useRouter } from 'next/navigation';
@@ -38,17 +38,18 @@ export const Sidebar = ({ isPro }: SidebarProps) => {
       pro: false,
     },
     {
-      icon: Plus,
-      href: '/companion/new',
-      label: 'Create',
-      pro: true,
-    },
-    {
       icon: CreditCard,
-      href: '/settings',
+      href: '/money-settings',
       label: 'Money',
       pro: false,
     },
+    {
+      icon: LineChart,
+      href: '/stats',
+      label: 'Stats',
+      pro: false,
+    },
+
     {
       icon: Scale,
       href: '/legal',

@@ -59,7 +59,7 @@ export const Navbar = ({ userValues }: NavbarProps) => {
               ${userCash}
             </Button>
           )}
-          {!isPro && (
+          {isPro !== undefined && isPro === false && (
             <Button
               onClick={proModal.onOpen}
               variant="premium"
