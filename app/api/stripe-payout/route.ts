@@ -3,6 +3,9 @@ import { NextResponse } from 'next/server';
 
 import prismadb from '@/lib/prismadb';
 import { stripe } from '@/lib/stripe';
+import { absoluteUrl } from '@/lib/utils';
+
+const settingsUrl = absoluteUrl('/money-settings');
 
 const MAX_WITHDRAWAL = 500;
 
@@ -25,7 +28,43 @@ export async function POST(req: Request) {
     });
 
     if (!userStripeAccount || !userStripeAccount.stripeAccountId) {
-      return new NextResponse('User does not have a Stripe account associated', { status: 400 });
+      console.log('INNN 31');
+      const account = await stripe.accounts.create({
+        country: 'US',
+        type: 'express',
+        capabilities: {
+          card_payments: {
+            requested: true,
+          },
+          transfers: {
+            requested: true,
+          },
+        },
+        business_type: 'individual',
+      });
+      const accountLink = await stripe.accountLinks.create({
+        account: account.id,
+        refresh_url: settingsUrl,
+        return_url: settingsUrl,
+        type: 'account_onboarding',
+      });
+      console.log(accountLink);
+      return new NextResponse(JSON.stringify({ url: accountLink.url }));
+
+      // const accountLink = await stripe.accountLinks.create({
+      //   account: 'acct_1NeIh3HqGVW0nQyi', // Your platform's Stripe ID
+      //   refresh_url: settingsUrl, // URL to redirect if the user's link has expired or they need to reauthenticate
+      //   return_url: settingsUrl, // URL to redirect after they complete the onboarding
+      //   type: 'account_onboarding',
+      // });
+
+      // Redirect the user to the account link for Stripe onboarding
+      // return new NextResponse(JSON.stringify({ url: accountLink.url }));
+
+      // return new NextResponse(
+      //   'No bank or debit card associated with your account! Click the "Manage Bank Details" button to connect your bank/debit card before you cashing out!',
+      //   { status: 400 }
+      // );
     }
 
     // Check if the user has enough funds.
@@ -36,6 +75,13 @@ export async function POST(req: Request) {
     }
     if (withdrawalAmount > MAX_WITHDRAWAL) {
       return new NextResponse('Can only withdraw $500 at a time', { status: 400 });
+    }
+
+    if (!userStripeAccount || !userStripeAccount.stripeAccountId) {
+      return new NextResponse(
+        'No bank or debit card associated with your account! Click the "Manage Bank Details" button to connect your bank/debit card before you cashing out!',
+        { status: 400 }
+      );
     }
 
     // Initiate the Stripe Payout.

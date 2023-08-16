@@ -17,7 +17,7 @@ export const LinkStripeButton = ({ hasStripeAccount }: LinkStripeButtonProps) =>
     try {
       setLoading(true);
 
-      const response = await axios.get('/api/stripe-link-account');
+      const response = await axios.post('/api/stripe-connect', { amount: 'userCash' });
 
       window.location.href = response.data.url;
     } catch (error) {
@@ -32,7 +32,7 @@ export const LinkStripeButton = ({ hasStripeAccount }: LinkStripeButtonProps) =>
 
   return (
     <Button size="sm" variant="gradient1" disabled={isLoading} onClick={onClick}>
-      {hasStripeAccount ? 'Manage Stripe' : 'Link Stripe Account'}
+      {hasStripeAccount ? 'Manage Bank Details' : 'Link Bank Account'}
     </Button>
   );
 };
