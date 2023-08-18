@@ -1,6 +1,6 @@
 'use client';
 
-import { Lobby, Game, Score } from '@prisma/client';
+import { Lobby, Game, LobbySession } from '@prisma/client';
 import { GameNavbar } from '@/components/game-navbar';
 import { ScoresTable } from '@/components/scores-table';
 import { LobbyHeader } from '@/components/lobby-header';
@@ -8,10 +8,7 @@ import { Navbar } from '@/components/navbar';
 
 interface LobbyClientProps {
   lobby: Lobby & {
-    scores: Score[];
-    _count: {
-      scores: number;
-    };
+    sessions: LobbySession[];
   };
   game: Game;
 }

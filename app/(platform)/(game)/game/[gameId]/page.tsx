@@ -30,6 +30,17 @@ const GameIdPage = async ({ params }: GameIdPageProps) => {
     },
     include: {
       lobbies: {
+        include: {
+          sessions: {
+            where: {
+              isActive: true,
+            },
+            orderBy: {
+              createdAt: 'desc',
+            },
+            take: 3,
+          },
+        },
         orderBy: {
           difficulty: 'asc',
         },

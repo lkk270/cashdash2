@@ -4,7 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Game, Lobby, GameAverageScore } from '@prisma/client';
+import { Game, Lobby, GameAverageScore, LobbySession } from '@prisma/client';
 import { ArrowUpRight, Crown, Info } from 'lucide-react';
 
 import { useToast } from '@/components/ui/use-toast';
@@ -18,10 +18,13 @@ import { convertMillisecondsToMinSec } from '@/lib/utils';
 
 interface LobbiesProps {
   data: Game & {
-    lobbies: Lobby[];
+    lobbies: (Lobby & {
+      sessions: LobbySession[];
+    })[];
     averageScores: GameAverageScore[];
   };
 }
+
 export const Lobbies = ({ data }: LobbiesProps) => {
   const lobbyAboutModal = useLobbyAboutModal();
   const pathname = usePathname();
@@ -34,18 +37,19 @@ export const Lobbies = ({ data }: LobbiesProps) => {
     <div className="flex justify-center">
       <div className="grid justify-center grid-cols-1 gap-2 pb-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {data.lobbies.map((item) => {
+          console.log(item.sessions);
           let accessResult = isValidLobbyAccess({
             scoreType: scoreType,
             averageScore: averageScore,
             scoreRestriction: item.scoreRestriction,
-            expiredDateTime: item.expiredDateTime,
-            startDateTime: item.startDateTime,
+            expiredDateTime: item.sessions[0].expiredDateTime,
+            startDateTime: item.sessions[0].startDateTime,
           });
           let disableCard = !accessResult.isValid;
           const countdownData = {
             textSize: 'text-sm',
-            expiredDateTime: item.expiredDateTime,
-            startDateTime: item.startDateTime,
+            expiredDateTime: item.sessions[0].expiredDateTime,
+            startDateTime: item.sessions[0].startDateTime,
           };
 
           return (
@@ -71,7 +75,7 @@ export const Lobbies = ({ data }: LobbiesProps) => {
                     >
                       <div className="relative flex items-center justify-center pt-4 text-primary/50">
                         <div className="absolute top-0 left-0 flex pt-3 pl-2 text-sm gap-x-1">
-                          <Crown className="w-5 h-5" />${item.firstPlace}
+                          <Crown className="w-5 h-5" />${item.firstPlacePrize}
                         </div>
                         <Button
                           title="Details"

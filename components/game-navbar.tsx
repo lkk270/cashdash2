@@ -1,7 +1,7 @@
 'use client';
 
 import { UserButton } from '@clerk/nextjs';
-import { Lobby, Game, Score } from '@prisma/client';
+import { Lobby, Game, LobbySession } from '@prisma/client';
 import { useRouter, usePathname } from 'next/navigation';
 import { ChevronLeft, Info } from 'lucide-react';
 import { Orbitron } from 'next/font/google';
@@ -17,10 +17,7 @@ const orbitronFont = Orbitron({ subsets: ['latin'] });
 
 interface LobbyHeaderProps {
   lobby: Lobby & {
-    scores: Score[];
-    _count: {
-      scores: number;
-    };
+    sessions: LobbySession[];
   };
   game: Game;
 }
@@ -32,8 +29,8 @@ export const GameNavbar = ({ lobby, game }: LobbyHeaderProps) => {
   const backPath = pathname.split('/').slice(0, -1).join('/');
   const countdownData = {
     textSize: 'text-sm',
-    expiredDateTime: lobby.expiredDateTime,
-    startDateTime: lobby.startDateTime,
+    expiredDateTime: lobby.sessions[0].expiredDateTime,
+    startDateTime: lobby.sessions[0].startDateTime,
   };
   return (
     <div className="w-full max-w-4xl mx-auto">

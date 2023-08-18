@@ -22,9 +22,9 @@ export const LobbyAboutModal = () => {
   const lobbyAboutModal = useLobbyAboutModal();
   const [isMounted, setIsMounted] = useState(false);
   const expiredDateTime =
-    lobbyAboutModal.data?.lobby.expiredDateTime || new Date(Date.now() - 5 * 60 * 1000); //if not found it will set a JavaScript Date object to represent 5 minutes in the past from the current time. But this will never happen.
+    lobbyAboutModal.data?.lobby.sessions[0].expiredDateTime || new Date(Date.now() - 5 * 60 * 1000); //if not found it will set a JavaScript Date object to represent 5 minutes in the past from the current time. But this will never happen.
   const startDateTime =
-    lobbyAboutModal.data?.lobby.startDateTime || new Date(Date.now() - 5 * 60 * 1000); //""
+    lobbyAboutModal.data?.lobby.sessions[0].startDateTime || new Date(Date.now() - 5 * 60 * 1000); //""
   const countdownData = {
     textSize: 'text-sm',
     expiredDateTime: expiredDateTime,

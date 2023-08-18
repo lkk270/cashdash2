@@ -1,10 +1,12 @@
 import { create } from 'zustand';
-import { Lobby } from '@prisma/client';
+import { Lobby, LobbySession } from '@prisma/client';
 
 interface useLobbyAboutModalStore {
   isOpen: boolean;
   data: {
-    lobby: Lobby;
+    lobby: Lobby & {
+      sessions: LobbySession[];
+    };
     gameName: string;
   } | null;
   onOpen: (data: any) => void; // adjust the type if you used a more specific type above

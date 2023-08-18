@@ -1,6 +1,6 @@
 'use client';
 
-import { Game, Lobby, GameAverageScore } from '@prisma/client';
+import { Game, Lobby, GameAverageScore, LobbySession } from '@prisma/client';
 
 import { cn } from '@/lib/utils';
 import { Lobbies } from '@/components/lobbies';
@@ -18,7 +18,9 @@ import { LobbyHeader } from '@/components/lobby-header';
 
 interface GameClientPageProps {
   data: Game & {
-    lobbies: Lobby[];
+    lobbies: (Lobby & {
+      sessions: LobbySession[];
+    })[];
     averageScores: GameAverageScore[];
   };
 }

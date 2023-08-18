@@ -32,20 +32,12 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
       id: params.lobbyId,
     },
     include: {
-      scores: {
-        orderBy: {
-          createdAt: 'asc',
-        },
+      sessions: {
         where: {
-          userId,
+          isActive: true,
         },
       },
       game: {},
-      _count: {
-        select: {
-          scores: true,
-        },
-      },
     },
   });
 
@@ -67,8 +59,8 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
         scoreType: game.scoreType,
         averageScore: game.averageScores[0]?.averageScore || null, // Handling possible undefined averageScores array
         scoreRestriction: lobby.scoreRestriction,
-        expiredDateTime: lobby.expiredDateTime,
-        startDateTime: lobby.startDateTime,
+        expiredDateTime: lobby.sessions[0].expiredDateTime,
+        startDateTime: lobby.sessions[0].startDateTime,
       });
     }
   }
