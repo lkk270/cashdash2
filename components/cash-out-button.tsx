@@ -25,7 +25,7 @@ export const CashOutButton = ({ userCash, userStripeAccount }: CashOutButtonProp
           duration: 6000,
           description:
             'Please first link your bank account by clicking the Link Bank Account button',
-          variant: 'destructive',
+          variant: 'warning',
         });
         return;
       }
@@ -33,7 +33,7 @@ export const CashOutButton = ({ userCash, userStripeAccount }: CashOutButtonProp
         toast({
           duration: 6000,
           description: 'You can only cash out a balance of at least $20',
-          variant: 'destructive',
+          variant: 'warning',
         });
         return;
       }

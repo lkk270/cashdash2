@@ -34,8 +34,8 @@ export const UserCashModal = () => {
         toast({
           duration: 6000,
           description:
-            'Please first link your bank account by clicking the Link Bank Account button found in money settings',
-          variant: 'destructive',
+            'Please first link your bank account by clicking the Link Bank Account button found in the money tab',
+          variant: 'warning',
         });
         return;
       }
@@ -43,7 +43,7 @@ export const UserCashModal = () => {
         toast({
           duration: 6000,
           description: 'You can only cash out a balance of at least $20',
-          variant: 'destructive',
+          variant: 'warning',
         });
         return;
       }
