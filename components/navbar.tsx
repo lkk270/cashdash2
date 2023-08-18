@@ -11,6 +11,7 @@ import { ModeToggle } from '@/components/mode-toggle';
 import { MobileSidebar } from '@/components/mobile-sidebar';
 import { useProModal } from '@/hooks/use-pro-modal';
 import { useUserCashModal } from '@/hooks/use-user-cash-modal';
+import { UserStripeAccount } from '@prisma/client';
 
 const font = Poppins({
   weight: '600',
@@ -21,12 +22,14 @@ interface NavbarProps {
   userValues: {
     isPro?: boolean;
     userCash?: string;
+    userStripeAccount?: UserStripeAccount;
   };
 }
 
 export const Navbar = ({ userValues }: NavbarProps) => {
   const isPro = userValues.isPro;
   const userCash = userValues.userCash;
+  const userStripeAccount = userValues.userStripeAccount;
   const proModal = useProModal();
   const userCashModal = useUserCashModal();
   return (
@@ -51,7 +54,7 @@ export const Navbar = ({ userValues }: NavbarProps) => {
         <div className="flex items-center sm:flex gap-x-3">
           {userCash && (
             <Button
-              onClick={() => userCashModal.onOpen(userCash)}
+              onClick={() => userCashModal.onOpen(userCash, userStripeAccount)}
               variant="gradient2"
               size="sm"
               className="hidden xs:flex"

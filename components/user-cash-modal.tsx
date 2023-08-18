@@ -15,6 +15,7 @@ import { useUserCashModal } from '@/hooks/use-user-cash-modal';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/components/ui/use-toast';
+import { flightRouterStateSchema } from 'next/dist/server/app-render/types';
 
 export const UserCashModal = () => {
   const userCashModal = useUserCashModal();
@@ -29,10 +30,19 @@ export const UserCashModal = () => {
   const onWithdraw = async () => {
     try {
       setLoading(true);
-      if (parseFloat(userCashModal.userCash) < 5) {
-        setLoading(false);
+      if (!userCashModal.userStripeAccount) {
         toast({
-          description: 'You cannot withdraw less than $5',
+          duration: 6000,
+          description:
+            'Please first link your bank account by clicking the Link Bank Account button found in money settings',
+          variant: 'destructive',
+        });
+        return;
+      }
+      if (parseFloat(userCashModal.userCash) < 20) {
+        toast({
+          duration: 6000,
+          description: 'You can only cash out a balance of at least $20',
           variant: 'destructive',
         });
         return;

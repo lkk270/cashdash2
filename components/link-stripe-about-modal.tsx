@@ -19,7 +19,7 @@ import { useToast } from '@/components/ui/use-toast';
 export const LinkStripeAboutModal = () => {
   const useAboutModal = useLinkStripeAboutModal();
   const [isMounted, setIsMounted] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setLoading] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export const LinkStripeAboutModal = () => {
     try {
       setLoading(true);
 
-      const response = await axios.post('/api/stripe-connect');
+      const response = await axios.get('/api/stripe-connect');
 
       window.location.href = response.data.url;
     } catch (error) {
@@ -71,8 +71,8 @@ export const LinkStripeAboutModal = () => {
         <Separator />
 
         <div className="flex justify-between">
-          <Button onClick={onClick} disabled={loading} variant="gradient1">
-            Link Bank Account
+          <Button size="sm" variant="gradient1" disabled={isLoading} onClick={onClick}>
+            {isLoading ? 'Loading...' : 'Link Bank Account'}
           </Button>
         </div>
       </DialogContent>

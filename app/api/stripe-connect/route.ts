@@ -9,10 +9,11 @@ const settingsUrl = absoluteUrl('/money-settings');
 
 const MAX_WITHDRAWAL = 500;
 
-export async function POST(req: Request) {
+export async function GET() {
+  // req: Request
   try {
-    const body = await req.json();
-    const { withdrawalAmount } = body;
+    // const body = await req.json();
+    // const { withdrawalAmount } = body;
     const { userId } = auth();
     const user = await currentUser();
 

@@ -33,10 +33,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <html lang="en" suppressHydrationWarning>
         <body className={cn('bg-secondary', inter.className)}>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-            <ProModal />
             <LobbyAboutModal />
             <UserCashModal />
             <LinkStripeAboutModal />
+            <ProModal />
             {children}
             <Toaster />
           </ThemeProvider>

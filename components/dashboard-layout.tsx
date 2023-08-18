@@ -1,5 +1,6 @@
 import { Navbar } from '@/components/navbar';
 import { Sidebar } from '@/components/sidebar';
+import { UserStripeAccount } from '@prisma/client';
 
 export const DashboardLayout = async ({
   userValues,
@@ -8,6 +9,7 @@ export const DashboardLayout = async ({
   userValues: {
     isPro?: boolean;
     userCash?: string;
+    userStripeAccount?: UserStripeAccount
   };
   children: React.ReactNode;
 }) => {
