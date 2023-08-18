@@ -26,29 +26,20 @@ export async function POST(req: Request) {
         userId,
       },
     });
-
     if (userStripeAccount && userStripeAccount.stripeAccountId) {
-      const stripeSession = await stripe.billingPortal.sessions.create({
-        customer: userStripeAccount.stripeAccountId,
+      const account = await stripe.accounts.update(userStripeAccount.stripeAccountId);
+      const accountLink = await stripe.accountLinks.create({
+        account: account.id,
+        refresh_url: settingsUrl,
         return_url: settingsUrl,
+        type: 'account_onboarding',
       });
-
-      return new NextResponse(JSON.stringify({ url: stripeSession.url }));
+      return new NextResponse(JSON.stringify({ url: accountLink.url }));
     }
-
-    console.log('INNN 31');
     const account = await stripe.accounts.create({
       email: user.emailAddresses[0].emailAddress,
       country: 'US',
-      type: 'express',
-      capabilities: {
-        card_payments: {
-          requested: true,
-        },
-        transfers: {
-          requested: true,
-        },
-      },
+      type: 'standard',
 
       individual: {
         email: user.emailAddresses[0].emailAddress,

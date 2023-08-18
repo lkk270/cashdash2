@@ -28,7 +28,6 @@ export async function POST(req: Request) {
     });
 
     if (!userStripeAccount || !userStripeAccount.stripeAccountId) {
-      console.log('INNN 31');
       const account = await stripe.accounts.create({
         country: 'US',
         type: 'express',
@@ -48,7 +47,6 @@ export async function POST(req: Request) {
         return_url: settingsUrl,
         type: 'account_onboarding',
       });
-      console.log(accountLink);
       return new NextResponse(JSON.stringify({ url: accountLink.url }));
 
       // const accountLink = await stripe.accountLinks.create({

@@ -1,15 +1,18 @@
 import { SubscriptionButton } from '@/components/subscription-button';
 import { LinkStripeButton } from '@/components/link-stripe-button';
 import { CashOutButton } from '@/components/cash-out-button';
+import { Button } from '@/components/ui/button';
 import { DashboardLayout } from '@/components/dashboard-layout';
 import { Card } from '@/components/ui/card';
 import { Wallet } from 'lucide-react';
 import { checkSubscription } from '@/lib/subscription';
 import { getUserCash } from '@/lib/userCash';
+import { getUserStripeAccount } from '@/lib/stripeAccount';
 
 const SettingsPage = async () => {
   const isPro = await checkSubscription();
   const userCash = await getUserCash();
+  const userStripeAccount = await getUserStripeAccount();
   const userValues = { isPro: isPro, userCash: userCash };
 
   return (
@@ -32,8 +35,8 @@ const SettingsPage = async () => {
             <span className="text-zinc-500">Manage your stripe account used for cashing out.</span>
           </div>
           <div className="flex space-x-3">
-            <LinkStripeButton hasStripeAccount={!!userCash} />
-            <CashOutButton userCash={userCash} />
+            <LinkStripeButton userStripeAccount={userStripeAccount} />
+            <CashOutButton userStripeAccount={userStripeAccount} userCash={userCash} />
           </div>
         </Card>
       </div>

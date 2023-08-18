@@ -17,8 +17,9 @@ export async function POST(req: Request) {
     return new NextResponse(`Webhook Error: ${error.message}`, { status: 400 });
   }
 
-  const session = event.data.object as Stripe.Checkout.Session;
+  // console.log(event.type);
 
+  const session = event.data.object as Stripe.Checkout.Session;
   if (event.type === 'checkout.session.completed') {
     const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
 
@@ -51,5 +52,28 @@ export async function POST(req: Request) {
     });
   }
 
-  return new NextResponse(null, { status: 200 });
+  if (event.type === 'account.updated') {
+    let account = event.data.object as Stripe.Account;
+
+    const userId = session?.metadata?.userId;
+    if (!userId) {
+      return new NextResponse('User id is required', { status: 400 });
+    }
+
+    const userStripeAccount = await prismadb.userStripeAccount.findUnique({
+      where: {
+        userId: userId,
+      },
+    });
+    if (!userStripeAccount) {
+      await prismadb.userStripeAccount.create({
+        data: {
+          userId: userId,
+          stripeAccountId: account.id,
+        },
+      });
+    }
+
+    return new NextResponse(null, { status: 200 });
+  }
 }

@@ -1,17 +1,20 @@
 'use client';
 
+import { UserStripeAccount } from '@prisma/client';
 import axios from 'axios';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
+import { useLinkStripeAboutModal } from '@/hooks/use-link-stripe-about-modal';
 
 interface LinkStripeButtonProps {
-  hasStripeAccount: boolean;
+  userStripeAccount?: UserStripeAccount;
 }
 
-export const LinkStripeButton = ({ hasStripeAccount }: LinkStripeButtonProps) => {
+export const LinkStripeButton = ({ userStripeAccount }: LinkStripeButtonProps) => {
   const [isLoading, setLoading] = useState(false);
   const { toast } = useToast();
+  const LinkStripeAboutModal = useLinkStripeAboutModal();
 
   const onClick = async () => {
     try {
@@ -29,10 +32,18 @@ export const LinkStripeButton = ({ hasStripeAccount }: LinkStripeButtonProps) =>
       setLoading(false);
     }
   };
-
-  return (
+  return userStripeAccount ? (
     <Button size="sm" variant="gradient1" disabled={isLoading} onClick={onClick}>
-      {hasStripeAccount ? 'Manage Bank Details' : 'Link Bank Account'}
+      {isLoading ? 'Loading...' : 'Manage Bank Details'}
+    </Button>
+  ) : (
+    <Button
+      onClick={() => LinkStripeAboutModal.onOpen({ test: 'a' })}
+      variant="gradient1"
+      size="sm"
+      className="hidden xs:flex"
+    >
+      Link Bank Account
     </Button>
   );
 };
