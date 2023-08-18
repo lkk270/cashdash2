@@ -15,7 +15,7 @@ const SettingsPage = async () => {
   return (
     <div className="h-full p-4 space-y-6">
       <Card className="p-4 shadow-md bg-primary/10 rounded-xl">
-        <h3 className="mb-3 text-lg font-semibold text-sky-500">Subscription Settings</h3>
+        <h3 className="mb-3 text-lg font-bold text-sky-300">Subscription Settings</h3>
         <div className="mb-4 text-sm text-zinc-500">
           {isPro
             ? 'You are currently on a Pro plan.'
@@ -25,7 +25,7 @@ const SettingsPage = async () => {
       </Card>
 
       <Card className="p-4 shadow-md bg-primary/10 rounded-xl">
-        <h3 className="mb-3 text-lg font-semibold text-sky-500">Cash Outs</h3>
+        <h3 className="mb-3 text-lg font-bold text-sky-300">Cash Outs</h3>
         <div className="flex items-center mb-4 space-x-3">
           <Wallet size={24} />
           <span className="text-zinc-500">Manage your stripe account used for cashing out.</span>
