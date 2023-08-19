@@ -56,9 +56,9 @@ const GameIdPage = async ({ params }: GameIdPageProps) => {
   if (!game) {
     return redirect('/dashboard');
   }
-  if (game.averageScores.length === 0) {
-    throw new Error('Invalid game');
-  }
+  // if (game.averageScores.length === 0) {
+  //   return <DashboardLayout userValues={userValues} children={<div></div>} />;
+  // }
 
   return <DashboardLayout userValues={userValues} children={<GameClient data={game} />} />;
 };

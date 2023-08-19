@@ -83,12 +83,12 @@ model LobbySession {
 }
 
 model Score {
-  id             String        @id @default(uuid())
+  id             String       @id @default(uuid())
   userId         String
   lobbySessionId String
-  createdAt      DateTime      @default(now())
+  createdAt      DateTime     @default(now())
   score          Float
-  lobbySession   LobbySession? @relation(fields: [lobbySessionId], references: [id])
+  lobbySession   LobbySession @relation(fields: [lobbySessionId], references: [id])
 
   @@index([lobbySessionId])
 }
