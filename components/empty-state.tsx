@@ -22,6 +22,7 @@ export const EmptyState = ({ title, subtitle, withBackButton }: EmptyStateProps)
         gap-2 
         justify-center 
         items-center 
+        px-3
       "
     >
       <Heading center title={title} subtitle={subtitle} />

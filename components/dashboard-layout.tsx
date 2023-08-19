@@ -1,14 +1,21 @@
-import { Navbar } from "@/components/navbar";
-import { Sidebar } from "@/components/sidebar";
+import { Navbar } from '@/components/navbar';
+import { Sidebar } from '@/components/sidebar';
+import { UserStripeAccount } from '@prisma/client';
 
-export const DashboardLayout = ({
+export const DashboardLayout = async ({
+  userValues,
   children,
 }: {
+  userValues: {
+    isPro?: boolean;
+    userCash?: string;
+    userStripeAccount?: UserStripeAccount
+  };
   children: React.ReactNode;
 }) => {
   return (
     <div className="h-full">
-      <Navbar />
+      <Navbar userValues={userValues} />
       <div className="fixed inset-y-0 flex-col hidden w-20 mt-16 md:flex">
         <Sidebar />
       </div>

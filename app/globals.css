@@ -37,6 +37,9 @@ body,
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
+    --warning: 38 92% 50%;
+    --warning-foreground: 48 96% 89%;
+
     --ring: 0 0% 63.9%;
 
     --radius: 0.5rem;
@@ -67,8 +70,8 @@ body,
     --accent: 0 0% 14.9%;
     --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 85.7% 97.3%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 48 96% 89%;
 
     --ring: 0 0% 14.9%;
   }

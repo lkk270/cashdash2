@@ -8,14 +8,17 @@ interface ErrorStateProps {
   error: Error;
 }
 
-const ErrorState: React.FC<ErrorStateProps> = ({ error }) => {
+const ErrorState: React.FC<ErrorStateProps> = async ({ error }) => {
   useEffect(() => {
     console.error(error);
   }, [error]);
 
   return (
     <>
-      <DashboardLayout children={<EmptyState title="Uh Oh" subtitle="Something went wrong!" />} />
+      <DashboardLayout
+        userValues={{ isPro: undefined, userCash: undefined }}
+        children={<EmptyState title="Uh Oh" subtitle="Something went wrong!" />}
+      />
     </>
   );
 };

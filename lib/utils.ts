@@ -5,22 +5,52 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+interface ValidationResult {
+  isValid: boolean;
+  message: string;
+}
+
 export function isValidLobbyAccess(inputs: {
   scoreType: string;
   averageScore: number | null;
   scoreRestriction: number;
-}): boolean {
-  let isValidLobbyAccess = true;
+  expiredDateTime: Date;
+  startDateTime: Date;
+}): ValidationResult {
+  let result: ValidationResult = {
+    isValid: true,
+    message: 'Access granted.',
+  };
+
+  const currentZuluTime = new Date();
+
+  let errorMessages: string[] = [];
+
+  // Check if expiredDateTime or startDateTime is before the current Zulu time
+  if (inputs.expiredDateTime < currentZuluTime && inputs.startDateTime < currentZuluTime) {
+    errorMessages.push('This lobby has expired');
+  }
+
+  if (inputs.expiredDateTime < currentZuluTime && inputs.startDateTime > currentZuluTime) {
+    errorMessages.push('This lobby is not yet accessible');
+  }
 
   if (inputs.averageScore !== null) {
     if (
       (inputs.scoreType === 'time' && inputs.averageScore < inputs.scoreRestriction) ||
       (inputs.scoreType === 'points' && inputs.averageScore > inputs.scoreRestriction)
     ) {
-      isValidLobbyAccess = false;
+      errorMessages.push("You're too good of a player to access this tier!");
     }
   }
-  return isValidLobbyAccess;
+
+  // If there are any error messages, update the result to indicate access is denied and provide the error message(s)
+  if (errorMessages.length > 0) {
+    result.isValid = false;
+    result.message = errorMessages.join(' & ');
+  }
+
+  return result;
 }
 
 export const convertMillisecondsToMinSec = (ms: number): string => {
@@ -29,3 +59,7 @@ export const convertMillisecondsToMinSec = (ms: number): string => {
   const seconds: number = total_seconds % 60;
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 };
+
+export function absoluteUrl(path: string) {
+  return `${process.env.NEXT_PUBLIC_APP_URL}${path}`;
+}
