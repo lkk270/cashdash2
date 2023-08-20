@@ -68,6 +68,20 @@ model Lobby {
 
 //   @@index([lobbyId])
 // }
+
+model Reward {
+  id        String   @id @default(uuid())
+  userId    String // The user who won the reward
+  scoreId   String   @unique
+  value     Float // Amount rewarded
+  place     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  score     Score    @relation(fields: [scoreId], references: [id])
+
+  @@index([scoreId])
+}
+
 model LobbySession {
   id              String   @id @default(uuid())
   lobbyId         String
@@ -89,6 +103,7 @@ model Score {
   createdAt      DateTime     @default(now())
   score          Float
   lobbySession   LobbySession @relation(fields: [lobbySessionId], references: [id])
+  reward         Reward?
 
   @@index([lobbySessionId])
 }

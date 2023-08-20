@@ -1,13 +1,23 @@
 'use client';
 
-import { useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Brush } from 'recharts';
+import { useState, useEffect } from 'react';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  Brush,
+  ResponsiveContainer,
+} from 'recharts';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Score, LobbySession, Lobby, Game } from '@prisma/client';
+import { Reward, Score, LobbySession, Lobby, Game } from '@prisma/client';
 import { convertMillisecondsToMinSec } from '@/lib/utils';
 
 interface ScoreChartProps {
   scores: (Score & {
+    reward: Reward | null;
     lobbySession: LobbySession & {
       lobby: Lobby & {
         game: Game;
@@ -25,20 +35,29 @@ interface CustomTooltipProps {
 
 export const ScoreChart = ({ scores }: ScoreChartProps) => {
   const [activeTab, setActiveTab] = useState('');
+  const [isMounted, setIsMounted] = useState(false);
 
-  // Organizing scores by games
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return null;
+  }
+
   const games = scores.reduce(
     (acc, score) => {
       const gameName = score.lobbySession.lobby.game.name;
       if (!acc[gameName]) {
         acc[gameName] = [];
       }
-      acc[gameName].push(score);
+      acc[gameName].push(score); // This should push the whole score object including the reward
       return acc;
     },
     {} as Record<
       string,
       (Score & {
+        reward: Reward | null;
         lobbySession: LobbySession & {
           lobby: Lobby & {
             game: Game;
@@ -50,18 +69,39 @@ export const ScoreChart = ({ scores }: ScoreChartProps) => {
 
   const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, scoreType }) => {
     if (active && payload && payload.length) {
-      const score = payload[0].value;
+      const score = payload[0].payload.score; // Extract score from payload
+      const reward = payload[0].payload.reward; // Extract reward from payload
       const formattedScore = scoreType === 'time' ? convertMillisecondsToMinSec(score) : score;
 
       return (
-        <div className="p-2 border rounded shadow bg-primary/20">
+        <div className="border rounded shadow bg-primary/20">
           <p className="label">{`Date: ${label}`}</p>
-          <p>{`${scoreType}: ${formattedScore}`}</p>
+          <p>{`Score: ${formattedScore}`}</p>
+          {reward && <p>{`Reward: $${reward.value}`}</p>}
+          {reward && <p>{`Place: ${reward.place}`}</p>}
         </div>
       );
     }
 
     return null;
+  };
+
+  const CustomDot: React.FC<any> = ({ cx, cy, payload }) => {
+    if (payload.reward) {
+      return (
+        <circle
+          cx={cx}
+          cy={cy}
+          r={6}
+          fill="#f1c454"
+          stroke="none"
+          style={{
+            animation: 'pulse 1.5s infinite',
+          }}
+        />
+      );
+    }
+    return <circle cx={cx} cy={cy} r={4} fill="#429add" stroke="none" />;
   };
 
   const gameNames = Object.keys(games);
@@ -70,20 +110,26 @@ export const ScoreChart = ({ scores }: ScoreChartProps) => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center w-full pt-5 pl-5 font-sans text-primary">
-      {/* <h1 className="mb-4 text-xl font-bold font-inter">User Scores</h1> */}
-
+    <div className="flex flex-col items-center justify-center w-full pt-5 space-y-5 font-sans text-primary">
+      <div className="text-sm text-center text-primary/50">
+        <h1 className="items-center text-4xl font-bold">Player Stats</h1>
+        <p className="mt-4">The graph shows the your best score per session played.</p>
+      </div>
       <Tabs defaultValue={activeTab} className="w-full rounded-sm ">
-        <div className="max-w-xl rounded-sm bg-primary/40">
-          {/* Added this container for inactive tabs */}
-          <TabsList className="grid w-full max-w-xl grid-cols-2 bg-secondary/20">
+        <div className="">
+          <TabsList className="flex overflow-x-auto scrollbar-hide">
             {gameNames.map((gameName) => (
-              <TabsTrigger key={gameName} value={gameName}>
+              <TabsTrigger
+                key={gameName}
+                value={gameName}
+                className="px-4 transition duration-200 transform border-b-2 border-transparent hover:border-blue-500"
+              >
                 {gameName}
               </TabsTrigger>
             ))}
           </TabsList>
         </div>
+
         {gameNames.map((gameName) => {
           const currentScoreType = games[gameName][0].lobbySession.lobby.game.scoreType;
           const dataForChart = games[gameName].map((score) => ({
@@ -92,53 +138,67 @@ export const ScoreChart = ({ scores }: ScoreChartProps) => {
           }));
 
           const endIndex = dataForChart.length - 1; // last index of the array
-          const startIndex = endIndex - 9 > 0 ? endIndex - 9 : 0; // 10th from last, but not less than 0
+          const startIndex = endIndex - 30 > 0 ? endIndex - 30 : 0; // 10th from last, but not less than 0
 
           return (
             <TabsContent
               key={gameName}
               value={gameName}
-              className="flex justify-center pt-5 space-y-2"
+              className="flex flex-col mt-0 space-y-2 justify-left"
             >
-              <LineChart
-                className="w-full min-w-full"
-                width={700}
-                height={500}
-                data={games[gameName].map((score) => ({
-                  date: new Date(score.createdAt).toLocaleDateString(),
-                  score: score.score,
-                }))}
-              >
-                <XAxis
-                  dataKey="date"
-                  tick={{ fontSize: 12, fontFamily: 'Inter' }}
-                  stroke="#4A4A4A"
-                />
-                <YAxis
-                  tick={{ fontSize: 12, fontFamily: 'Inter' }}
-                  stroke="#4A4A4A"
-                  tickFormatter={(value) =>
-                    currentScoreType === 'time' ? convertMillisecondsToMinSec(value) : value
-                  }
-                />
-                <Tooltip content={<CustomTooltip scoreType={currentScoreType} />} />{' '}
-                {/* <CartesianGrid stroke="#EAEAEA" /> */}
-                <Line
-                  type="monotone"
-                  dataKey="score"
-                  stroke="#429add"
-                  yAxisId={0}
-                  strokeWidth={1}
-                />
-                <Brush
-                  dataKey="date"
-                  height={30}
-                  fill="#6a6a6a"
-                  stroke="#8884d8"
-                  startIndex={startIndex}
-                  endIndex={endIndex}
-                />
-              </LineChart>
+              <div className="justify-center pl-10 mb-3 text-sm text-gray-600 ">
+                <p>Average Score: {'sdfsdf'}</p>
+                <p>Total Winnings: ${4}</p>
+                <p>Times played: {4}</p>
+              </div>
+              <div className="relative pr-5 h-96">
+                <ResponsiveContainer>
+                  <LineChart
+                    className="w-full min-w-full"
+                    width={700}
+                    height={500}
+                    data={games[gameName].map((score) => ({
+                      date: new Date(score.createdAt).toLocaleDateString(),
+                      score: score.score,
+                      reward: score.reward, // Include reward information
+                    }))}
+                  >
+                    <XAxis
+                      dataKey="date"
+                      tick={{ fontSize: 12, fontFamily: 'Inter' }}
+                      stroke="#4A4A4A"
+                      padding={{ left: 10, right: 10 }} // add this line
+                    />
+
+                    <YAxis
+                      tick={{ fontSize: 12, fontFamily: 'Inter' }}
+                      stroke="#4A4A4A"
+                      padding={{ top: 10 }} // add this line
+                      tickFormatter={(value) =>
+                        currentScoreType === 'time' ? convertMillisecondsToMinSec(value) : value
+                      }
+                    />
+
+                    <Tooltip content={<CustomTooltip scoreType={currentScoreType} />} />
+                    <Line
+                      type="monotone"
+                      dataKey="score"
+                      stroke="#429add"
+                      dot={<CustomDot />}
+                      yAxisId={0}
+                      strokeWidth={1}
+                    />
+                    <Brush
+                      dataKey="date"
+                      height={30}
+                      fill="#6a6a6a"
+                      stroke="#8884d8"
+                      startIndex={startIndex}
+                      endIndex={endIndex}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             </TabsContent>
           );
         })}
