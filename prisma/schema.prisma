@@ -58,17 +58,6 @@ model Lobby {
   @@index([gameId])
 }
 
-// model Reward {
-//   id        String   @id @default(uuid())
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-//   value     Float
-//   lobbyId   String
-//   lobby     Lobby    @relation(fields: [lobbyId], references: [id])
-
-//   @@index([lobbyId])
-// }
-
 model Reward {
   id        String   @id @default(uuid())
   userId    String // The user who won the reward

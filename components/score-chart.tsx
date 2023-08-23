@@ -11,19 +11,14 @@ import {
   Brush,
   ResponsiveContainer,
 } from 'recharts';
+import { ScoreRelationsType } from '@/app/types';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Reward, Score, LobbySession, Lobby, Game } from '@prisma/client';
+import { GameAverageScore } from '@prisma/client';
 import { convertMillisecondsToMinSec } from '@/lib/utils';
 
 interface ScoreChartProps {
-  scores: (Score & {
-    reward: Reward | null;
-    lobbySession: LobbySession & {
-      lobby: Lobby & {
-        game: Game;
-      };
-    };
-  })[];
+  scores: ScoreRelationsType[];
+  userGameAverageScores: GameAverageScore[];
 }
 
 interface CustomTooltipProps {
@@ -33,7 +28,7 @@ interface CustomTooltipProps {
   scoreType?: string;
 }
 
-export const ScoreChart = ({ scores }: ScoreChartProps) => {
+export const ScoreChart = ({ scores, userGameAverageScores }: ScoreChartProps) => {
   const [activeTab, setActiveTab] = useState('');
   const [isMounted, setIsMounted] = useState(false);
 
@@ -45,27 +40,14 @@ export const ScoreChart = ({ scores }: ScoreChartProps) => {
     return null;
   }
 
-  const games = scores.reduce(
-    (acc, score) => {
-      const gameName = score.lobbySession.lobby.game.name;
-      if (!acc[gameName]) {
-        acc[gameName] = [];
-      }
-      acc[gameName].push(score); // This should push the whole score object including the reward
-      return acc;
-    },
-    {} as Record<
-      string,
-      (Score & {
-        reward: Reward | null;
-        lobbySession: LobbySession & {
-          lobby: Lobby & {
-            game: Game;
-          };
-        };
-      })[]
-    >
-  );
+  const games = scores.reduce((acc, score) => {
+    const gameName = score.lobbySession.lobby.game.name;
+    if (!acc[gameName]) {
+      acc[gameName] = [];
+    }
+    acc[gameName].push(score);
+    return acc;
+  }, {} as Record<string, ScoreRelationsType[]>);
 
   const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, scoreType }) => {
     if (active && payload && payload.length) {
@@ -109,11 +91,30 @@ export const ScoreChart = ({ scores }: ScoreChartProps) => {
     setActiveTab(gameNames[0]);
   }
 
+  const getAverageScoreForGame = (gameId: string) => {
+    const gameAverage = userGameAverageScores.find((gameScore) => gameScore.gameId === gameId);
+    return gameAverage?.averageScore || 0;
+  };
+
+  const getTimesPlayedForGame = (gameId: string) => {
+    const gameAverage = userGameAverageScores.find((gameScore) => gameScore.gameId === gameId);
+    return gameAverage?.timesPlayed || 0;
+  };
+
+  const getTotalWinningsForGame = (gameScores: ScoreRelationsType[]) => {
+    return gameScores.reduce((acc, score) => {
+      if (score.reward) {
+        acc += score.reward.value || 0;
+      }
+      return acc;
+    }, 0);
+  };
+
   return (
     <div className="flex flex-col items-center justify-center w-full pt-5 space-y-5 font-sans text-primary">
       <div className="text-sm text-center text-primary/50">
         <h1 className="items-center text-4xl font-bold">Player Stats</h1>
-        <p className="mt-4">The graph shows the your best score per session played.</p>
+        <p className="mt-4">The graph shows the your best score per session entered.</p>
       </div>
       <Tabs defaultValue={activeTab} className="w-full rounded-sm ">
         <div className="">
@@ -139,6 +140,13 @@ export const ScoreChart = ({ scores }: ScoreChartProps) => {
 
           const endIndex = dataForChart.length - 1; // last index of the array
           const startIndex = endIndex - 30 > 0 ? endIndex - 30 : 0; // 10th from last, but not less than 0
+          const activeGameId = games[gameName]?.[0]?.lobbySession?.lobby?.game?.id;
+
+          const averageScore = getAverageScoreForGame(activeGameId);
+          const timesPlayed = getTimesPlayedForGame(activeGameId);
+          const totalWinnings = getTotalWinningsForGame(games[gameName]);
+          const formattedAverageScore =
+            currentScoreType === 'time' ? convertMillisecondsToMinSec(averageScore) : averageScore;
 
           return (
             <TabsContent
@@ -147,9 +155,9 @@ export const ScoreChart = ({ scores }: ScoreChartProps) => {
               className="flex flex-col mt-0 space-y-2 justify-left"
             >
               <div className="justify-center pl-10 mb-3 text-sm text-gray-600 ">
-                <p>Average Score: {'sdfsdf'}</p>
-                <p>Total Winnings: ${4}</p>
-                <p>Times played: {4}</p>
+                <p>Average Score: {formattedAverageScore}</p>
+                <p>Times played: {timesPlayed}</p>
+                <p>Total Winnings: ${totalWinnings}</p>
               </div>
               <div className="relative pr-5 h-96">
                 <ResponsiveContainer>
