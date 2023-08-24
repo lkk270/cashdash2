@@ -60,6 +60,8 @@ const GameIdPage = async ({ params }: GameIdPageProps) => {
   //   return <DashboardLayout userValues={userValues} children={<div></div>} />;
   // }
 
+  // console.log(game.lobbies[1].sessions);
+
   return <DashboardLayout userValues={userValues} children={<GameClient data={game} />} />;
 };
 

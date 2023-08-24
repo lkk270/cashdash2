@@ -3,8 +3,7 @@
 import { Lobby, Game, LobbySession } from '@prisma/client';
 import { GameNavbar } from '@/components/game-navbar';
 import { ScoresTable } from '@/components/scores-table';
-import { LobbyHeader } from '@/components/lobby-header';
-import { Navbar } from '@/components/navbar';
+import { Minesweeper } from '@/components/minesweeper/minesweeper';
 
 interface LobbyClientProps {
   lobby: Lobby & {
@@ -22,7 +21,7 @@ export const LobbyClient = ({ lobby, game }: LobbyClientProps) => {
       </div>
       <main className="">
         <div className="h-full p-4 space-y-2 ">
-          <div className="flex justify-center"></div>
+          <div className="flex justify-center">{<Minesweeper size={10} numMines={10} />}</div>
         </div>
       </main>
     </div>
