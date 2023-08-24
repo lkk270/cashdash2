@@ -1,7 +1,7 @@
 'use client';
 
 import { CellType } from '@/app/types';
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Closed,
   Flag,
@@ -12,12 +12,19 @@ import {
   Type1,
   Type2,
   Type3,
+  Type4,
+  Type5,
+  Type6,
+  Type7,
+  Type8,
 } from './image-components/index';
 
 interface CellProps {
   cell: CellType;
-  onReveal: () => void;
+  onReveal: (e: React.MouseEvent) => void;
   onFlag: (e: React.MouseEvent) => void;
+  pressedCell: { row: number; col: number } | null;
+  setPressedCell: React.Dispatch<React.SetStateAction<{ row: number; col: number } | null>>;
   gameOver: boolean; // To denote whether the game is over
   row: number; // Add this line
   col: number; // Add this line
@@ -29,12 +36,43 @@ export const Cell = ({
   row,
   col,
   cell,
+  pressedCell,
+  setPressedCell,
   onReveal,
   onFlag,
   gameOver,
   explodedRow,
   explodedCol,
 }: CellProps) => {
+  // Mouse down event to set the isPressed state
+  const handleMouseDown = (e: React.MouseEvent) => {
+    // Check if left button is pressed
+    if (e.button === 0) {
+      setPressedCell({ row, col });
+    }
+  };
+
+  const handleMouseUp = (e: React.MouseEvent) => {
+    if (e.button === 2) {
+      return; // if right-click, do nothing
+    }
+    setPressedCell(null);
+    if (!gameOver) onReveal(e);
+  };
+
+  const handleMouseEnter = (e: React.MouseEvent) => {
+    if (cell.isRevealed || gameOver || cell.isFlagged) return;
+    if (e.buttons === 1) {
+      // Check if left button is pressed
+      setPressedCell({ row, col });
+    }
+  };
+
+  const handleMouseLeave = (e: React.MouseEvent) => {
+    if (cell.isRevealed || gameOver || cell.isFlagged) return;
+    setPressedCell(null);
+  };
+
   const baseStyle = 'w-8 h-8 flex items-center justify-center text-center';
   // const revealedStyle = cell.isRevealed
   //   ? 'bg-c6c6c6 border border-gray-500'
@@ -43,8 +81,9 @@ export const Cell = ({
   let cellContent;
   console.log('Is the game over?', gameOver && cell.isFlagged, 'mine?', !cell.isMine);
 
-  if (gameOver && cell.isFlagged && !cell.isMine) {
-    console.log('Showing wrong flag for cell: ', row, col);
+  if (pressedCell && pressedCell.row === row && pressedCell.col === col) {
+    cellContent = <Type0 />;
+  } else if (gameOver && cell.isFlagged && !cell.isMine) {
     cellContent = <FlagWrong />;
   } else if (cell.isRevealed) {
     if (cell.isMine) {
@@ -64,6 +103,21 @@ export const Cell = ({
         case 3:
           cellContent = <Type3 />;
           break;
+        case 4:
+          cellContent = <Type4 />;
+          break;
+        case 5:
+          cellContent = <Type5 />;
+          break;
+        case 6:
+          cellContent = <Type6 />;
+          break;
+        case 7:
+          cellContent = <Type7 />;
+          break;
+        case 8:
+          cellContent = <Type8 />;
+          break;
         default:
           cellContent = <Type0 />;
       }
@@ -77,7 +131,20 @@ export const Cell = ({
   }
 
   return (
-    <div onClick={onReveal} onContextMenu={onFlag} className={`${baseStyle}`}>
+    <div
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onClick={(e) => {
+        if (!gameOver) onReveal(e);
+      }}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        if (!gameOver) onFlag(e);
+      }}
+      className={`${baseStyle}`}
+    >
       {cellContent}
     </div>
   );

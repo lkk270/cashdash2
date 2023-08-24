@@ -14,30 +14,15 @@ interface MinesweeperProps {
 }
 
 export const Minesweeper = ({ size, numMines }: MinesweeperProps) => {
-  // const [grid, setGrid] = useState<CellType[][]>([
-  //   [{ isMine: false, isRevealed: false, isFlagged: false, neighboringMines: 0 }],
-  // ]);
-  // const newGrid = initializeGrid(10, 10, 20);
   const [grid, setGrid] = useState<CellType[][]>([]);
   const [explodedCell, setExplodedCell] = useState<{ row: number; col: number } | null>(null);
   const [gameOver, setGameOver] = useState<boolean>(false);
-  // const { timeElapsed, setTimeElapsed } = useTimer();
+  const [gameStarted, setGameStarted] = useState<boolean>(false);
 
   useEffect(() => {
     const newGrid = initializeGrid(size, size, numMines); // For example: 10x10 grid with 20 mines
     setGrid(newGrid);
   }, []); // This useEffect will run once when the component mountss useEffect will run once when the component mounts
-
-  // Increment timeElapsed every second if the game is not over.
-  // useEffect(() => {
-  //   if (gameOver) return; // Ensure timer doesn't start if game is over
-
-  //   const timer = setInterval(() => {
-  //     setTimeElapsed((prevTime) => prevTime + 1);
-  //   }, 1000);
-
-  //   return () => clearInterval(timer);
-  // }, [gameOver]);
 
   let gameStatus: 'won' | 'lost' | 'regular' = 'regular';
   if (gameOver) {
@@ -46,6 +31,9 @@ export const Minesweeper = ({ size, numMines }: MinesweeperProps) => {
 
   function revealCell(grid: CellType[][], row: number, col: number): CellType[][] {
     // Check boundaries first
+    if (!gameStarted) {
+      setGameStarted(true);
+    }
     if (row < 0 || row >= grid.length || col < 0 || col >= grid[0].length) {
       return grid; // Out of grid bounds
     }
@@ -95,6 +83,9 @@ export const Minesweeper = ({ size, numMines }: MinesweeperProps) => {
   }
 
   const toggleFlag = (e: React.MouseEvent, row: number, col: number) => {
+    if (!gameStarted) {
+      setGameStarted(true);
+    }
     e.preventDefault(); // This prevents the default context menu from appearing
     const newGrid = [...grid];
     newGrid[row][col].isFlagged = !newGrid[row][col].isFlagged;
@@ -129,8 +120,15 @@ export const Minesweeper = ({ size, numMines }: MinesweeperProps) => {
     // Reset the gameOver flag
     setGameOver(false);
 
+    // resets the gameStarted state
+    setGameStarted(false);
+
     // Reset the timer
     // setTimeElapsed(0);
+  };
+
+  const handleTimeExceeded = () => {
+    setGameOver(true);
   };
 
   const checkWin = (): boolean => {
@@ -155,8 +153,10 @@ export const Minesweeper = ({ size, numMines }: MinesweeperProps) => {
   return (
     <div>
       <Header
+        gameStarted={gameStarted}
         flagsLeft={flagsLeft}
         gameStatus={gameStatus}
+        onTimeExceeded={handleTimeExceeded}
         // timeElapsed={timeElapsed}
         // setTimeElapsed={setTimeElapsed}
         onReset={restartGame}

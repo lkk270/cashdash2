@@ -4,6 +4,8 @@ import { FaceLoss, FaceRegular, FaceWon } from './image-components/index';
 interface HeaderProps {
   flagsLeft: number;
   gameStatus: 'won' | 'lost' | 'regular';
+  gameStarted: boolean;
+  onTimeExceeded: () => void; // New prop
   // timeElapsed: number;
   // setTimeElapsed: React.Dispatch<React.SetStateAction<number>>;
   onReset: () => void;
@@ -12,6 +14,8 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   flagsLeft,
   gameStatus,
+  gameStarted,
+  onTimeExceeded,
   // timeElapsed,
   // setTimeElapsed,
   onReset,
@@ -19,13 +23,27 @@ export const Header: React.FC<HeaderProps> = ({
   const [timeElapsed, setTimeElapsed] = useState<number>(0);
 
   useEffect(() => {
+    if (!gameStarted) {
+      setTimeElapsed(0);
+      return;
+    }
     if (gameStatus === 'lost' || gameStatus === 'won') return;
+
     const timer = setInterval(() => {
-      setTimeElapsed((prevTime: number) => prevTime + 1);
+      setTimeElapsed((prevTime: number) => {
+        if (prevTime >= 3599) {
+          // Check if timer exceeded 59:59
+          onTimeExceeded(); // End the game
+          clearInterval(timer); // Stop the timer
+          return prevTime;
+        }
+        return prevTime + 1;
+      });
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [gameStatus, setTimeElapsed]);
+  }, [gameStarted, gameStatus, setTimeElapsed]);
+
   let StatusIcon;
   switch (gameStatus) {
     case 'won':

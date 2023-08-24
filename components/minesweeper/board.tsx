@@ -1,5 +1,5 @@
 // components/Board.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { Cell } from './cell';
 import { CellType } from '@/app/types';
 
@@ -11,8 +11,10 @@ interface BoardProps {
   gameOver: boolean; // Add this line
 }
 export const Board = ({ grid, gameOver, onRevealCell, onToggleFlag, explodedCell }: BoardProps) => {
+  const [pressedCell, setPressedCell] = useState<{ row: number; col: number } | null>(null);
+
   return (
-    <div className="grid grid-cols-10">
+    <div className={`grid grid-cols-${grid.length.toString()}`}>
       {grid.map((row, rowIndex) =>
         row.map((cell, colIndex) => (
           <Cell
@@ -21,6 +23,8 @@ export const Board = ({ grid, gameOver, onRevealCell, onToggleFlag, explodedCell
             row={rowIndex}
             col={colIndex}
             gameOver={gameOver}
+            pressedCell={pressedCell}
+            setPressedCell={setPressedCell}
             onReveal={() => onRevealCell(rowIndex, colIndex)}
             onFlag={(e) => onToggleFlag(e, rowIndex, colIndex)}
             explodedRow={explodedCell?.row}

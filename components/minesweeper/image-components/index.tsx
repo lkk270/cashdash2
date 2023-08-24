@@ -6,7 +6,12 @@ export * from './type-0';
 export * from './type-1';
 export * from './type-2';
 export * from './type-3';
+export * from './type-4';
+export * from './type-5';
+export * from './type-6';
+export * from './type-7';
+export * from './type-8';
 export * from './face-loss';
 export * from './face-regular';
 export * from './face-won';
-export * from './flag-wrong'
+export * from './flag-wrong';
