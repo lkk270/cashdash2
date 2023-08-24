@@ -1,6 +1,6 @@
 // components/Board.tsx
 import React from 'react';
-import Cell from './cell';
+import { Cell } from './cell';
 import { CellType } from '@/app/types';
 
 interface BoardProps {
@@ -16,7 +16,7 @@ export const Board = ({ grid, gameOver, onRevealCell, onToggleFlag, explodedCell
       {grid.map((row, rowIndex) =>
         row.map((cell, colIndex) => (
           <Cell
-            key={rowIndex.toString() + '-' + colIndex.toString()}
+            // key={rowIndex.toString() + '-' + colIndex.toString()}
             cell={cell}
             row={rowIndex}
             col={colIndex}

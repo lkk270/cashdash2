@@ -4,6 +4,7 @@ import { Lobby, Game, LobbySession } from '@prisma/client';
 import { GameNavbar } from '@/components/game-navbar';
 import { ScoresTable } from '@/components/scores-table';
 import { Minesweeper } from '@/components/minesweeper/minesweeper';
+import { TimerProvider } from '@/components/providers/timer-provider';
 
 interface LobbyClientProps {
   lobby: Lobby & {
@@ -14,6 +15,7 @@ interface LobbyClientProps {
 
 export const LobbyClient = ({ lobby, game }: LobbyClientProps) => {
   return (
+    // <TimerProvider>
     <div className="h-full">
       <GameNavbar game={game} lobby={lobby} />
       <div className="fixed inset-y-0 flex-col hidden mt-20 w-60 xl:flex">
@@ -21,10 +23,11 @@ export const LobbyClient = ({ lobby, game }: LobbyClientProps) => {
       </div>
       <main className="">
         <div className="h-full p-4 space-y-2 ">
-          <div className="flex justify-center">{<Minesweeper size={10} numMines={1} />}</div>
+          <div className="flex justify-center">{<Minesweeper size={10} numMines={5} />}</div>
         </div>
       </main>
     </div>
+    // </TimerProvider>
   );
 };
 //       <div className="fixed inset-y-0 flex-col hidden mt-16 ml-8 w-30 xl:flex">

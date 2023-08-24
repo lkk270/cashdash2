@@ -41,7 +41,7 @@ export const Cell = ({
   //   : 'bg-c6c6c6 border-l border-t border-white border-r border-b border-808080';
 
   let cellContent;
-  console.log('Is the game over?', gameOver && cell.isFlagged);
+  console.log('Is the game over?', gameOver && cell.isFlagged, 'mine?', !cell.isMine);
 
   if (gameOver && cell.isFlagged && !cell.isMine) {
     console.log('Showing wrong flag for cell: ', row, col);
@@ -82,5 +82,3 @@ export const Cell = ({
     </div>
   );
 };
-
-export default Cell;

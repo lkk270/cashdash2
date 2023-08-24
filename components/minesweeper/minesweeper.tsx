@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 
-import { Board } from '@/components/minesweeper/board';
-import { Header } from '@/components/minesweeper/header';
+import { Board } from './board';
+import { Header } from './header';
+
 import { initializeGrid } from '@/lib/minesweeper-utils';
 import { CellType } from '@/app/types';
 
@@ -20,22 +21,23 @@ export const Minesweeper = ({ size, numMines }: MinesweeperProps) => {
   const [grid, setGrid] = useState<CellType[][]>([]);
   const [explodedCell, setExplodedCell] = useState<{ row: number; col: number } | null>(null);
   const [gameOver, setGameOver] = useState<boolean>(false);
-  const [timeElapsed, setTimeElapsed] = useState(0);
+  // const { timeElapsed, setTimeElapsed } = useTimer();
 
   useEffect(() => {
     const newGrid = initializeGrid(size, size, numMines); // For example: 10x10 grid with 20 mines
     setGrid(newGrid);
-  }, []); // This useEffect will run once when the component mounts
+  }, []); // This useEffect will run once when the component mountss useEffect will run once when the component mounts
 
   // Increment timeElapsed every second if the game is not over.
-  useEffect(() => {
-    if (gameOver) return;
-    const timer = setInterval(() => {
-      setTimeElapsed((prevTime) => prevTime + 1);
-    }, 1000);
+  // useEffect(() => {
+  //   if (gameOver) return; // Ensure timer doesn't start if game is over
 
-    return () => clearInterval(timer);
-  }, [gameOver]);
+  //   const timer = setInterval(() => {
+  //     setTimeElapsed((prevTime) => prevTime + 1);
+  //   }, 1000);
+
+  //   return () => clearInterval(timer);
+  // }, [gameOver]);
 
   let gameStatus: 'won' | 'lost' | 'regular' = 'regular';
   if (gameOver) {
@@ -128,7 +130,7 @@ export const Minesweeper = ({ size, numMines }: MinesweeperProps) => {
     setGameOver(false);
 
     // Reset the timer
-    setTimeElapsed(0);
+    // setTimeElapsed(0);
   };
 
   const checkWin = (): boolean => {
@@ -155,7 +157,8 @@ export const Minesweeper = ({ size, numMines }: MinesweeperProps) => {
       <Header
         flagsLeft={flagsLeft}
         gameStatus={gameStatus}
-        timeElapsed={timeElapsed}
+        // timeElapsed={timeElapsed}
+        // setTimeElapsed={setTimeElapsed}
         onReset={restartGame}
       />
       <Board
