@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaceLoss, FaceRegular, FaceWon } from './image-components/index';
+import { FaceLoss, FaceRegular, FaceWon, Flag } from './image-components/index';
 
 interface HeaderProps {
   flagsLeft: number;
@@ -66,11 +66,20 @@ export const Header: React.FC<HeaderProps> = ({
     setTimeElapsed(0);
   };
   return (
-    <div className="flex items-center justify-between p-4">
-      <div>Flags left: {flagsLeft}</div>
+    <div className="flex items-center justify-between pb-4">
+      <div className="flex items-center p-1 font-mono text-2xl bg-black rounded shadow-md gap-x-4">
+        <span className="transform scale-x-[-1]">🚩</span>
+        <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-sky-500">
+          {flagsLeft}
+        </span>
+      </div>
+
       <button onClick={restartGame}>{StatusIcon}</button>
-      <div>
-        {minutes}:{seconds}
+
+      <div className="p-1 font-mono text-2xl bg-black rounded shadow-md">
+        <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-sky-500">
+          {minutes}:{seconds}
+        </span>
       </div>
     </div>
   );
