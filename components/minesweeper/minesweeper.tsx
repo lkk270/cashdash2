@@ -64,7 +64,7 @@ export const Minesweeper = ({ size, numMines }: MinesweeperProps) => {
       // If the clicked cell is a mine, reveal all mines.
       for (let i = 0; i < newGrid.length; i++) {
         for (let j = 0; j < newGrid[i].length; j++) {
-          if (newGrid[i][j].isMine) {
+          if (newGrid[i][j].isMine && !newGrid[i][j].isFlagged) {
             newGrid[i][j].isRevealed = true;
           }
         }
@@ -102,6 +102,18 @@ export const Minesweeper = ({ size, numMines }: MinesweeperProps) => {
   const handleReveal = (row: number, col: number) => {
     const updatedGrid = revealCell(grid, row, col);
     setGrid(updatedGrid);
+
+    if (checkWin()) {
+      for (let r = 0; r < grid.length; r++) {
+        for (let c = 0; c < grid[0].length; c++) {
+          if (grid[r][c].isMine) {
+            updatedGrid[r][c].isFlagged = true;
+          }
+        }
+      }
+      setGrid(updatedGrid);
+      setGameOver(true);
+    }
   };
 
   const restartGame = () => {
@@ -117,6 +129,17 @@ export const Minesweeper = ({ size, numMines }: MinesweeperProps) => {
 
     // Reset the timer
     setTimeElapsed(0);
+  };
+
+  const checkWin = (): boolean => {
+    for (let row of grid) {
+      for (let cell of row) {
+        if (!cell.isMine && !cell.isRevealed) {
+          return false; // Not all non-mine cells are revealed yet
+        }
+      }
+    }
+    return true; // All non-mine cells are revealed
   };
 
   // Calculate the number of flags used

@@ -5,6 +5,7 @@ import React from 'react';
 import {
   Closed,
   Flag,
+  FlagWrong,
   MineBlank,
   MineRed,
   Type0,
@@ -40,8 +41,12 @@ export const Cell = ({
   //   : 'bg-c6c6c6 border-l border-t border-white border-r border-b border-808080';
 
   let cellContent;
+  console.log('Is the game over?', gameOver && cell.isFlagged);
 
-  if (cell.isRevealed) {
+  if (gameOver && cell.isFlagged && !cell.isMine) {
+    console.log('Showing wrong flag for cell: ', row, col);
+    cellContent = <FlagWrong />;
+  } else if (cell.isRevealed) {
     if (cell.isMine) {
       if (cell.isMine && gameOver && row === explodedRow && col === explodedCol) {
         cellContent = <MineRed />;

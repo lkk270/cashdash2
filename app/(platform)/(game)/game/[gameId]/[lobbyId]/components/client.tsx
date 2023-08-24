@@ -21,7 +21,7 @@ export const LobbyClient = ({ lobby, game }: LobbyClientProps) => {
       </div>
       <main className="">
         <div className="h-full p-4 space-y-2 ">
-          <div className="flex justify-center">{<Minesweeper size={10} numMines={10} />}</div>
+          <div className="flex justify-center">{<Minesweeper size={10} numMines={1} />}</div>
         </div>
       </main>
     </div>

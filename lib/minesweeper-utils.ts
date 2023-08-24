@@ -24,6 +24,7 @@ export function initializeGrid(rows: number, cols: number, mines: number): CellT
     let randomIndex = Math.floor(Math.random() * allCells.length);
     let { row, col } = allCells[randomIndex];
     grid[row][col].isMine = true;
+    allCells.splice(randomIndex, 1); // Remove the chosen cell from the list
   }
 
   // Calculate neighboring mines for each cell
