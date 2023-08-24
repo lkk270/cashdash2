@@ -6,3 +6,6 @@ export * from './type-0';
 export * from './type-1';
 export * from './type-2';
 export * from './type-3';
+export * from './face-loss';
+export * from './face-regular';
+export * from './face-won';

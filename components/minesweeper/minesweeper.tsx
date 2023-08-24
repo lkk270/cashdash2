@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 
 import { Board } from '@/components/minesweeper/board';
+import { Header } from '@/components/minesweeper/header';
 import { initializeGrid } from '@/lib/minesweeper-utils';
 import { CellType } from '@/app/types';
 
@@ -19,11 +20,27 @@ export const Minesweeper = ({ size, numMines }: MinesweeperProps) => {
   const [grid, setGrid] = useState<CellType[][]>([]);
   const [explodedCell, setExplodedCell] = useState<{ row: number; col: number } | null>(null);
   const [gameOver, setGameOver] = useState<boolean>(false);
+  const [timeElapsed, setTimeElapsed] = useState(0);
 
   useEffect(() => {
     const newGrid = initializeGrid(size, size, numMines); // For example: 10x10 grid with 20 mines
     setGrid(newGrid);
   }, []); // This useEffect will run once when the component mounts
+
+  // Increment timeElapsed every second if the game is not over.
+  useEffect(() => {
+    if (gameOver) return;
+    const timer = setInterval(() => {
+      setTimeElapsed((prevTime) => prevTime + 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [gameOver]);
+
+  let gameStatus: 'won' | 'lost' | 'regular' = 'regular';
+  if (gameOver) {
+    gameStatus = explodedCell ? 'lost' : 'won';
+  }
 
   function revealCell(grid: CellType[][], row: number, col: number): CellType[][] {
     // Check boundaries first
@@ -87,13 +104,44 @@ export const Minesweeper = ({ size, numMines }: MinesweeperProps) => {
     setGrid(updatedGrid);
   };
 
+  const restartGame = () => {
+    // Generate a fresh grid
+    const newGrid = initializeGrid(size, size, numMines);
+    setGrid(newGrid);
+
+    // Reset the exploded cell
+    setExplodedCell(null);
+
+    // Reset the gameOver flag
+    setGameOver(false);
+
+    // Reset the timer
+    setTimeElapsed(0);
+  };
+
+  // Calculate the number of flags used
+  const flagsUsed = grid.reduce((count, row) => {
+    return count + row.filter((cell) => cell.isFlagged).length;
+  }, 0);
+
+  // Calculate the number of flags left
+  const flagsLeft = numMines - flagsUsed;
+
   return (
-    <Board
-      grid={grid}
-      gameOver={gameOver}
-      explodedCell={explodedCell}
-      onRevealCell={handleReveal}
-      onToggleFlag={toggleFlag}
-    />
+    <div>
+      <Header
+        flagsLeft={flagsLeft}
+        gameStatus={gameStatus}
+        timeElapsed={timeElapsed}
+        onReset={restartGame}
+      />
+      <Board
+        grid={grid}
+        gameOver={gameOver}
+        explodedCell={explodedCell}
+        onRevealCell={handleReveal}
+        onToggleFlag={toggleFlag}
+      />
+    </div>
   );
 };
