@@ -16,7 +16,7 @@ export const Board = ({ grid, gameOver, onRevealCell, onToggleFlag, explodedCell
   return (
     //     <div className={`grid grid-cols-${grid.length.toString()}`}>
     //gris-cols-12 should be dynamic but ran into some issues with it
-    <div className={`grid grid-cols-12`}> 
+    <div className={`grid grid-cols-12 select-none`}>
       {grid.map((row, rowIndex) =>
         row.map((cell, colIndex) => (
           <Cell
