@@ -46,6 +46,9 @@ export const Cell = ({
 }: CellProps) => {
   // Mouse down event to set the isPressed state
   const handleMouseDown = (e: React.MouseEvent) => {
+    if (cell.isRevealed || gameOver || cell.isFlagged) {
+      return;
+    }
     // Check if left button is pressed
     if (e.button === 0) {
       setPressedCell({ row, col });
@@ -61,7 +64,9 @@ export const Cell = ({
   };
 
   const handleMouseEnter = (e: React.MouseEvent) => {
-    if (cell.isRevealed || gameOver || cell.isFlagged) return;
+    if (cell.isRevealed || gameOver || cell.isFlagged) {
+      return;
+    }
     if (e.buttons === 1) {
       // Check if left button is pressed
       setPressedCell({ row, col });
@@ -69,7 +74,6 @@ export const Cell = ({
   };
 
   const handleMouseLeave = (e: React.MouseEvent) => {
-    if (cell.isRevealed || gameOver || cell.isFlagged) return;
     setPressedCell(null);
   };
 
