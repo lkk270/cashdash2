@@ -108,7 +108,7 @@ export const ScoresTable = ({ lobby }: ScoresTableProps) => {
               return (
                 <TableRow
                   style={{ color: tableValueColor }}
-                  key={invoice.invoice}
+                  key={invoice.invoice + i.toString()}
                   className={`border-b border-primary/10 ${
                     i < lobby.numRewards ? 'font-extrabold' : ''
                   }`}

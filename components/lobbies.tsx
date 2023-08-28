@@ -29,7 +29,7 @@ export const Lobbies = ({ data }: LobbiesProps) => {
   const lobbyAboutModal = useLobbyAboutModal();
   const pathname = usePathname();
   const { toast } = useToast();
-  const averageScore = data.averageScores.length > 0 ? data.averageScores[0].averageScore : null;
+  const averageScore = data.averageScores.length > 0 ? data.averageScores[0].averageScore : 1;
   const scoreType = data.scoreType;
   const beatTitle = scoreType === 'time' ? 'Time' : 'Score';
 
@@ -37,6 +37,7 @@ export const Lobbies = ({ data }: LobbiesProps) => {
     <div className="flex justify-center">
       <div className="grid justify-center grid-cols-1 gap-2 pb-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {data.lobbies.map((item) => {
+          // console.log(item);
           let accessResult = isValidLobbyAccess({
             scoreType: scoreType,
             averageScore: averageScore,

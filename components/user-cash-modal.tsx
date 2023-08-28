@@ -15,7 +15,6 @@ import { useUserCashModal } from '@/hooks/use-user-cash-modal';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/components/ui/use-toast';
-import { flightRouterStateSchema } from 'next/dist/server/app-render/types';
 
 export const UserCashModal = () => {
   const userCashModal = useUserCashModal();

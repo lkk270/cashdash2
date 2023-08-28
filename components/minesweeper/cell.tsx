@@ -1,0 +1,155 @@
+'use client';
+
+import { CellType } from '@/app/types';
+import React, { useState } from 'react';
+import {
+  Closed,
+  Flag,
+  FlagWrong,
+  MineBlank,
+  MineRed,
+  Type0,
+  Type1,
+  Type2,
+  Type3,
+  Type4,
+  Type5,
+  Type6,
+  Type7,
+  Type8,
+} from './image-components/index';
+
+interface CellProps {
+  cell: CellType;
+  onReveal: (e: React.MouseEvent) => void;
+  onFlag: (e: React.MouseEvent) => void;
+  pressedCell: { row: number; col: number } | null;
+  setPressedCell: React.Dispatch<React.SetStateAction<{ row: number; col: number } | null>>;
+  gameOver: boolean; // To denote whether the game is over
+  row: number; // Add this line
+  col: number; // Add this line
+  explodedRow?: number; // Add this line
+  explodedCol?: number; // Add this line
+}
+
+export const Cell = ({
+  row,
+  col,
+  cell,
+  pressedCell,
+  setPressedCell,
+  onReveal,
+  onFlag,
+  gameOver,
+  explodedRow,
+  explodedCol,
+}: CellProps) => {
+  // Mouse down event to set the isPressed state
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (cell.isRevealed || gameOver || cell.isFlagged) {
+      return;
+    }
+    // Check if left button is pressed
+    if (e.button === 0) {
+      setPressedCell({ row, col });
+    }
+  };
+
+  const handleMouseUp = (e: React.MouseEvent) => {
+    if (e.button === 2) {
+      return; // if right-click, do nothing
+    }
+    setPressedCell(null);
+    if (!gameOver) onReveal(e);
+  };
+
+  const handleMouseEnter = (e: React.MouseEvent) => {
+    if (cell.isRevealed || gameOver || cell.isFlagged) {
+      return;
+    }
+    if (e.buttons === 1) {
+      // Check if left button is pressed
+      setPressedCell({ row, col });
+    }
+  };
+
+  const handleMouseLeave = (e: React.MouseEvent) => {
+    setPressedCell(null);
+  };
+
+  const baseStyle = 'w-8 h-8 flex items-center justify-center text-center';
+  // const revealedStyle = cell.isRevealed
+  //   ? 'bg-c6c6c6 border border-gray-500'
+  //   : 'bg-c6c6c6 border-l border-t border-white border-r border-b border-808080';
+
+  let cellContent;
+  console.log('Is the game over?', gameOver && cell.isFlagged, 'mine?', !cell.isMine);
+
+  if (pressedCell && pressedCell.row === row && pressedCell.col === col) {
+    cellContent = <Type0 />;
+  } else if (gameOver && cell.isFlagged && !cell.isMine) {
+    cellContent = <FlagWrong />;
+  } else if (cell.isRevealed) {
+    if (cell.isMine) {
+      if (cell.isMine && gameOver && row === explodedRow && col === explodedCol) {
+        cellContent = <MineRed />;
+      } else if (cell.isMine && gameOver) {
+        cellContent = <MineBlank />;
+      }
+    } else if (cell.neighboringMines > 0) {
+      switch (cell.neighboringMines) {
+        case 1:
+          cellContent = <Type1 />;
+          break;
+        case 2:
+          cellContent = <Type2 />;
+          break;
+        case 3:
+          cellContent = <Type3 />;
+          break;
+        case 4:
+          cellContent = <Type4 />;
+          break;
+        case 5:
+          cellContent = <Type5 />;
+          break;
+        case 6:
+          cellContent = <Type6 />;
+          break;
+        case 7:
+          cellContent = <Type7 />;
+          break;
+        case 8:
+          cellContent = <Type8 />;
+          break;
+        default:
+          cellContent = <Type0 />;
+      }
+    } else {
+      cellContent = <Type0 />;
+    }
+  } else if (cell.isFlagged) {
+    cellContent = <Flag />;
+  } else {
+    cellContent = <Closed />;
+  }
+
+  return (
+    <div
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onClick={(e) => {
+        if (!gameOver) onReveal(e);
+      }}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        if (!gameOver) onFlag(e);
+      }}
+      className={`${baseStyle}`}
+    >
+      {cellContent}
+    </div>
+  );
+};

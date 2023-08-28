@@ -58,37 +58,42 @@ model Lobby {
   @@index([gameId])
 }
 
-// model Reward {
-//   id        String   @id @default(uuid())
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-//   value     Float
-//   lobbyId   String
-//   lobby     Lobby    @relation(fields: [lobbyId], references: [id])
+model Reward {
+  id        String   @id @default(uuid())
+  userId    String // The user who won the reward
+  scoreId   String   @unique
+  value     Float // Amount rewarded
+  place     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  score     Score    @relation(fields: [scoreId], references: [id])
 
-//   @@index([lobbyId])
-// }
+  @@index([scoreId])
+}
+
 model LobbySession {
-  id              String   @id @default(uuid())
+  id              String        @id @default(uuid())
   lobbyId         String
-  startDateTime   DateTime @default(now())
-  expiredDateTime DateTime @default(now())
-  isActive        Boolean  @default(false)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  startDateTime   DateTime      @default(now())
+  expiredDateTime DateTime      @default(now())
+  isActive        Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
   scores          Score[]
-  lobby           Lobby    @relation(fields: [lobbyId], references: [id])
+  lobby           Lobby         @relation(fields: [lobbyId], references: [id])
+  GameSession     GameSession[]
 
   @@index([lobbyId])
 }
 
 model Score {
-  id             String        @id @default(uuid())
+  id             String       @id @default(uuid())
   userId         String
   lobbySessionId String
-  createdAt      DateTime      @default(now())
+  createdAt      DateTime     @default(now())
   score          Float
-  lobbySession   LobbySession? @relation(fields: [lobbySessionId], references: [id])
+  lobbySession   LobbySession @relation(fields: [lobbySessionId], references: [id])
+  reward         Reward?
 
   @@index([lobbySessionId])
 }
@@ -104,6 +109,18 @@ model GameAverageScore {
   updatedAt    DateTime @updatedAt
 
   @@index([gameId])
+}
+
+model GameSession {
+  id             String       @id @default(uuid())
+  userId         String
+  gameId         String
+  lobbySessionId String
+  isValid        Boolean
+  createdAt      DateTime     @default(now())
+  lobbySession   LobbySession @relation(fields: [lobbySessionId], references: [id])
+
+  @@index([lobbySessionId])
 }
 
 model UserStripeSubscription {

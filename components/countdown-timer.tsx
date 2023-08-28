@@ -56,7 +56,7 @@ export const CountdownTimer = ({ data }: CountdownProps) => {
     return () => clearInterval(interval);
   }, [startDateTime, expiredDateTime]);
 
-  const countdownLabel = currentCountdown === 'start' ? 'Session starts in:' : 'Session ends in:';
+  const countdownLabel = currentCountdown === 'start' ? 'Session starts:' : 'Session ends:';
 
   if (!isInitialized) {
     return null; // Render nothing until initialized.
@@ -72,26 +72,26 @@ export const CountdownTimer = ({ data }: CountdownProps) => {
   }
 
   return (
-    <div>
-      <div className={`font-bold ${textSize} mb-2 text-center`}>{countdownLabel}</div>
+    <div className="flex flex-col items-center justify-center p-1 font-mono text-xl text-green-400 bg-black rounded shadow-md ">
+      <div className={`font-bold ${textSize} mb-1 text-center `}>{countdownLabel}</div>
       <div className="flex space-x-4">
         {timeLeft.days > 0 && (
           <div className="flex flex-col items-center">
             <div className={`font-bold ${textSize}`}>{timeLeft.days}</div>
-            <div className={`${textSize}`}>Days</div>
+            <div className={`${textSize}`}>D</div>
           </div>
         )}
         <div className="flex flex-col items-center">
           <div className={`font-bold ${textSize}`}>{timeLeft.hours}</div>
-          <div className={`${textSize}`}>Hours</div>
+          <div className={`${textSize}`}>H</div>
         </div>
         <div className="flex flex-col items-center">
           <div className={`font-bold ${textSize}`}>{timeLeft.minutes}</div>
-          <div className={`${textSize}`}>Minutes</div>
+          <div className={`${textSize}`}>M</div>
         </div>
         <div className="flex flex-col items-center">
           <div className={`font-bold ${textSize}`}>{timeLeft.seconds}</div>
-          <div className={`${textSize}`}>Seconds</div>
+          <div className={`${textSize}`}>S</div>
         </div>
       </div>
     </div>

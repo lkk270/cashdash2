@@ -31,6 +31,12 @@ module.exports = {
       backgroundClip: {
         text: 'text',
       },
+      backgroundColor: {
+        c6c6c6: '#c6c6c6',
+      },
+      borderColor: {
+        808080: '#808080',
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
