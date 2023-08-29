@@ -13,6 +13,10 @@ interface LobbyClientProps {
 }
 
 export const LobbyClient = ({ lobby, game }: LobbyClientProps) => {
+  const ids = {
+    gameId: game.id,
+    lobbySessionId: lobby.sessions[0].id,
+  };
   return (
     // <TimerProvider>
     <div className="h-full">
@@ -22,7 +26,9 @@ export const LobbyClient = ({ lobby, game }: LobbyClientProps) => {
       </div>
       <main className="">
         <div className="h-full p-4 space-y-2 ">
-          <div className="flex justify-center">{<Minesweeper size={12} numMines={13} />}</div>
+          <div className="flex justify-center">
+            {<Minesweeper ids={ids} size={12} numMines={1} />}
+          </div>
         </div>
       </main>
     </div>

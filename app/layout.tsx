@@ -18,8 +18,8 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'Cash Dash',
   description: 'Cash Dash - Have fun, make cash',
+  appleWebApp: false,
 };
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider

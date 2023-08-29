@@ -7,7 +7,6 @@ async function main() {
     // await db.lobby.deleteMany();
     // await db.game.deleteMany();
     // await db.category.deleteMany();
-
     // const mostlySkillCategory = await db.category.create({
     //   data: { name: "Mostly Skill" },
     // });
@@ -20,7 +19,6 @@ async function main() {
     // const triviaCategory = await db.category.create({
     //   data: { name: "Trivia" },
     // });
-
     // const minesweeper = await db.game.create({
     //   data: {
     //     name: "Minesweeper",
@@ -31,7 +29,6 @@ async function main() {
     //     categoryId: mostlySkillCategory.id,
     //   },
     // });
-
     // await db.lobby.createMany({
     //   data: [
     //     {
@@ -56,19 +53,25 @@ async function main() {
     //     },
     //   ],
     // });
-
-    let data = [];
-    for (let i = 0; i < 1000; i++) {
-      let obj = {
-        userId: 'user_2TKskwGmolB1V1OQ7FvEZvjkzh2',
-        lobbySessionId: '628b7c91-002c-4251-a09c-8308d778fd19',
-        score: 120000 + i * 5,
-      };
-      data.push(obj);
-    }
-    await db.score.createMany({
-      data: data,
-    });
+    // let data = [];
+    // for (let i = 0; i < 1000; i++) {
+    //   let obj = {
+    //     userId: 'user_2TKskwGmolB1V1OQ7FvEZvjkzh2',
+    //     lobbySessionId: '628b7c91-002c-4251-a09c-8308d778fd19',
+    //     score: 120000 + i * 5,
+    //   };
+    //   data.push(obj);
+    // }
+    // await db.score.createMany({
+    //   data: data,
+    // });
+    // await db.score.deleteMany({
+    //   where: {
+    //     lobbySessionId: '628b7c91-002c-4251-a09c-8308d778fd19',
+    //     NOT: [{ score: 24000 }, { score: 120890 }],
+    //   },
+    // });
+    // await db.gameSession.deleteMany({});
   } catch (error) {
     console.error('Error seeding default categories:', error);
   } finally {

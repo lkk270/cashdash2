@@ -1,35 +1,107 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-
+import axios from 'axios';
 import { Board } from './board';
 import { Header } from './header';
 
+import { useToast } from '@/components/ui/use-toast';
 import { initializeGrid } from '@/lib/minesweeper-utils';
 import { CellType } from '@/app/types';
 
 interface MinesweeperProps {
   size: number;
   numMines: number;
+  ids: {
+    gameId: string;
+    lobbySessionId: string;
+  };
 }
 
-export const Minesweeper = ({ size, numMines }: MinesweeperProps) => {
+export const Minesweeper = ({ size, numMines, ids }: MinesweeperProps) => {
   const [grid, setGrid] = useState<CellType[][]>([]);
   const [explodedCell, setExplodedCell] = useState<{ row: number; col: number } | null>(null);
   const [gameOver, setGameOver] = useState<boolean>(false);
   const [gameStarted, setGameStarted] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [createGameSessionSuccess, setCreateGameSessionSuccess] = useState<boolean>(false);
+  const [initiatedGameEndSuccess, setInitiatedGameEndSuccess] = useState<boolean>(false);
+  const [gameSessionId, setGameSessionId] = useState<string>('');
+  const [timeElapsed, setTimeElapsed] = useState<number>(0);
+  const { toast } = useToast();
 
   useEffect(() => {
-    const newGrid = initializeGrid(size, size, numMines); // For example: 10x10 grid with 20 mines
+    onGameStart();
+    const newGrid = initializeGrid(size, size, numMines);
     setGrid(newGrid);
-  }, []); // This useEffect will run once when the component mountss useEffect will run once when the component mounts
+  }, []);
 
   let gameStatus: 'won' | 'lost' | 'regular' = 'regular';
   if (gameOver) {
     gameStatus = explodedCell ? 'lost' : 'won';
+
+    if (gameStatus === 'won' && !initiatedGameEndSuccess) {
+      setInitiatedGameEndSuccess(true);
+      axios
+        .post('/api/game-session', { gameSessionId: gameSessionId, at: '2' })
+        .then((response) => {
+          toast({
+            description: 'Game session created',
+          });
+          setGameSessionId(response.data.gameSessionId);
+          setCreateGameSessionSuccess(true);
+        })
+        .catch((error) => {
+          toast({
+            description: error.response.data,
+            variant: 'destructive',
+          });
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
   }
 
-  function revealCell(grid: CellType[][], row: number, col: number): CellType[][] {
+  // Calculate the number of flags used
+  const flagsUsed = grid.reduce((count, row) => {
+    return count + row.filter((cell) => cell.isFlagged).length;
+  }, 0);
+
+  // Calculate the number of flags left
+  const flagsLeft = numMines - flagsUsed;
+
+  const onGameStart = () => {
+    setLoading(true);
+    setCreateGameSessionSuccess(false);
+    setInitiatedGameEndSuccess(false);
+    const updatedIds = { ...ids, at: '1' };
+    axios
+      .post('/api/game-session', updatedIds)
+      .then((response) => {
+        toast({
+          description: 'Game session created',
+        });
+        setGameSessionId(response.data.gameSessionId);
+        setCreateGameSessionSuccess(true);
+      })
+      .catch((error) => {
+        toast({
+          description: error.response.data,
+          variant: 'destructive',
+        });
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
+  const updateTimeElapsed = (newTime: number) => {
+    setTimeElapsed(newTime);
+  };
+
+  const revealCell = (grid: CellType[][], row: number, col: number): CellType[][] => {
+    if (!createGameSessionSuccess) return grid;
     // Check boundaries first
     if (!gameStarted) {
       setGameStarted(true);
@@ -80,9 +152,10 @@ export const Minesweeper = ({ size, numMines }: MinesweeperProps) => {
     }
 
     return newGrid;
-  }
+  };
 
   const toggleFlag = (e: React.MouseEvent, row: number, col: number) => {
+    if (!createGameSessionSuccess) return;
     if (!gameStarted) {
       setGameStarted(true);
     }
@@ -110,6 +183,8 @@ export const Minesweeper = ({ size, numMines }: MinesweeperProps) => {
   };
 
   const restartGame = () => {
+    setGameStarted(false);
+    onGameStart();
     // Generate a fresh grid
     const newGrid = initializeGrid(size, size, numMines);
     setGrid(newGrid);
@@ -119,9 +194,6 @@ export const Minesweeper = ({ size, numMines }: MinesweeperProps) => {
 
     // Reset the gameOver flag
     setGameOver(false);
-
-    // resets the gameStarted state
-    setGameStarted(false);
 
     // Reset the timer
     // setTimeElapsed(0);
@@ -142,14 +214,6 @@ export const Minesweeper = ({ size, numMines }: MinesweeperProps) => {
     return true; // All non-mine cells are revealed
   };
 
-  // Calculate the number of flags used
-  const flagsUsed = grid.reduce((count, row) => {
-    return count + row.filter((cell) => cell.isFlagged).length;
-  }, 0);
-
-  // Calculate the number of flags left
-  const flagsLeft = numMines - flagsUsed;
-
   return (
     <div>
       <Header
@@ -157,8 +221,8 @@ export const Minesweeper = ({ size, numMines }: MinesweeperProps) => {
         flagsLeft={flagsLeft}
         gameStatus={gameStatus}
         onTimeExceeded={handleTimeExceeded}
-        // timeElapsed={timeElapsed}
-        // setTimeElapsed={setTimeElapsed}
+        timeElapsed={timeElapsed}
+        updateTimeElapsed={updateTimeElapsed}
         onReset={restartGame}
       />
       <Board
