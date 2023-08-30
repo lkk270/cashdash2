@@ -5,9 +5,7 @@ interface HeaderProps {
   flagsLeft: number;
   gameStatus: 'won' | 'lost' | 'regular';
   gameStarted: boolean;
-  onTimeExceeded: () => void;
-  timeElapsed: number;
-  updateTimeElapsed: (newTime: number) => void;
+  onTimeExceeded: () => void; // New prop
   onReset: () => void;
 }
 
@@ -16,28 +14,32 @@ export const Header: React.FC<HeaderProps> = ({
   gameStatus,
   gameStarted,
   onTimeExceeded,
-  timeElapsed,
-  updateTimeElapsed,
   onReset,
 }) => {
-  const [localTimeElapsed, setLocalTimeElapsed] = useState<number>(0);
+  const [timeElapsed, setTimeElapsed] = useState<number>(0);
 
   useEffect(() => {
     if (!gameStarted) {
-      setLocalTimeElapsed(0);
+      setTimeElapsed(0);
       return;
     }
-    if (gameStatus === 'lost' || gameStatus === 'won') {
-      updateTimeElapsed(localTimeElapsed);
-      return;
-    }
+    if (gameStatus === 'lost' || gameStatus === 'won') return;
+
+    setTimeElapsed((prevTime) => prevTime + 1); // Update timeElapsed immediately when gameStarted is set to true
 
     const timer = setInterval(() => {
-      setLocalTimeElapsed((prevTime) => prevTime + 1);
+      setTimeElapsed((prevTime: number) => {
+        if (prevTime >= 3599) {
+          onTimeExceeded();
+          clearInterval(timer);
+          return prevTime;
+        }
+        return prevTime + 1;
+      });
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [gameStarted, gameStatus, updateTimeElapsed, localTimeElapsed]);
+  }, [gameStarted, gameStatus, setTimeElapsed]);
 
   let StatusIcon;
   switch (gameStatus) {
@@ -51,15 +53,14 @@ export const Header: React.FC<HeaderProps> = ({
       StatusIcon = <FaceRegular />;
   }
 
-  const minutes = Math.floor(localTimeElapsed / 60)
+  const minutes = Math.floor(timeElapsed / 60)
     .toString()
     .padStart(2, '0');
-  const seconds = (localTimeElapsed % 60).toString().padStart(2, '0');
-
+  const seconds = (timeElapsed % 60).toString().padStart(2, '0');
   const restartGame = () => {
     onReset();
     // Reset the timer
-    updateTimeElapsed(0);
+    setTimeElapsed(0);
   };
   return (
     <div className="flex items-center justify-between pb-4">

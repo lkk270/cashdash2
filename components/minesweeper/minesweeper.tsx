@@ -28,15 +28,18 @@ export const Minesweeper = ({ size, numMines, ids }: MinesweeperProps) => {
   const [initiatedGameEndSuccess, setInitiatedGameEndSuccess] = useState<boolean>(false);
   const [gameSessionId, setGameSessionId] = useState<string>('');
   const [timeElapsed, setTimeElapsed] = useState<number>(0);
+  const [startTime, setStartTime] = useState<number>(0);
   const { toast } = useToast();
-
-  useEffect(() => {
-    onGameStart();
-    const newGrid = initializeGrid(size, size, numMines);
-    setGrid(newGrid);
-  }, []);
-
   let gameStatus: 'won' | 'lost' | 'regular' = 'regular';
+
+  // Calculate the number of flags used
+  const flagsUsed = grid.reduce((count, row) => {
+    return count + row.filter((cell) => cell.isFlagged).length;
+  }, 0);
+
+  // Calculate the number of flags left
+  const flagsLeft = numMines - flagsUsed;
+
   if (gameOver) {
     gameStatus = explodedCell ? 'lost' : 'won';
 
@@ -45,15 +48,20 @@ export const Minesweeper = ({ size, numMines, ids }: MinesweeperProps) => {
       axios
         .post('/api/game-session', { gameSessionId: gameSessionId, at: '2' })
         .then((response) => {
-          toast({
-            description: 'Game session created',
+          // Send another POST request with response.data.hash and at: '3'
+          return axios.post('/api/game-session', {
+            timeElapsed: Date.now() - startTime,
+            hash: response.data.hash,
+            at: '3',
           });
-          setGameSessionId(response.data.gameSessionId);
-          setCreateGameSessionSuccess(true);
+        })
+        .then((response) => {
+          // Handle the response of the second POST request
+          console.log('Second request successful:', response.data);
         })
         .catch((error) => {
           toast({
-            description: error.response.data,
+            description: error.response ? error.response.data : 'Network Error',
             variant: 'destructive',
           });
         })
@@ -63,13 +71,11 @@ export const Minesweeper = ({ size, numMines, ids }: MinesweeperProps) => {
     }
   }
 
-  // Calculate the number of flags used
-  const flagsUsed = grid.reduce((count, row) => {
-    return count + row.filter((cell) => cell.isFlagged).length;
-  }, 0);
-
-  // Calculate the number of flags left
-  const flagsLeft = numMines - flagsUsed;
+  useEffect(() => {
+    onGameStart();
+    const newGrid = initializeGrid(size, size, numMines);
+    setGrid(newGrid);
+  }, []);
 
   const onGameStart = () => {
     setLoading(true);
@@ -96,15 +102,12 @@ export const Minesweeper = ({ size, numMines, ids }: MinesweeperProps) => {
       });
   };
 
-  const updateTimeElapsed = (newTime: number) => {
-    setTimeElapsed(newTime);
-  };
-
   const revealCell = (grid: CellType[][], row: number, col: number): CellType[][] => {
     if (!createGameSessionSuccess) return grid;
     // Check boundaries first
     if (!gameStarted) {
       setGameStarted(true);
+      setStartTime(Date.now());
     }
     if (row < 0 || row >= grid.length || col < 0 || col >= grid[0].length) {
       return grid; // Out of grid bounds
@@ -158,6 +161,7 @@ export const Minesweeper = ({ size, numMines, ids }: MinesweeperProps) => {
     if (!createGameSessionSuccess) return;
     if (!gameStarted) {
       setGameStarted(true);
+      setStartTime(Date.now());
     }
     e.preventDefault(); // This prevents the default context menu from appearing
     const newGrid = [...grid];
@@ -221,8 +225,6 @@ export const Minesweeper = ({ size, numMines, ids }: MinesweeperProps) => {
         flagsLeft={flagsLeft}
         gameStatus={gameStatus}
         onTimeExceeded={handleTimeExceeded}
-        timeElapsed={timeElapsed}
-        updateTimeElapsed={updateTimeElapsed}
         onReset={restartGame}
       />
       <Board

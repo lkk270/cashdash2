@@ -52,9 +52,11 @@ export async function POST(req: Request) {
         return new NextResponse('Unauthorized', { status: 401 });
       }
       const hash = generateHash(gameSession.id, process.env.GAME_SESSION_SECRET);
-      console.log(hash);
       return new NextResponse(JSON.stringify({ hash: hash }));
     } else if (acceptedType === '3') {
+      console.log('INNN');
+      console.log(body.timeElapsed);
+      return new NextResponse(JSON.stringify({ grape: 'grape' }));
     }
   } catch (error: any) {
     return new NextResponse('Internal Error', { status: 500 });
