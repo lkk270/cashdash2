@@ -119,6 +119,7 @@ model GameSession {
   isValid        Boolean
   createdAt      DateTime     @default(now())
   expiresAt      DateTime
+  startedAt      Int?
   lobbySession   LobbySession @relation(fields: [lobbySessionId], references: [id])
 
   @@index([lobbySessionId])

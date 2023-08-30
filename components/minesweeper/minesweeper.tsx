@@ -7,6 +7,7 @@ import { Header } from './header';
 
 import { useToast } from '@/components/ui/use-toast';
 import { initializeGrid } from '@/lib/minesweeper-utils';
+import { generateResponseHash } from '@/lib/hash';
 import { CellType } from '@/app/types';
 
 interface MinesweeperProps {
@@ -27,7 +28,6 @@ export const Minesweeper = ({ size, numMines, ids }: MinesweeperProps) => {
   const [createGameSessionSuccess, setCreateGameSessionSuccess] = useState<boolean>(false);
   const [initiatedGameEndSuccess, setInitiatedGameEndSuccess] = useState<boolean>(false);
   const [gameSessionId, setGameSessionId] = useState<string>('');
-  const [timeElapsed, setTimeElapsed] = useState<number>(0);
   const [startTime, setStartTime] = useState<number>(0);
   const { toast } = useToast();
   let gameStatus: 'won' | 'lost' | 'regular' = 'regular';
@@ -44,20 +44,27 @@ export const Minesweeper = ({ size, numMines, ids }: MinesweeperProps) => {
     gameStatus = explodedCell ? 'lost' : 'won';
 
     if (gameStatus === 'won' && !initiatedGameEndSuccess) {
+      const timeElapsed = Date.now() - startTime;
+      setLoading(true);
       setInitiatedGameEndSuccess(true);
       axios
         .post('/api/game-session', { gameSessionId: gameSessionId, at: '2' })
         .then((response) => {
+          const hash = response.data.hash;
           // Send another POST request with response.data.hash and at: '3'
           return axios.post('/api/game-session', {
-            timeElapsed: Date.now() - startTime,
-            hash: response.data.hash,
+            gameSessionId: gameSessionId,
+            score: timeElapsed,
+            cHash: hash,
+            rHash: generateResponseHash(hash, timeElapsed),
             at: '3',
           });
         })
         .then((response) => {
           // Handle the response of the second POST request
-          console.log('Second request successful:', response.data);
+          toast({
+            description: response.data,
+          });
         })
         .catch((error) => {
           toast({
@@ -72,16 +79,16 @@ export const Minesweeper = ({ size, numMines, ids }: MinesweeperProps) => {
   }
 
   useEffect(() => {
-    onGameStart();
+    onGameLoad();
     const newGrid = initializeGrid(size, size, numMines);
     setGrid(newGrid);
   }, []);
 
-  const onGameStart = () => {
+  const onGameLoad = () => {
     setLoading(true);
     setCreateGameSessionSuccess(false);
     setInitiatedGameEndSuccess(false);
-    const updatedIds = { ...ids, at: '1' };
+    const updatedIds = { ...ids, at: '0' };
     axios
       .post('/api/game-session', updatedIds)
       .then((response) => {
@@ -188,7 +195,7 @@ export const Minesweeper = ({ size, numMines, ids }: MinesweeperProps) => {
 
   const restartGame = () => {
     setGameStarted(false);
-    onGameStart();
+    onGameLoad();
     // Generate a fresh grid
     const newGrid = initializeGrid(size, size, numMines);
     setGrid(newGrid);
@@ -198,9 +205,6 @@ export const Minesweeper = ({ size, numMines, ids }: MinesweeperProps) => {
 
     // Reset the gameOver flag
     setGameOver(false);
-
-    // Reset the timer
-    // setTimeElapsed(0);
   };
 
   const handleTimeExceeded = () => {
@@ -226,6 +230,7 @@ export const Minesweeper = ({ size, numMines, ids }: MinesweeperProps) => {
         gameStatus={gameStatus}
         onTimeExceeded={handleTimeExceeded}
         onReset={restartGame}
+        loading={loading}
       />
       <Board
         grid={grid}
@@ -233,6 +238,7 @@ export const Minesweeper = ({ size, numMines, ids }: MinesweeperProps) => {
         explodedCell={explodedCell}
         onRevealCell={handleReveal}
         onToggleFlag={toggleFlag}
+        loading={loading}
       />
     </div>
   );

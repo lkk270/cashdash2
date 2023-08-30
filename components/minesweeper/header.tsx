@@ -1,5 +1,7 @@
+import classNames from 'classnames';
+
 import React, { useState, useEffect } from 'react';
-import { FaceLoss, FaceRegular, FaceWon, Flag } from './image-components/index';
+import { FaceLoss, FaceRegular, FaceWon } from './image-components/index';
 
 interface HeaderProps {
   flagsLeft: number;
@@ -7,6 +9,7 @@ interface HeaderProps {
   gameStarted: boolean;
   onTimeExceeded: () => void; // New prop
   onReset: () => void;
+  loading: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -15,6 +18,7 @@ export const Header: React.FC<HeaderProps> = ({
   gameStarted,
   onTimeExceeded,
   onReset,
+  loading,
 }) => {
   const [timeElapsed, setTimeElapsed] = useState<number>(0);
 
@@ -57,7 +61,9 @@ export const Header: React.FC<HeaderProps> = ({
     .toString()
     .padStart(2, '0');
   const seconds = (timeElapsed % 60).toString().padStart(2, '0');
+
   const restartGame = () => {
+    if (loading) return;
     onReset();
     // Reset the timer
     setTimeElapsed(0);
@@ -71,7 +77,15 @@ export const Header: React.FC<HeaderProps> = ({
         </span>
       </div>
 
-      <button onClick={restartGame}>{StatusIcon}</button>
+      <button
+        className={classNames({
+          'cursor-not-allowed': loading,
+          'transform active:scale-95': !loading,
+        })}
+        onClick={restartGame}
+      >
+        {StatusIcon}
+      </button>
 
       <div className="p-1 font-mono text-2xl bg-black rounded shadow-md">
         <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-sky-500">

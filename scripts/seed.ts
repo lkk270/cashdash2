@@ -71,7 +71,7 @@ async function main() {
     //     NOT: [{ score: 24000 }, { score: 120890 }],
     //   },
     // });
-    // await db.gameSession.deleteMany({});
+    await db.gameSession.deleteMany({});
   } catch (error) {
     console.error('Error seeding default categories:', error);
   } finally {
