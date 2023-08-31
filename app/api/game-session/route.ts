@@ -72,6 +72,7 @@ export async function POST(req: Request) {
       if (responseHashToCompare !== body.rHash) {
         return new NextResponse('Unauthorized', { status: 401 });
       } else {
+       
         return new NextResponse('YAYYY', { status: 200 });
       }
     }

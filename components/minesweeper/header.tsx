@@ -63,7 +63,7 @@ export const Header: React.FC<HeaderProps> = ({
   const seconds = (timeElapsed % 60).toString().padStart(2, '0');
 
   const restartGame = () => {
-    if (loading) return;
+    if (loading || timeElapsed === 0) return;
     onReset();
     // Reset the timer
     setTimeElapsed(0);
