@@ -156,7 +156,7 @@ export const ScoreChart = ({ scores, userGameAverageScores }: ScoreChartProps) =
             >
               <div className="justify-center pl-10 mb-3 text-sm text-gray-600 ">
                 <p>Average Score: {formattedAverageScore}</p>
-                <p>Times played: {timesPlayed}</p>
+                <p>Times played i.e. recorded a score: {timesPlayed}</p>
                 <p>Total Winnings: ${totalWinnings}</p>
               </div>
               <div className="relative pr-5 h-96">

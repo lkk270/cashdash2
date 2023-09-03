@@ -3,24 +3,30 @@ import { NextResponse } from 'next/server';
 import { generateChallengeHash, generateResponseHash } from '@/lib/hash';
 import prismadb from '@/lib/prismadb';
 
-const acceptedTypes = ['0', '2', '3'];
+const acceptedTypesObj: { [key: string]: number } = { '0': 3, '2': 2, '3': 5 };
 
 export async function POST(req: Request) {
   const body = await req.json();
+  const bodyLength = Object.keys(body).length;
 
   try {
-    const acceptedType = body.at;
-    const validType = acceptedTypes.includes(acceptedType);
+    const receivedType: string = body.at;
+    const validType = acceptedTypesObj[receivedType];
     const { userId } = auth();
     const user = await currentUser();
     if (!userId || !user) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
-    if (body.length === 0 || body.length > 5 || !validType) {
+    if (
+      bodyLength === 0 ||
+      bodyLength > 5 ||
+      !validType ||
+      acceptedTypesObj[receivedType] != bodyLength
+    ) {
       return new NextResponse('Invalid body', { status: 400 });
     }
 
-    if (acceptedType === '0') {
+    if (receivedType === '0' && bodyLength === 3) {
       const expiresAt = new Date();
       expiresAt.setSeconds(expiresAt.getSeconds() + 3599); // 59 minutes 59 seconds from now
 
@@ -51,7 +57,7 @@ export async function POST(req: Request) {
 
     //   return new NextResponse('', { status: 200 });
     // }
-    else if (acceptedType === '2') {
+    else if (receivedType === '2' || receivedType === '3') {
       const gameSession = await prismadb.gameSession.findFirst({
         where: {
           id: body.gameSessionId,
@@ -64,19 +70,30 @@ export async function POST(req: Request) {
       if (!gameSession) {
         return new NextResponse('Unauthorized', { status: 401 });
       }
-
-      const challengedHash = generateChallengeHash(gameSession.id, process.env.GAME_SESSION_SECRET);
-      return new NextResponse(JSON.stringify({ hash: challengedHash }));
-    } else if (acceptedType === '3') {
-      const responseHashToCompare = generateResponseHash(body.cHash, body.score);
-      if (responseHashToCompare !== body.rHash) {
-        return new NextResponse('Unauthorized', { status: 401 });
-      } else {
-       
-        return new NextResponse('YAYYY', { status: 200 });
+      if (receivedType === '2' && bodyLength === 2) {
+        const challengedHash = generateChallengeHash(
+          gameSession.id,
+          process.env.GAME_SESSION_SECRET
+        );
+        return new NextResponse(JSON.stringify({ hash: challengedHash }));
+      } else if (receivedType === '3' && bodyLength === 6) {
+        const responseHashToCompare = generateResponseHash(body.cHash, body.score);
+        if (responseHashToCompare !== body.rHash) {
+          return new NextResponse('Unauthorized', { status: 401 });
+        } else {
+          await prismadb.score.create({
+            data: {
+              userId: userId,
+              lobbySessionId: gameSession.lobbySessionId,
+              score: body.score,
+            },
+          });
+          return new NextResponse('YAYYY', { status: 200 });
+        }
       }
     }
   } catch (error: any) {
+    console.log('error');
     return new NextResponse('Internal Error', { status: 500 });
   }
 }
