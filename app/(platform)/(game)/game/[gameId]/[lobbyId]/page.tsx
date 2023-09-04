@@ -38,7 +38,8 @@ const userHasScore = async (
 const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
   const { userId } = auth();
   let game = null;
-  let scores: ModifiedScoreType[] = [];
+  let allScores: ModifiedScoreType[] = [];
+  let bestScoresArray: ModifiedScoreType[] = [];
   const gameId = params.gameId;
   let accessResult = {
     isValid: false,
@@ -84,9 +85,14 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
               username: true,
               score: true,
             },
-            orderBy: {
-              score: orderDirection,
-            },
+            orderBy: [
+              {
+                score: orderDirection,
+              },
+              {
+                createdAt: 'asc',
+              },
+            ],
             take: 100,
           },
         },
@@ -98,10 +104,10 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
     redirect(`/game/${gameId}`);
   }
 
-  if (lobby) {
+  if (lobby && lobby.sessions && lobby.sessions[0]) {
     if (game) {
-      scores = lobby.sessions[0].scores;
-      let userPlayedInSession = scores.some((score) => score.userId === userId);
+      allScores = lobby.sessions[0].scores;
+      let userPlayedInSession = allScores.some((score) => score.userId === userId);
 
       if (!userPlayedInSession) {
         userPlayedInSession = await userHasScore(userId, gameId, lobby.sessions[0].id);
@@ -115,6 +121,33 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
         expiredDateTime: lobby.sessions[0].expiredDateTime,
         startDateTime: lobby.sessions[0].startDateTime,
       });
+
+      const bestScoresByUser: Record<string, ModifiedScoreType> = {};
+
+      allScores.forEach((score: ModifiedScoreType) => {
+        // Check if scoreType is 'time' and then compare accordingly
+        if (orderDirection === 'asc') {
+          if (
+            !bestScoresByUser[score.userId] ||
+            score.score < bestScoresByUser[score.userId].score
+          ) {
+            bestScoresByUser[score.userId] = score;
+          }
+        } else {
+          // 'desc'
+          if (
+            !bestScoresByUser[score.userId] ||
+            score.score > bestScoresByUser[score.userId].score
+          ) {
+            bestScoresByUser[score.userId] = score;
+          }
+        }
+      });
+
+      // Convert the object to an array and sort by the orderDirection and then take top 100 scores
+      bestScoresArray = Object.values(bestScoresByUser)
+        .sort((a, b) => (orderDirection === 'asc' ? a.score - b.score : b.score - a.score))
+        .slice(0, 100);
     }
   }
 
@@ -132,7 +165,7 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
       />
     );
   }
-  return <LobbyClient scores={scores} game={game!} lobby={lobby} />;
+  return <LobbyClient scores={bestScoresArray} game={game!} lobby={lobby} />;
 };
 
 export default LobbyIdPage;

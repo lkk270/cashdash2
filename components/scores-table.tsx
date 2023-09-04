@@ -12,6 +12,7 @@ import { Lobby, LobbySession, ScoreType } from '@prisma/client';
 
 import { CountdownTimer } from '@/components/countdown-timer';
 import { Button } from '@/components/ui/button';
+import { convertMillisecondsToMinSec } from '@/lib/utils';
 import { ModifiedScoreType } from '@/app/types';
 
 interface ScoresTableProps {
@@ -22,61 +23,6 @@ interface ScoresTableProps {
   showSessionTimer?: boolean;
   scoreType: ScoreType;
 }
-
-const invoices = [
-  {
-    invoice: 'protein',
-    paymentStatus: '2:56',
-  },
-  {
-    invoice: 'dkd892',
-    paymentStatus: '3:01',
-  },
-  {
-    invoice: 'confound12',
-    paymentStatus: '3:21',
-  },
-  {
-    invoice: 'xaxi2',
-    paymentStatus: '3:40',
-  },
-  {
-    invoice: 'dantheman',
-    paymentStatus: '3:59',
-  },
-  {
-    invoice: 'leetheeel',
-    paymentStatus: '4:12',
-  },
-  {
-    invoice: 'ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ',
-    paymentStatus: '5:23',
-  },
-  {
-    invoice: 'xaxi2',
-    paymentStatus: '3:40',
-  },
-  {
-    invoice: 'dantheman',
-    paymentStatus: '3:59',
-  },
-  {
-    invoice: 'leetheeel',
-    paymentStatus: '4:12',
-  },
-  {
-    invoice: 'xaxi2',
-    paymentStatus: '3:40',
-  },
-  {
-    invoice: 'dantheman',
-    paymentStatus: '3:59',
-  },
-  {
-    invoice: 'leetheeel',
-    paymentStatus: '4:12',
-  },
-];
 
 export const ScoresTable = ({ lobby, scoreType, scores, showSessionTimer }: ScoresTableProps) => {
   let countdownData;
@@ -89,7 +35,7 @@ export const ScoresTable = ({ lobby, scoreType, scores, showSessionTimer }: Scor
   }
 
   return (
-    <div className="flex flex-col justify-center h-full space-y-3 overflow-y-scroll text-primary bg-secondary">
+    <div className="flex flex-col h-full space-y-3 overflow-y-scroll text-primary bg-secondary">
       {countdownData && (
         <div className="flex items-center justify-center">
           <CountdownTimer data={countdownData} />
@@ -107,7 +53,11 @@ export const ScoresTable = ({ lobby, scoreType, scores, showSessionTimer }: Scor
             </TableRow>
           </TableHeader>
           <TableBody>
-            {invoices.map((invoice, i) => {
+            {scores.map((score, i) => {
+              const adjustedScore =
+                scoreType === ScoreType.time
+                  ? convertMillisecondsToMinSec(score.score)
+                  : score.score;
               let tableValueColor =
                 i === 0
                   ? '#FFD700'
@@ -122,7 +72,7 @@ export const ScoresTable = ({ lobby, scoreType, scores, showSessionTimer }: Scor
               return (
                 <TableRow
                   style={{ color: tableValueColor }}
-                  key={invoice.invoice + i.toString()}
+                  key={score.username + i.toString()}
                   className={`border-b border-primary/10 ${
                     i < lobby.numRewards ? 'font-extrabold' : ''
                   }`}
@@ -136,9 +86,9 @@ export const ScoresTable = ({ lobby, scoreType, scores, showSessionTimer }: Scor
                     <span className="whitespace-nowrap">{i + 100}.</span>
                   </span> */}
                     <span className="whitespace-nowrap">{i + 1}.</span>
-                    <span className="flex-grow">{invoice.invoice}</span>
+                    <span className="flex-grow">{score.username}</span>
                   </TableCell>
-                  <TableCell>{invoice.paymentStatus}</TableCell>
+                  <TableCell>{adjustedScore}</TableCell>
                 </TableRow>
               );
             })}

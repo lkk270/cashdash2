@@ -140,6 +140,7 @@ export const Cell = ({
 
   return (
     <div
+      key={row.toString() + col.toString()}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseEnter={handleMouseEnter}
