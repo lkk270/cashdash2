@@ -1,6 +1,5 @@
 import { auth, currentUser } from '@clerk/nextjs';
 import { NextResponse } from 'next/server';
-import { redirect } from 'next/navigation';
 
 import { generateChallengeHash, generateResponseHash } from '@/lib/hash';
 import prismadb from '@/lib/prismadb';
@@ -15,6 +14,7 @@ export async function POST(req: Request) {
     const validType = acceptedTypesObj[receivedType];
     const { userId } = auth();
     const user = await currentUser();
+
     if (!userId || !user) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
@@ -132,6 +132,7 @@ export async function POST(req: Request) {
               prismadb.score.create({
                 data: {
                   userId: userId,
+                  username: user.username || '',
                   lobbySessionId: gameSession.lobbySessionId,
                   score: body.score,
                 },
@@ -150,6 +151,7 @@ export async function POST(req: Request) {
               prismadb.score.create({
                 data: {
                   userId: userId,
+                  username: user.username || '',
                   lobbySessionId: gameSession.lobbySessionId,
                   score: body.score,
                 },

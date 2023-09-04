@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
 import { MobileScoresTable } from '@/components/mobile-scores-table';
 import { CountdownTimer } from '@/components/countdown-timer';
+import { ModifiedScoreType } from '@/app/types';
 
 const orbitronFont = Orbitron({ subsets: ['latin'] });
 
@@ -20,9 +21,10 @@ interface LobbyHeaderProps {
     sessions: LobbySession[];
   };
   game: Game;
+  scores: ModifiedScoreType[];
 }
 
-export const GameNavbar = ({ lobby, game }: LobbyHeaderProps) => {
+export const GameNavbar = ({ lobby, game, scores }: LobbyHeaderProps) => {
   const lobbyAboutModal = useLobbyAboutModal();
   const router = useRouter();
   const pathname = usePathname();
@@ -38,7 +40,7 @@ export const GameNavbar = ({ lobby, game }: LobbyHeaderProps) => {
         <div className="grid items-center w-full grid-cols-3 pb-4 border-b border-primary/10">
           {/* Left content */}
           <div className="flex items-center gap-x-2">
-            <MobileScoresTable lobby={lobby} />
+            <MobileScoresTable scores={scores} scoreType={game.scoreType} lobby={lobby} />
             <Button
               onClick={() => router.push(backPath)}
               size="icon"

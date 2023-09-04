@@ -82,15 +82,15 @@ export const CountdownTimer = ({ data }: CountdownProps) => {
           </div>
         )}
         <div className="flex flex-col items-center">
-          <div className={`font-bold ${textSize}`}>{timeLeft.hours}</div>
+          <div className={`font-bold ${textSize}`}>{timeLeft.hours.toString().padStart(2, '0')}</div>
           <div className={`${textSize}`}>H</div>
         </div>
         <div className="flex flex-col items-center">
-          <div className={`font-bold ${textSize}`}>{timeLeft.minutes}</div>
+          <div className={`font-bold ${textSize}`}>{timeLeft.minutes.toString().padStart(2, '0')}</div>
           <div className={`${textSize}`}>M</div>
         </div>
         <div className="flex flex-col items-center">
-          <div className={`font-bold ${textSize}`}>{timeLeft.seconds}</div>
+          <div className={`font-bold ${textSize}`}>{timeLeft.seconds.toString().padStart(2, '0')}</div>
           <div className={`${textSize}`}>S</div>
         </div>
       </div>

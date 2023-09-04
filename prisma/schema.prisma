@@ -83,7 +83,7 @@ model LobbySession {
   updatedAt       DateTime      @updatedAt
   scores          Score[]
   lobby           Lobby         @relation(fields: [lobbyId], references: [id])
-  GameSession     GameSession[]
+  gameSession     GameSession[]
 
   @@index([lobbyId])
 }
@@ -91,6 +91,7 @@ model LobbySession {
 model Score {
   id             String       @id @default(uuid())
   userId         String
+  username       String
   lobbySessionId String
   createdAt      DateTime     @default(now())
   score          Float

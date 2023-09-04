@@ -38,7 +38,17 @@ const GameIdPage = async ({ params }: GameIdPageProps) => {
             orderBy: {
               createdAt: 'desc',
             },
-            take: 3,
+            include: {
+              gameSession: {
+                where: {
+                  userId: userId,
+                },
+                take: 1,
+                select: {
+                  id: true, // Only select the ID
+                },
+              },
+            },
           },
         },
         orderBy: {
@@ -56,6 +66,11 @@ const GameIdPage = async ({ params }: GameIdPageProps) => {
   if (!game) {
     return redirect('/dashboard');
   }
+
+  // if (game) {
+  //   console.log(game.lobbies[0].sessions[1].gameSession);
+  // }
+
   // if (game.averageScores.length === 0) {
   //   return <DashboardLayout userValues={userValues} children={<div></div>} />;
   // }

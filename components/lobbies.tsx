@@ -19,7 +19,11 @@ import { convertMillisecondsToMinSec } from '@/lib/utils';
 interface LobbiesProps {
   data: Game & {
     lobbies: (Lobby & {
-      sessions: LobbySession[];
+      sessions: (LobbySession & {
+        gameSession: {
+          id: string;
+        }[];
+      })[];
     })[];
     averageScores: GameAverageScore[];
   };
@@ -37,8 +41,10 @@ export const Lobbies = ({ data }: LobbiesProps) => {
     <div className="flex justify-center">
       <div className="grid justify-center grid-cols-1 gap-2 pb-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {data.lobbies.map((item) => {
+          const userPlayedInSession = item.sessions[0].gameSession.length > 0 ? true : false;
           // console.log(item);
           let accessResult = isValidLobbyAccess({
+            userPlayedInSession: userPlayedInSession,
             scoreType: scoreType,
             averageScore: averageScore,
             scoreRestriction: item.scoreRestriction,

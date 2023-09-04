@@ -8,15 +8,19 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Lobby } from '@prisma/client';
-
-import { Star } from 'lucide-react';
+import { Lobby, LobbySession, ScoreType } from '@prisma/client';
 
 import { CountdownTimer } from '@/components/countdown-timer';
 import { Button } from '@/components/ui/button';
+import { ModifiedScoreType } from '@/app/types';
 
 interface ScoresTableProps {
-  lobby: Lobby;
+  lobby: Lobby & {
+    sessions: LobbySession[];
+  };
+  scores: ModifiedScoreType[];
+  showSessionTimer?: boolean;
+  scoreType: ScoreType;
 }
 
 const invoices = [
@@ -73,18 +77,28 @@ const invoices = [
     paymentStatus: '4:12',
   },
 ];
-export const ScoresTable = ({ lobby }: ScoresTableProps) => {
-  const [isVisible, setIsVisible] = useState(true);
-  const toggleTable = () => {
-    setIsVisible(!isVisible);
-  };
+
+export const ScoresTable = ({ lobby, scoreType, scores, showSessionTimer }: ScoresTableProps) => {
+  let countdownData;
+  if (showSessionTimer) {
+    countdownData = {
+      textSize: 'text-sm',
+      expiredDateTime: lobby.sessions[0].expiredDateTime,
+      startDateTime: lobby.sessions[0].startDateTime,
+    };
+  }
 
   return (
     <div className="flex flex-col justify-center h-full space-y-3 overflow-y-scroll text-primary bg-secondary">
-      <div className="flex justify-center">
+      {countdownData && (
+        <div className="flex items-center justify-center">
+          <CountdownTimer data={countdownData} />
+        </div>
+      )}
+      <div className="flex items-center justify-center">
         <h1 className="text-xl font-bold">Top 100 Scores</h1>
       </div>
-      {isVisible && (
+      {
         <Table>
           <TableHeader>
             <TableRow className="border-b border-primary/10">
@@ -130,7 +144,7 @@ export const ScoresTable = ({ lobby }: ScoresTableProps) => {
             })}
           </TableBody>
         </Table>
-      )}
+      }
     </div>
   );
 };

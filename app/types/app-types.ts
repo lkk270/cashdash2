@@ -13,3 +13,9 @@ export type ScoreRelationsType = {
     };
   };
 };
+
+export type ModifiedScoreType = {
+  userId: string;
+  username: string;
+  score: number;
+};

@@ -1,5 +1,6 @@
 'use client';
 
+import { ModifiedScoreType } from '@/app/types';
 import { Lobby, Game, LobbySession } from '@prisma/client';
 import { GameNavbar } from '@/components/game-navbar';
 import { ScoresTable } from '@/components/scores-table';
@@ -10,9 +11,10 @@ interface LobbyClientProps {
     sessions: LobbySession[];
   };
   game: Game;
+  scores: ModifiedScoreType[];
 }
 
-export const LobbyClient = ({ lobby, game }: LobbyClientProps) => {
+export const LobbyClient = ({ lobby, game, scores }: LobbyClientProps) => {
   const ids = {
     gameId: game.id,
     lobbySessionId: lobby.sessions[0].id,
@@ -20,9 +22,9 @@ export const LobbyClient = ({ lobby, game }: LobbyClientProps) => {
   return (
     // <TimerProvider>
     <div className="h-full">
-      <GameNavbar game={game} lobby={lobby} />
+      <GameNavbar scores={scores} game={game} lobby={lobby} />
       <div className="fixed inset-y-0 flex-col hidden mt-20 w-60 xl:flex">
-        <ScoresTable lobby={lobby} />
+        <ScoresTable scoreType={game.scoreType} scores={scores} lobby={lobby} />
       </div>
       <main className="">
         <div className="h-full p-4 space-y-2 ">
