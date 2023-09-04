@@ -30,8 +30,15 @@ export const LobbyAboutModal = () => {
     expiredDateTime: expiredDateTime,
     startDateTime: startDateTime,
   };
+
+  const numOtherPlaces = lobbyAboutModal.data?.lobby.numRewards || 3 - 3;
   // Placeholder Data (same as before)
-  const prizes = { first: '$500', second: '$300', third: '$100' };
+  const prizes = {
+    first: `$${lobbyAboutModal.data?.lobby.firstPlacePrize}`,
+    second: `$${lobbyAboutModal.data?.lobby.secondPlacePrice}`,
+    third: `$${lobbyAboutModal.data?.lobby.thirdPlacePrize}`,
+    other: `$${lobbyAboutModal.data?.lobby.unspecifiedPlacePrize}`,
+  };
   const userPlays = 10;
   const totalPlays = 1000;
   const topScores = [100, 90, 85, 80, 75];
@@ -74,6 +81,12 @@ export const LobbyAboutModal = () => {
               <span>3rd Place</span>
               <span className="text-sky-500">{prizes.third}</span>
             </li>
+            {numOtherPlaces > 0 && (
+              <li className="flex justify-between">
+                <span>4th - {numOtherPlaces.toString()}th place</span>
+                <span className="text-sky-500">{prizes.other}</span>
+              </li>
+            )}
           </ul>
         </div>
         <Separator />

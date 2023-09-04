@@ -14,6 +14,7 @@ import {
 import { useUserCashModal } from '@/hooks/use-user-cash-modal';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { ToastAction } from '@/components/ui/toast';
 import { useToast } from '@/components/ui/use-toast';
 
 export const UserCashModal = () => {
@@ -33,8 +34,16 @@ export const UserCashModal = () => {
         toast({
           duration: 6000,
           description:
-            'Please first link your bank account by clicking the Link Bank Account button found in the money tab',
+            'Please first link your bank account by clicking the Link Bank Account button found in money settings',
           variant: 'warning',
+          action: (
+            <ToastAction
+              onClick={() => (window.location.href = '/money-settings')}
+              altText="Money Settings"
+            >
+              Money Settings
+            </ToastAction>
+          ),
         });
         return;
       }

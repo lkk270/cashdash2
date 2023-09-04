@@ -36,12 +36,22 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
         where: {
           isActive: true,
         },
+        include: {
+          scores: {
+            where: {
+              userId: userId,
+            },
+            select: {
+              id: true,
+            },
+          },
+        },
       },
-      game: {},
     },
   });
 
   if (lobby) {
+    const scoreCount = lobby.sessions[0].scores.length;
     game = await prismadb.game.findUnique({
       where: {
         id: lobby.gameId,
@@ -56,6 +66,7 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
     });
     if (game) {
       accessResult = isValidLobbyAccess({
+        scoreCount: scoreCount,
         scoreType: game.scoreType,
         averageScore: game.averageScores[0]?.averageScore || null, // Handling possible undefined averageScores array
         scoreRestriction: lobby.scoreRestriction,

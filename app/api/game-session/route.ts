@@ -1,5 +1,7 @@
 import { auth, currentUser } from '@clerk/nextjs';
 import { NextResponse } from 'next/server';
+import { redirect } from 'next/navigation';
+
 import { generateChallengeHash, generateResponseHash } from '@/lib/hash';
 import prismadb from '@/lib/prismadb';
 
@@ -8,7 +10,6 @@ const acceptedTypesObj: { [key: string]: number } = { '0': 3, '2': 2, '3': 5 };
 export async function POST(req: Request) {
   const body = await req.json();
   const bodyLength = Object.keys(body).length;
-
   try {
     const receivedType: string = body.at;
     const validType = acceptedTypesObj[receivedType];
@@ -67,7 +68,26 @@ export async function POST(req: Request) {
           },
         },
       });
+
       if (!gameSession) {
+        return new NextResponse('Unauthorized', { status: 401 });
+      }
+      const game = await prismadb.game.findUnique({
+        where: {
+          id: gameSession.gameId,
+        },
+        select: {
+          cheatScore: true,
+          scoreType: true,
+        },
+      });
+      if (!game) {
+        return new NextResponse('No game?', { status: 401 });
+      }
+      if (game.scoreType === 'time' && body.score < game.cheatScore) {
+        return new NextResponse('Unauthorized', { status: 401 });
+      }
+      if (game.scoreType === 'points' && body.score > game.cheatScore) {
         return new NextResponse('Unauthorized', { status: 401 });
       }
       if (receivedType === '2' && bodyLength === 2) {
@@ -76,20 +96,73 @@ export async function POST(req: Request) {
           process.env.GAME_SESSION_SECRET
         );
         return new NextResponse(JSON.stringify({ hash: challengedHash }));
-      } else if (receivedType === '3' && bodyLength === 6) {
+      } else if (receivedType === '3' && bodyLength === 5) {
+        let newAverageScore;
         const responseHashToCompare = generateResponseHash(body.cHash, body.score);
         if (responseHashToCompare !== body.rHash) {
           return new NextResponse('Unauthorized', { status: 401 });
         } else {
-          await prismadb.score.create({
-            data: {
+          const currentGameAverageScore = await prismadb.gameAverageScore.findFirst({
+            where: {
               userId: userId,
-              lobbySessionId: gameSession.lobbySessionId,
-              score: body.score,
+              gameId: gameSession.gameId,
             },
           });
-          return new NextResponse('YAYYY', { status: 200 });
+
+          let transaction; //make use of transaction - all updates/creates have to succeed for them to all succeed
+
+          if (currentGameAverageScore) {
+            const newTimesPlayed = currentGameAverageScore.timesPlayed + 1;
+            newAverageScore =
+              (currentGameAverageScore.averageScore * currentGameAverageScore.timesPlayed +
+                body.score) /
+              newTimesPlayed;
+
+            transaction = prismadb.$transaction([
+              prismadb.gameAverageScore.updateMany({
+                where: {
+                  userId: userId,
+                  gameId: gameSession.gameId,
+                },
+                data: {
+                  timesPlayed: newTimesPlayed,
+                  averageScore: newAverageScore,
+                },
+              }),
+              prismadb.score.create({
+                data: {
+                  userId: userId,
+                  lobbySessionId: gameSession.lobbySessionId,
+                  score: body.score,
+                },
+              }),
+            ]);
+          } else {
+            transaction = prismadb.$transaction([
+              prismadb.gameAverageScore.create({
+                data: {
+                  userId: userId,
+                  gameId: gameSession.gameId,
+                  timesPlayed: 1,
+                  averageScore: body.score,
+                },
+              }),
+              prismadb.score.create({
+                data: {
+                  userId: userId,
+                  lobbySessionId: gameSession.lobbySessionId,
+                  score: body.score,
+                },
+              }),
+            ]);
+          }
+
+          await transaction;
+
+          return new NextResponse('YAAYYY', { status: 200 });
         }
+      } else {
+        return new NextResponse('Internal Error', { status: 500 });
       }
     }
   } catch (error: any) {

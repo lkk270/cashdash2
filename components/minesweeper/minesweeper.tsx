@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import axios from 'axios';
 import { Board } from './board';
 import { Header } from './header';
@@ -29,6 +30,8 @@ export const Minesweeper = ({ size, numMines, ids }: MinesweeperProps) => {
   const [initiatedGameEndSuccess, setInitiatedGameEndSuccess] = useState<boolean>(false);
   const [gameSessionId, setGameSessionId] = useState<string>('');
   const [startTime, setStartTime] = useState<number>(0);
+  const router = useRouter();
+
   const { toast } = useToast();
   let gameStatus: 'won' | 'lost' | 'regular' = 'regular';
 
@@ -67,6 +70,15 @@ export const Minesweeper = ({ size, numMines, ids }: MinesweeperProps) => {
           });
         })
         .catch((error) => {
+          // if (error.response.data && error.response.status === 302) {
+          //   router.refresh();
+          //   toast({
+          //     description:
+          //       'You can still see your top score for this tier session by visiting the stats page.',
+          //     variant: 'warning',
+          //   });
+          // }
+
           toast({
             description: error.response ? error.response.data : 'Network Error',
             variant: 'destructive',
