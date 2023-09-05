@@ -16,23 +16,10 @@ interface LobbyIdPageProps {
   };
 }
 
-const userHasScore = async (
-  userId: string,
-  gameId: string,
-  lobbySessionId: string
-): Promise<boolean> => {
-  const userScore = await prismadb.gameSession.findFirst({
-    where: {
-      userId: userId,
-      gameId: gameId,
-      lobbySessionId: lobbySessionId,
-    },
-    select: {
-      userId: true,
-    },
-  });
-
-  return !!userScore; // Converts the value to a boolean: true if there's a score, false otherwise
+type ScoreProcessingParams = {
+  allScores: ModifiedScoreType[];
+  userId: string;
+  orderDirection: 'asc' | 'desc';
 };
 
 const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
@@ -40,6 +27,7 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
   let game = null;
   let allScores: ModifiedScoreType[] = [];
   let bestScoresArray: ModifiedScoreType[] = [];
+  let displayScores: ModifiedScoreType[] = [];
   const gameId = params.gameId;
   let accessResult = {
     isValid: false,
@@ -49,6 +37,71 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
   if (!userId) {
     return redirectToSignIn;
   }
+
+  const userHasScore = async (lobbySessionId: string): Promise<boolean> => {
+    const userScore = await prismadb.gameSession.findFirst({
+      where: {
+        userId: userId,
+        gameId: gameId,
+        lobbySessionId: lobbySessionId,
+      },
+      select: {
+        userId: true,
+      },
+    });
+
+    return !!userScore; // Converts the value to a boolean: true if there's a score, false otherwise
+  };
+
+  const processBestScores = ({
+    allScores,
+    userId,
+    orderDirection,
+  }: ScoreProcessingParams): ModifiedScoreType[] => {
+    const bestScoresByUser: Record<string, ModifiedScoreType> = {};
+
+    allScores.forEach((score) => {
+      if (orderDirection === 'asc') {
+        if (!bestScoresByUser[score.userId] || score.score < bestScoresByUser[score.userId].score) {
+          bestScoresByUser[score.userId] = score;
+        }
+      } else {
+        if (!bestScoresByUser[score.userId] || score.score > bestScoresByUser[score.userId].score) {
+          bestScoresByUser[score.userId] = score;
+        }
+      }
+    });
+
+    let bestScoresArray = Object.values(bestScoresByUser).sort((a, b) =>
+      orderDirection === 'asc' ? a.score - b.score : b.score - a.score
+    );
+
+    // Assign ranks to all scores in the array
+    bestScoresArray = bestScoresArray.map((score, index) => ({
+      ...score,
+      rank: index + 1,
+    }));
+
+    return bestScoresArray;
+  };
+
+  const prepareScoresForDisplay = (
+    scores: ModifiedScoreType[],
+    userId: string
+  ): ModifiedScoreType[] => {
+    let otherScores: ModifiedScoreType[] = scores
+      .filter((score) => score.userId !== userId)
+      .slice(0, 100);
+    const userScore = scores.find((score) => score.userId === userId);
+    if (!userScore) {
+      return scores.slice(0, 100); // return top 100 scores if no user score is found
+    }
+    if (userScore.rank && userScore.rank <= 100) {
+      otherScores = scores.filter((score) => score.userId !== userId).slice(0, 99);
+    }
+
+    return [userScore, ...otherScores];
+  };
 
   game = await prismadb.game.findUnique({
     where: {
@@ -93,7 +146,6 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
                 createdAt: 'asc',
               },
             ],
-            take: 100,
           },
         },
       },
@@ -103,14 +155,13 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
   if (!lobby || gameId !== lobby.gameId) {
     redirect(`/game/${gameId}`);
   }
-
   if (lobby && lobby.sessions && lobby.sessions[0]) {
     if (game) {
       allScores = lobby.sessions[0].scores;
       let userPlayedInSession = allScores.some((score) => score.userId === userId);
 
       if (!userPlayedInSession) {
-        userPlayedInSession = await userHasScore(userId, gameId, lobby.sessions[0].id);
+        userPlayedInSession = await userHasScore(lobby.sessions[0].id);
       }
 
       accessResult = isValidLobbyAccess({
@@ -122,32 +173,14 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
         startDateTime: lobby.sessions[0].startDateTime,
       });
 
-      const bestScoresByUser: Record<string, ModifiedScoreType> = {};
-
-      allScores.forEach((score: ModifiedScoreType) => {
-        // Check if scoreType is 'time' and then compare accordingly
-        if (orderDirection === 'asc') {
-          if (
-            !bestScoresByUser[score.userId] ||
-            score.score < bestScoresByUser[score.userId].score
-          ) {
-            bestScoresByUser[score.userId] = score;
-          }
-        } else {
-          // 'desc'
-          if (
-            !bestScoresByUser[score.userId] ||
-            score.score > bestScoresByUser[score.userId].score
-          ) {
-            bestScoresByUser[score.userId] = score;
-          }
-        }
+      bestScoresArray = processBestScores({
+        allScores,
+        userId,
+        orderDirection,
       });
+      console.log('bestScoresArray.length', bestScoresArray.length);
 
-      // Convert the object to an array and sort by the orderDirection and then take top 100 scores
-      bestScoresArray = Object.values(bestScoresByUser)
-        .sort((a, b) => (orderDirection === 'asc' ? a.score - b.score : b.score - a.score))
-        .slice(0, 100);
+      displayScores = prepareScoresForDisplay(bestScoresArray, userId);
     }
   }
 
@@ -165,7 +198,7 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
       />
     );
   }
-  return <LobbyClient scores={bestScoresArray} game={game!} lobby={lobby} />;
+  return <LobbyClient scores={displayScores} game={game!} lobby={lobby} />;
 };
 
 export default LobbyIdPage;

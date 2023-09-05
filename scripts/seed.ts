@@ -54,24 +54,28 @@ async function main() {
     //   ],
     // });
     // let data = [];
-    // for (let i = 0; i < 1000; i++) {
+    // for (let i = 120; i < 160; i++) {
     //   let obj = {
-    //     userId: 'user_2TKskwGmolB1V1OQ7FvEZvjkzh2',
-    //     lobbySessionId: '628b7c91-002c-4251-a09c-8308d778fd19',
-    //     score: 120000 + i * 5,
+    //     userId: 'user_' + i.toString(),
+    //     username: 'user_' + i.toString(),
+    //     lobbySessionId: 'f8ab962c-60b9-41d9-a689-be731f8a8ce5',
+    //     score: 120000 + (i / 10) * 1000,
     //   };
     //   data.push(obj);
     // }
+    // console.log('data.length', data.length);
     // await db.score.createMany({
     //   data: data,
     // });
-    // await db.score.deleteMany({
-    //   where: {
-    //     lobbySessionId: '628b7c91-002c-4251-a09c-8308d778fd19',
-    //     NOT: [{ score: 24000 }, { score: 120890 }],
-    //   },
-    // });
-    await db.gameSession.deleteMany({});
+
+    await db.score.deleteMany({
+      where: {
+        lobbySessionId: 'f8ab962c-60b9-41d9-a689-be731f8a8ce5',
+        createdAt: '2023-09-05T01:18:43.557Z',
+      },
+    });
+
+    // await db.gameSession.deleteMany({});
   } catch (error) {
     console.error('Error seeding default categories:', error);
   } finally {

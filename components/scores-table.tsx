@@ -9,7 +9,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Lobby, LobbySession, ScoreType } from '@prisma/client';
-
+import { useUser } from '@clerk/nextjs';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { Button } from '@/components/ui/button';
 import { convertMillisecondsToMinSec } from '@/lib/utils';
@@ -25,6 +25,9 @@ interface ScoresTableProps {
 }
 
 export const ScoresTable = ({ lobby, scoreType, scores, showSessionTimer }: ScoresTableProps) => {
+  const { user } = useUser();
+  const userId = user?.id;
+  console.log(scores);
   let countdownData;
   if (showSessionTimer) {
     countdownData = {
@@ -54,18 +57,19 @@ export const ScoresTable = ({ lobby, scoreType, scores, showSessionTimer }: Scor
           </TableHeader>
           <TableBody>
             {scores.map((score, i) => {
+              const rank = score.rank || i + 1;
               const adjustedScore =
                 scoreType === ScoreType.time
                   ? convertMillisecondsToMinSec(score.score)
                   : score.score;
               let tableValueColor =
-                i === 0
+                rank === 1
                   ? '#FFD700'
-                  : i === 1
+                  : rank === 2
                   ? '#C0C0C0'
-                  : i === 2
+                  : rank === 3
                   ? '#CD7F32'
-                  : i < lobby.numRewards
+                  : rank <= lobby.numRewards
                   ? '#429ADD'
                   : '';
 
@@ -74,18 +78,14 @@ export const ScoresTable = ({ lobby, scoreType, scores, showSessionTimer }: Scor
                   style={{ color: tableValueColor }}
                   key={score.username + i.toString()}
                   className={`border-b border-primary/10 ${
-                    i < lobby.numRewards ? 'font-extrabold' : ''
+                    rank <= lobby.numRewards ? 'font-extrabold' : ''
                   }`}
                 >
                   <TableCell
                     style={{ width: '160px', wordBreak: 'break-all' }}
                     className="flex items-start space-x-2 "
                   >
-                    {/* <span className="flex font-bold">
-                    <Star />
-                    <span className="whitespace-nowrap">{i + 100}.</span>
-                  </span> */}
-                    <span className="whitespace-nowrap">{i + 1}.</span>
+                    <span className="whitespace-nowrap">{rank}.</span>{' '}
                     <span className="flex-grow">{score.username}</span>
                   </TableCell>
                   <TableCell>{adjustedScore}</TableCell>

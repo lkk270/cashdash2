@@ -18,4 +18,5 @@ export type ModifiedScoreType = {
   userId: string;
   username: string;
   score: number;
+  rank?: number;
 };
