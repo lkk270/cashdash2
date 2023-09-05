@@ -85,18 +85,3 @@ body,
     @apply bg-background text-foreground;
   }
 }
-
-@keyframes shimmer {
-  0% {
-    background-position: -1000px 0;
-  }
-  100% {
-    background-position: 1000px 0;
-  }
-}
-
-.shimmer-effect {
-  animation: shimmer 2s infinite linear;
-  background: linear-gradient(90deg, #f0f0f0, #f8f8f8 50%, #f0f0f0);
-  background-size: 1000px 100%;
-}

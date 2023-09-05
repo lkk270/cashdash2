@@ -8,6 +8,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+
 import { Lobby, LobbySession, ScoreType } from '@prisma/client';
 import { useUser } from '@clerk/nextjs';
 import { CountdownTimer } from '@/components/countdown-timer';
@@ -73,20 +75,21 @@ export const ScoresTable = ({ lobby, scoreType, scores, showSessionTimer }: Scor
                   ? '#429ADD'
                   : '';
 
+              const isCurrentUser = userId === score.userId;
+
               return (
                 <TableRow
                   style={{ color: tableValueColor }}
                   key={score.username + i.toString()}
-                  className={`border-b border-primary/10 ${
-                    rank <= lobby.numRewards ? 'font-extrabold' : ''
-                  }`}
+                  className={`border-b border-primary/10 
+                    ${rank <= lobby.numRewards ? 'font-extrabold' : ''} 
+                    ${isCurrentUser ? 'border-4 border-indigo-500 rounded-lg shadow-lg' : ''}
+                   `}
                 >
-                  <TableCell
-                    style={{ width: '160px', wordBreak: 'break-all' }}
-                    className="flex items-start space-x-2 "
-                  >
+                  <TableCell className="flex items-start w-40 space-x-2 break-all">
                     <span className="whitespace-nowrap">{rank}.</span>{' '}
                     <span className="flex-grow">{score.username}</span>
+                    {isCurrentUser && <Badge variant={'gradient1'}>You</Badge>}
                   </TableCell>
                   <TableCell>{adjustedScore}</TableCell>
                 </TableRow>
