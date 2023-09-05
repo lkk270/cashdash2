@@ -5,16 +5,20 @@ import { Lobby, Game, LobbySession } from '@prisma/client';
 import { GameNavbar } from '@/components/game-navbar';
 import { ScoresTable } from '@/components/scores-table';
 import { Minesweeper } from '@/components/minesweeper/minesweeper';
+import { useState } from 'react';
 
 interface LobbyClientProps {
   lobby: Lobby & {
     sessions: LobbySession[];
   };
   game: Game;
-  scores: ModifiedScoreType[];
+  scoresParam: ModifiedScoreType[];
+  userBestScore: ModifiedScoreType | null;
 }
 
-export const LobbyClient = ({ lobby, game, scores }: LobbyClientProps) => {
+export const LobbyClient = ({ lobby, game, scoresParam, userBestScore }: LobbyClientProps) => {
+  const [scores, setScores] = useState<ModifiedScoreType[]>(scoresParam);
+  console.log(userBestScore);
   const ids = {
     gameId: game.id,
     lobbySessionId: lobby.sessions[0].id,
@@ -29,7 +33,15 @@ export const LobbyClient = ({ lobby, game, scores }: LobbyClientProps) => {
       <main className="">
         <div className="h-full p-4 space-y-2 ">
           <div className="flex justify-center">
-            {<Minesweeper ids={ids} size={12} numMines={5} />}
+            {
+              <Minesweeper
+                userBestScoreParam={userBestScore}
+                setScores={setScores}
+                ids={ids}
+                size={12}
+                numMines={5}
+              />
+            }
           </div>
         </div>
       </main>

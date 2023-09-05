@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 import { generateChallengeHash, generateResponseHash } from '@/lib/hash';
 import prismadb from '@/lib/prismadb';
 
-const acceptedTypesObj: { [key: string]: number } = { '0': 3, '2': 2, '3': 5 };
+const acceptedTypesObj: { [key: string]: number } = { '0': 3, '2': 2, '3': 6 };
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -20,14 +20,14 @@ export async function POST(req: Request) {
     }
     if (
       bodyLength === 0 ||
-      bodyLength > 5 ||
+      bodyLength > 6 ||
       !validType ||
       acceptedTypesObj[receivedType] != bodyLength
     ) {
       return new NextResponse('Invalid body', { status: 400 });
     }
 
-    if (receivedType === '0' && bodyLength === 3) {
+    if (receivedType === '0') {
       const expiresAt = new Date();
       expiresAt.setSeconds(expiresAt.getSeconds() + 3599); // 59 minutes 59 seconds from now
 
@@ -70,7 +70,7 @@ export async function POST(req: Request) {
       });
 
       if (!gameSession) {
-        return new NextResponse('Unauthorized', { status: 401 });
+        return new NextResponse('Score not submitted due to session inactivity. Start a new game', { status: 401 });
       }
       const game = await prismadb.game.findUnique({
         where: {
@@ -90,13 +90,13 @@ export async function POST(req: Request) {
       if (game.scoreType === 'points' && body.score > game.cheatScore) {
         return new NextResponse('Unauthorized', { status: 401 });
       }
-      if (receivedType === '2' && bodyLength === 2) {
+      if (receivedType === '2') {
         const challengedHash = generateChallengeHash(
           gameSession.id,
           process.env.GAME_SESSION_SECRET
         );
         return new NextResponse(JSON.stringify({ hash: challengedHash }));
-      } else if (receivedType === '3' && bodyLength === 5) {
+      } else if (receivedType === '3') {
         let newAverageScore;
         const responseHashToCompare = generateResponseHash(body.cHash, body.score);
         if (responseHashToCompare !== body.rHash) {

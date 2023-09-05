@@ -29,7 +29,6 @@ interface ScoresTableProps {
 export const ScoresTable = ({ lobby, scoreType, scores, showSessionTimer }: ScoresTableProps) => {
   const { user } = useUser();
   const userId = user?.id;
-  console.log(scores);
   let countdownData;
   if (showSessionTimer) {
     countdownData = {
@@ -83,7 +82,11 @@ export const ScoresTable = ({ lobby, scoreType, scores, showSessionTimer }: Scor
                   key={score.username + i.toString()}
                   className={`border-b border-primary/10 
                     ${rank <= lobby.numRewards ? 'font-extrabold' : ''} 
-                    ${isCurrentUser ? 'border-4 border-indigo-500 rounded-lg shadow-lg' : ''}
+                    ${
+                      isCurrentUser
+                        ? 'border-2 border-indigo-500 rounded-lg shadow-lg bg-indigo-400'
+                        : ''
+                    }
                    `}
                 >
                   <TableCell className="flex items-start w-40 space-x-2 break-all">

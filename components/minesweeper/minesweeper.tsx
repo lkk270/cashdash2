@@ -1,17 +1,20 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
 import axios from 'axios';
 import { Board } from './board';
 import { Header } from './header';
 
+import { ModifiedScoreType } from '@/app/types';
 import { useToast } from '@/components/ui/use-toast';
 import { initializeGrid } from '@/lib/minesweeper-utils';
 import { generateResponseHash } from '@/lib/hash';
 import { CellType } from '@/app/types';
+import { processBestScores, prepareScoresForDisplay } from '@/lib/scores';
 
 interface MinesweeperProps {
+  userBestScoreParam: ModifiedScoreType | null;
+  setScores: (scores: ModifiedScoreType[]) => void;
   size: number;
   numMines: number;
   ids: {
@@ -20,7 +23,13 @@ interface MinesweeperProps {
   };
 }
 
-export const Minesweeper = ({ size, numMines, ids }: MinesweeperProps) => {
+export const Minesweeper = ({
+  size,
+  numMines,
+  ids,
+  userBestScoreParam,
+  setScores,
+}: MinesweeperProps) => {
   const [grid, setGrid] = useState<CellType[][]>([]);
   const [explodedCell, setExplodedCell] = useState<{ row: number; col: number } | null>(null);
   const [gameOver, setGameOver] = useState<boolean>(false);
@@ -30,7 +39,7 @@ export const Minesweeper = ({ size, numMines, ids }: MinesweeperProps) => {
   const [initiatedGameEndSuccess, setInitiatedGameEndSuccess] = useState<boolean>(false);
   const [gameSessionId, setGameSessionId] = useState<string>('');
   const [startTime, setStartTime] = useState<number>(0);
-  const router = useRouter();
+  const [userBestScore, setUserBestScore] = useState<ModifiedScoreType | null>(userBestScoreParam);
 
   const { toast } = useToast();
   let gameStatus: 'won' | 'lost' | 'regular' = 'regular';
@@ -56,6 +65,7 @@ export const Minesweeper = ({ size, numMines, ids }: MinesweeperProps) => {
           const hash = response.data.hash;
           // Send another POST request with response.data.hash and at: '3'
           return axios.post('/api/game-session', {
+            userBestScore: userBestScore,
             gameSessionId: gameSessionId,
             score: timeElapsed,
             cHash: hash,
