@@ -83,7 +83,7 @@ export const LobbyAboutModal = () => {
             </li>
             {numOtherPlaces > 0 && (
               <li className="flex justify-between">
-                <span>4th - {numOtherPlaces.toString()}th place</span>
+                <span>4th - {numOtherPlaces.toString()}th Places</span>
                 <span className="text-sky-500">{prizes.other}</span>
               </li>
             )}
@@ -91,7 +91,7 @@ export const LobbyAboutModal = () => {
         </div>
         <Separator />
         {/* Play Counts Section */}
-        <div className="p-4 space-y-4">
+        {/* <div className="p-4 space-y-4">
           <h2 className="text-xl font-bold">Play Counts</h2>
           <ul className="space-y-2">
             <li className="flex justify-between">
@@ -104,9 +104,9 @@ export const LobbyAboutModal = () => {
             </li>
           </ul>
         </div>
-        <Separator />
+        <Separator /> */}
         {/* Top 5 Scores */}
-        <div className="p-4 space-y-4">
+        {/* <div className="p-4 space-y-4">
           <h2 className="text-xl font-bold">Top 5 Scores</h2>
           <ul className="space-y-2">
             {topScores.map((score, index) => (
@@ -116,7 +116,7 @@ export const LobbyAboutModal = () => {
               </li>
             ))}
           </ul>
-        </div>
+        </div> */}
       </DialogContent>
     </Dialog>
   );

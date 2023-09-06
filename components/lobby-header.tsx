@@ -17,13 +17,15 @@ export const LobbyHeader = () => {
       </div>
 
       <div className="text-sm text-center text-primary/50">
-        <h1 className="items-center text-4xl font-bold">Choose a tier</h1>
-        <p className="mt-4">
-          To maintain an even playing field, better players are restricted to higher tiers
+        <h1 className="items-center text-4xl font-bold">Choose a Tier</h1>
+        <p className="max-w-lg mt-4">
+          To maintain an even playing field, better players are restricted to higher tiers. We use
+          your average score & individual scores to determine tier eligibility.
         </p>
 
-        <p className="flex justify-center mt-1 gap-x-1">
-          Click <Info /> for more details & prize info
+        <p className="flex justify-center mt-2 font-bold gap-x-1">
+          {/* Click <Info /> for more details & prize info */}
+          Click <Info size={18} strokeWidth={3} /> for prize info
         </p>
       </div>
       <div className="flex items-center gap-x-2">{/* <Button>TIME LEFT</Button> */}</div>
