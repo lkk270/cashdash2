@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 import { processBestScores, prepareScoresForDisplay } from '@/lib/scores';
 import { generateChallengeHash, generateResponseHash } from '@/lib/hash';
 import prismadb from '@/lib/prismadb';
-import { ScoreType } from '@prisma/client';
+import { ScoreType, LobbySession, GameSession } from '@prisma/client';
 
 const acceptedTypesObj: { [key: string]: number } = { '0': 3, '2': 2, '3': 6 };
 
@@ -61,17 +61,36 @@ export async function POST(req: Request) {
     //   return new NextResponse('', { status: 200 });
     // }
     else if (receivedType === '2' || receivedType === '3') {
-      const gameSession = await prismadb.gameSession.findFirst({
-        where: {
-          id: body.gameSessionId,
-          isValid: true,
-          expiresAt: {
-            gt: new Date(),
+      const currentDate = new Date();
+      const gameSession: (GameSession & { lobbySession?: { id: string } }) | null =
+        await prismadb.gameSession.findFirst({
+          where: {
+            id: body.gameSessionId,
+            isValid: true,
+            expiresAt: {
+              gt: currentDate,
+            },
+            lobbySession: {
+              isActive: true,
+              expiredDateTime: {
+                gt: currentDate,
+              },
+              startDateTime: {
+                lt: currentDate,
+              },
+            },
           },
-        },
-      });
+          include: {
+            // Include only the id from the lobbySession, to check if it exists
+            lobbySession: {
+              select: {
+                id: true,
+              },
+            },
+          },
+        });
 
-      if (!gameSession) {
+      if (!gameSession || !gameSession.lobbySession) {
         return new NextResponse('Score not submitted due to session inactivity. Start a new game', {
           status: 401,
         });
@@ -198,8 +217,10 @@ export async function POST(req: Request) {
 
             displayScores = prepareScoresForDisplay(bestScoresArray, userId);
           }
-          const message = displayScores !== null ?  'New high score!' : 'Score saved!' 
-          return new NextResponse(JSON.stringify({ message: message, displayScores: displayScores }));
+          const message = displayScores !== null ? 'New high score!' : 'Score saved!';
+          return new NextResponse(
+            JSON.stringify({ message: message, displayScores: displayScores })
+          );
         }
       } else {
         return new NextResponse('Internal Error', { status: 500 });

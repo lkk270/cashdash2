@@ -28,7 +28,7 @@ export const LobbyClient = ({ lobby, game, scoresParam, userBestScore }: LobbyCl
     // <TimerProvider>
     <div className="h-full">
       <GameNavbar scores={scores} game={game} lobby={lobby} />
-      <div className="fixed inset-y-0 flex-col hidden mt-20 w-60 xl:flex">
+      <div className="fixed inset-y-0 flex-col hidden mt-20 w-64 xl:flex">
         <ScoresTable
           setTriggerAnimation={setTriggerAnimationBase}
           triggerAnimation={triggerAnimation}

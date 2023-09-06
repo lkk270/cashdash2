@@ -9,11 +9,10 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-
 import { Lobby, LobbySession, ScoreType } from '@prisma/client';
 import { useUser } from '@clerk/nextjs';
 import { CountdownTimer } from '@/components/countdown-timer';
-import { Button } from '@/components/ui/button';
+import { CompletePopover } from '@/components/complete-popover';
 import { convertMillisecondsToMinSec } from '@/lib/utils';
 import { ModifiedScoreType } from '@/app/types';
 
@@ -124,7 +123,15 @@ export const ScoresTable = ({
                     <span className="flex-grow">{score.username}</span>
                     {isCurrentUser && <Badge variant={'gradient1'}>You</Badge>}
                   </TableCell>
-                  <TableCell>{adjustedScore}</TableCell>
+                  <TableCell className="relative pr-8">
+                    <span>{adjustedScore}</span>
+                    {scoreType === ScoreType.time && (
+                      <CompletePopover
+                        title={'Time'}
+                        content={[{ title: 'miliseconds', content: score.score.toString() }]}
+                      />
+                    )}
+                  </TableCell>
                 </TableRow>
               );
             })}

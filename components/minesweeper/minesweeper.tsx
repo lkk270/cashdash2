@@ -10,7 +10,6 @@ import { useToast } from '@/components/ui/use-toast';
 import { initializeGrid } from '@/lib/minesweeper-utils';
 import { generateResponseHash } from '@/lib/hash';
 import { CellType } from '@/app/types';
-import { processBestScores, prepareScoresForDisplay } from '@/lib/scores';
 
 interface MinesweeperProps {
   userBestScoreParam: ModifiedScoreType | null;
