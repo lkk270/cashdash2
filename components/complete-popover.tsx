@@ -29,7 +29,7 @@ export const CompletePopover = ({ title, content }: CompletePopoverProps) => {
                 return (
                   <div className="grid items-center grid-cols-3 gap-4">
                     <Label>{value.title}</Label>
-                    <p className="h-8 col-span-2">{value.content}</p>
+                    <p>{value.content}</p>
                   </div>
                 );
               })}

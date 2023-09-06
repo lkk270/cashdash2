@@ -127,8 +127,11 @@ export const ScoresTable = ({
                     <span>{adjustedScore}</span>
                     {scoreType === ScoreType.time && (
                       <CompletePopover
-                        title={'Time'}
-                        content={[{ title: 'miliseconds', content: score.score.toString() }]}
+                        title={'Exact Time'}
+                        content={[
+                          { title: 'Milliseconds', content: score.score.toString() },
+                          { title: 'Seconds', content: (score.score / 1000).toString() },
+                        ]}
                       />
                     )}
                   </TableCell>
