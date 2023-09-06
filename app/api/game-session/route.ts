@@ -1,8 +1,10 @@
 import { auth, currentUser } from '@clerk/nextjs';
 import { NextResponse } from 'next/server';
 
+import { processBestScores, prepareScoresForDisplay } from '@/lib/scores';
 import { generateChallengeHash, generateResponseHash } from '@/lib/hash';
 import prismadb from '@/lib/prismadb';
+import { ScoreType } from '@prisma/client';
 
 const acceptedTypesObj: { [key: string]: number } = { '0': 3, '2': 2, '3': 6 };
 
@@ -70,7 +72,9 @@ export async function POST(req: Request) {
       });
 
       if (!gameSession) {
-        return new NextResponse('Score not submitted due to session inactivity. Start a new game', { status: 401 });
+        return new NextResponse('Score not submitted due to session inactivity. Start a new game', {
+          status: 401,
+        });
       }
       const game = await prismadb.game.findUnique({
         where: {
@@ -97,6 +101,7 @@ export async function POST(req: Request) {
         );
         return new NextResponse(JSON.stringify({ hash: challengedHash }));
       } else if (receivedType === '3') {
+        let displayScores = null;
         let newAverageScore;
         const responseHashToCompare = generateResponseHash(body.cHash, body.score);
         if (responseHashToCompare !== body.rHash) {
@@ -161,7 +166,40 @@ export async function POST(req: Request) {
 
           await transaction;
 
-          return new NextResponse('YAAYYY', { status: 200 });
+          if (
+            (game.scoreType === ScoreType.points && body.score > body.userBestScore.score) ||
+            (game.scoreType === ScoreType.time && body.score < body.userBestScore.score)
+          ) {
+            const orderDirection = game.scoreType === ScoreType.time ? 'asc' : 'desc';
+
+            //a better score was created so send a new best scores array to be use in the score-table
+            const allScores = await prismadb.score.findMany({
+              where: {
+                lobbySessionId: gameSession.lobbySessionId,
+              },
+              select: {
+                userId: true,
+                username: true,
+                score: true,
+              },
+              orderBy: [
+                {
+                  score: orderDirection,
+                },
+                {
+                  createdAt: 'asc',
+                },
+              ],
+            });
+            const bestScoresArray = processBestScores({
+              allScores,
+              orderDirection,
+            });
+
+            displayScores = prepareScoresForDisplay(bestScoresArray, userId);
+          }
+          const message = displayScores !== null ?  'New high score!' : 'Score saved!' 
+          return new NextResponse(JSON.stringify({ message: message, displayScores: displayScores }));
         }
       } else {
         return new NextResponse('Internal Error', { status: 500 });

@@ -85,3 +85,14 @@ body,
     @apply bg-background text-foreground;
   }
 }
+
+.fade-in {
+  opacity: 0;
+  animation: fadeInAnimation 3s forwards;
+}
+
+@keyframes fadeInAnimation {
+  to {
+    opacity: 1;
+  }
+}

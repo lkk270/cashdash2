@@ -18,7 +18,8 @@ interface LobbyClientProps {
 
 export const LobbyClient = ({ lobby, game, scoresParam, userBestScore }: LobbyClientProps) => {
   const [scores, setScores] = useState<ModifiedScoreType[]>(scoresParam);
-  console.log(userBestScore);
+  const [triggerAnimation, setTriggerAnimationBase] = useState<boolean>(false);
+
   const ids = {
     gameId: game.id,
     lobbySessionId: lobby.sessions[0].id,
@@ -28,13 +29,20 @@ export const LobbyClient = ({ lobby, game, scoresParam, userBestScore }: LobbyCl
     <div className="h-full">
       <GameNavbar scores={scores} game={game} lobby={lobby} />
       <div className="fixed inset-y-0 flex-col hidden mt-20 w-60 xl:flex">
-        <ScoresTable scoreType={game.scoreType} scores={scores} lobby={lobby} />
+        <ScoresTable
+          setTriggerAnimation={setTriggerAnimationBase}
+          triggerAnimation={triggerAnimation}
+          scoreType={game.scoreType}
+          scores={scores}
+          lobby={lobby}
+        />
       </div>
       <main className="">
         <div className="h-full p-4 space-y-2 ">
           <div className="flex justify-center">
             {
               <Minesweeper
+                setTriggerAnimation={setTriggerAnimationBase}
                 userBestScoreParam={userBestScore}
                 setScores={setScores}
                 ids={ids}

@@ -15,6 +15,7 @@ import { processBestScores, prepareScoresForDisplay } from '@/lib/scores';
 interface MinesweeperProps {
   userBestScoreParam: ModifiedScoreType | null;
   setScores: (scores: ModifiedScoreType[]) => void;
+  setTriggerAnimation: (animate: boolean) => void;
   size: number;
   numMines: number;
   ids: {
@@ -29,6 +30,7 @@ export const Minesweeper = ({
   ids,
   userBestScoreParam,
   setScores,
+  setTriggerAnimation,
 }: MinesweeperProps) => {
   const [grid, setGrid] = useState<CellType[][]>([]);
   const [explodedCell, setExplodedCell] = useState<{ row: number; col: number } | null>(null);
@@ -74,9 +76,15 @@ export const Minesweeper = ({
           });
         })
         .then((response) => {
+          const displayScore = response.data.displayScores;
+          if (displayScore) {
+            setScores(displayScore);
+            setTriggerAnimation(true);
+            setUserBestScore(displayScore[0]);
+          }
           // Handle the response of the second POST request
           toast({
-            description: response.data,
+            description: response.data.message,
           });
         })
         .catch((error) => {
