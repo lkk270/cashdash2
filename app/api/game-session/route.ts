@@ -6,9 +6,10 @@ import { generateChallengeHash, generateResponseHash } from '@/lib/hash';
 import prismadb from '@/lib/prismadb';
 import { ScoreType, LobbySession, GameSession } from '@prisma/client';
 
-const acceptedTypesObj: { [key: string]: number } = { '0': 3, '2': 2, '3': 6 };
+const acceptedTypesObj: { [key: string]: number } = { '0': 3, '1': 2, '2': 2, '3': 6 };
 
 export async function POST(req: Request) {
+  const currentDate = new Date();
   const body = await req.json();
   const bodyLength = Object.keys(body).length;
   try {
@@ -30,7 +31,7 @@ export async function POST(req: Request) {
     }
 
     if (receivedType === '0') {
-      const expiresAt = new Date();
+      const expiresAt = currentDate;
       expiresAt.setSeconds(expiresAt.getSeconds() + 3599); // 59 minutes 59 seconds from now
 
       const gameSession = await prismadb.gameSession.create({
@@ -44,24 +45,20 @@ export async function POST(req: Request) {
       });
 
       return new NextResponse(JSON.stringify({ gameSessionId: gameSession.id }));
-    }
-    // else if (acceptedType === '1') {
-    //   console.log('IN TRIGGERED');
-    //   await prismadb.gameSession.update({
-    //     where: {
-    //       id: body.gameSessionId,
-    //       isValid: true,
-    //       expiresAt: {
-    //         gt: new Date(),
-    //       },
-    //     },
-    //     data: { startedAt: Date.now() },
-    //   });
-
-    //   return new NextResponse('', { status: 200 });
-    // }
-    else if (receivedType === '2' || receivedType === '3') {
-      const currentDate = new Date();
+    } else if (receivedType === '1') {
+      console.log('IN TRIGGERED');
+      await prismadb.gameSession.update({
+        where: {
+          id: body.gameSessionId,
+          isValid: true,
+          expiresAt: {
+            gt: currentDate,
+          },
+        },
+        data: { startedAt: Date.now() },
+      });
+      return new NextResponse();
+    } else if (receivedType === '2' || receivedType === '3') {
       const gameSession: (GameSession & { lobbySession?: { id: string } }) | null =
         await prismadb.gameSession.findFirst({
           where: {
@@ -95,24 +92,7 @@ export async function POST(req: Request) {
           status: 401,
         });
       }
-      const game = await prismadb.game.findUnique({
-        where: {
-          id: gameSession.gameId,
-        },
-        select: {
-          cheatScore: true,
-          scoreType: true,
-        },
-      });
-      if (!game) {
-        return new NextResponse('No game?', { status: 401 });
-      }
-      if (game.scoreType === 'time' && body.score < game.cheatScore) {
-        return new NextResponse('Unauthorized', { status: 401 });
-      }
-      if (game.scoreType === 'points' && body.score > game.cheatScore) {
-        return new NextResponse('Unauthorized', { status: 401 });
-      }
+
       if (receivedType === '2') {
         const challengedHash = generateChallengeHash(
           gameSession.id,
@@ -124,8 +104,39 @@ export async function POST(req: Request) {
         let newAverageScore;
         const responseHashToCompare = generateResponseHash(body.cHash, body.score);
         if (responseHashToCompare !== body.rHash) {
-          return new NextResponse('Unauthorized', { status: 401 });
+          return new NextResponse('Unauthorized1', { status: 401 });
         } else {
+          const currentMilliseconds = currentDate.getTime();
+          // console.log(currentMilliseconds);
+          // console.log(gameSession.startedAt);
+          // console.log(currentMilliseconds - Number(gameSession.startedAt));
+          // console.log(body.score);
+          const game = await prismadb.game.findUnique({
+            where: {
+              id: gameSession.gameId,
+            },
+            select: {
+              cheatScore: true,
+              scoreType: true,
+            },
+          });
+          if (!game) {
+            return new NextResponse('No game?', { status: 401 });
+          }
+          if (game.scoreType === 'time' && body.score < game.cheatScore) {
+            return new NextResponse('Unauthorized2', { status: 401 });
+          }
+          if (game.scoreType === 'points' && body.score > game.cheatScore) {
+            return new NextResponse('Unauthorized3', { status: 401 });
+          }
+          if (
+            !gameSession.startedAt ||
+            (game.scoreType === 'time' &&
+              currentMilliseconds - Number(gameSession.startedAt) > body.score + 5000)
+          ) {
+            return new NextResponse('Suspected of cheating', { status: 401 });
+          }
+
           const currentGameAverageScore = await prismadb.gameAverageScore.findFirst({
             where: {
               userId: userId,
@@ -227,7 +238,7 @@ export async function POST(req: Request) {
       }
     }
   } catch (error: any) {
-    console.log('error');
+    console.log(error);
     return new NextResponse('Internal Error', { status: 500 });
   }
 }

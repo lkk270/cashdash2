@@ -138,13 +138,16 @@ export const Minesweeper = ({
       });
   };
 
+  const onGameStart = () => {
+    axios.post('/api/game-session', { gameSessionId: gameSessionId, at: '1' }).catch((error) => {
+      console.error('Error during onGameStart:', error);
+    });
+  };
+
   const revealCell = (grid: CellType[][], row: number, col: number): CellType[][] => {
     if (!createGameSessionSuccess) return grid;
     // Check boundaries first
-    if (!gameStarted) {
-      setGameStarted(true);
-      setStartTime(Date.now());
-    }
+
     if (row < 0 || row >= grid.length || col < 0 || col >= grid[0].length) {
       return grid; // Out of grid bounds
     }
@@ -196,6 +199,7 @@ export const Minesweeper = ({
   const toggleFlag = (e: React.MouseEvent, row: number, col: number) => {
     if (!createGameSessionSuccess) return;
     if (!gameStarted) {
+      onGameStart();
       setGameStarted(true);
       setStartTime(Date.now());
     }
@@ -208,6 +212,12 @@ export const Minesweeper = ({
   const handleReveal = (row: number, col: number) => {
     const updatedGrid = revealCell(grid, row, col);
     setGrid(updatedGrid);
+
+    if (!gameStarted) {
+      setGameStarted(true);
+      onGameStart();
+      setStartTime(Date.now());
+    }
 
     if (checkWin()) {
       for (let r = 0; r < grid.length; r++) {
