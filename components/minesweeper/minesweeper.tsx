@@ -79,8 +79,8 @@ export const Minesweeper = ({
           const displayScore = response.data.displayScores;
           if (displayScore) {
             setScores(displayScore);
-            setTriggerAnimation(true);
             setUserBestScore(displayScore[0]);
+            setTriggerAnimation(true);
           }
           // Handle the response of the second POST request
           toast({

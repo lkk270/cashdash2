@@ -18,7 +18,7 @@ interface LobbyClientProps {
 
 export const LobbyClient = ({ lobby, game, scoresParam, userBestScore }: LobbyClientProps) => {
   const [scores, setScores] = useState<ModifiedScoreType[]>(scoresParam);
-  const [triggerAnimation, setTriggerAnimationBase] = useState<boolean>(false);
+  const [triggerAnimation, setTriggerAnimationBase] = useState<boolean>(true);
 
   const ids = {
     gameId: game.id,
