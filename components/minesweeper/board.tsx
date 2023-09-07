@@ -20,12 +20,12 @@ export const Board = ({
   explodedCell,
 }: BoardProps) => {
   const [pressedCell, setPressedCell] = useState<{ row: number; col: number } | null>(null);
-
   return (
     //     <div className={`grid grid-cols-${grid.length.toString()}`}>
     //gris-cols-12 should be dynamic but ran into some issues with it
     <div
-      className={`grid grid-cols-12 select-none`}
+      className={`elect-none grid grid-cols-${grid[0]?.length.toString()}`}
+      // className={`grid grid-cols-16 select-none`}
       style={{ animation: loading ? 'pulse 1.5s infinite' : '' }}
     >
       {grid.map((row, rowIndex) =>
