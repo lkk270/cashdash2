@@ -82,7 +82,7 @@ export const Cell = ({
     setPressedCell(null);
   };
 
-  const baseStyle = 'w-8 h-8 flex items-center justify-center text-center';
+  const baseStyle = 'w-6 h-6 flex items-center justify-center text-center';
   // const revealedStyle = cell.isRevealed
   //   ? 'bg-c6c6c6 border border-gray-500'
   //   : 'bg-c6c6c6 border-l border-t border-white border-r border-b border-808080';

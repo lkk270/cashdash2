@@ -46,7 +46,8 @@ export const LobbyClient = ({ lobby, game, scoresParam, userBestScore }: LobbyCl
                 userBestScoreParam={userBestScore}
                 setScores={setScores}
                 ids={ids}
-                size={12}
+                rows={16}
+                cols={30}
                 numMines={5}
               />
             }
