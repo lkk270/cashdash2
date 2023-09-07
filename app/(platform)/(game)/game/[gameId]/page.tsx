@@ -66,6 +66,7 @@ const GameIdPage = async ({ params }: GameIdPageProps) => {
   if (!game) {
     return redirect('/dashboard');
   }
+  // console.log(game);
 
   // if (game) {
   //   console.log(game.lobbies[0].sessions[1].gameSession);

@@ -197,6 +197,7 @@ export async function POST(req: Request) {
           await transaction;
 
           if (
+            !body.userBestScore.score ||
             (game.scoreType === ScoreType.points && body.score > body.userBestScore.score) ||
             (game.scoreType === ScoreType.time && body.score < body.userBestScore.score)
           ) {

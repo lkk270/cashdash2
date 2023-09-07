@@ -32,16 +32,18 @@ export const Lobbies = ({ data }: LobbiesProps) => {
   const lobbyAboutModal = useLobbyAboutModal();
   const pathname = usePathname();
   const { toast } = useToast();
-  const averageScore = data.averageScores.length > 0 ? data.averageScores[0].averageScore : 1;
+  const averageScore = data.averageScores.length > 0 ? data.averageScores[0].averageScore : null;
   const scoreType = data.scoreType;
-  const beatTitle = scoreType === 'time' ? 'Time' : 'Score';
+  // const beatTitle = scoreType === 'time' ? 'Time' : 'Score';
 
   return (
     <div className="flex justify-center">
       <div className="grid justify-center grid-cols-1 gap-2 pb-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {data.lobbies.map((item) => {
-          const userPlayedInSession = item.sessions[0].gameSession.length > 0 ? true : false;
-          // console.log(item);
+          if (!item.sessions[0]) {
+            return <div></div>;
+          }
+          const userPlayedInSession = item.sessions[0].gameSession?.length > 0 ? true : false;
           let accessResult = isValidLobbyAccess({
             userPlayedInSession: userPlayedInSession,
             scoreType: scoreType,

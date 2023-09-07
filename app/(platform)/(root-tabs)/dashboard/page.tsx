@@ -14,7 +14,7 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
       categoryId: searchParams.categoryId,
     },
     orderBy: {
-      name: 'desc',
+      name: 'asc',
     },
   });
 

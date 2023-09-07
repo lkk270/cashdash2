@@ -62,6 +62,16 @@ export const convertMillisecondsToMinSec = (ms: number): string => {
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 };
 
+export const convertMillisecondsToMinExactSec = (exactSeconds: number): string => {
+  const minutes: number = Math.floor(exactSeconds / 60);
+  const seconds: string = (exactSeconds - minutes * 60).toPrecision(3);
+  if (minutes === 0) {
+    return `${seconds}s`;
+  } else {
+    return `${minutes}m ${seconds}s`;
+  }
+};
+
 export function absoluteUrl(path: string) {
   return `${process.env.NEXT_PUBLIC_APP_URL}${path}`;
 }

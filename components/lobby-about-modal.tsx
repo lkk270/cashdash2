@@ -30,8 +30,9 @@ export const LobbyAboutModal = () => {
     expiredDateTime: expiredDateTime,
     startDateTime: startDateTime,
   };
+  const numOtherPlacesTemp = lobbyAboutModal.data?.lobby.numRewards || 0;
+  const numOtherPlaces = numOtherPlacesTemp - 3 > 0 ? numOtherPlacesTemp - 3 : 0;
 
-  const numOtherPlaces = lobbyAboutModal.data?.lobby.numRewards || 3 - 3;
   // Placeholder Data (same as before)
   const prizes = {
     first: `$${lobbyAboutModal.data?.lobby.firstPlacePrize}`,

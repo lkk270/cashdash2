@@ -39,7 +39,7 @@ export const GameNavbar = ({ lobby, game, scores }: LobbyHeaderProps) => {
       <div className="flex flex-col h-full p-4 space-y-2">
         <div className="grid items-center w-full grid-cols-3 pb-4 border-b border-primary/10">
           {/* Left content */}
-          <div className="flex items-center gap-x-2">
+          <div className="z-10 flex items-center gap-x-2">
             <MobileScoresTable scores={scores} scoreType={game.scoreType} lobby={lobby} />
             <Button
               onClick={() => router.push(backPath)}

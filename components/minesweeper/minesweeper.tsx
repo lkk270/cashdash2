@@ -43,7 +43,7 @@ export const Minesweeper = ({
   const [gameSessionId, setGameSessionId] = useState<string>('');
   const [startTime, setStartTime] = useState<number>(0);
   const [userBestScore, setUserBestScore] = useState<ModifiedScoreType | null>(userBestScoreParam);
-
+  console.log(userBestScore);
   const { toast } = useToast();
   let gameStatus: 'won' | 'lost' | 'regular' = 'regular';
 
@@ -68,7 +68,7 @@ export const Minesweeper = ({
           const hash = response.data.hash;
           // Send another POST request with response.data.hash and at: '3'
           return axios.post('/api/game-session', {
-            userBestScore: userBestScore,
+            userBestScore: userBestScore ? userBestScore : false,
             gameSessionId: gameSessionId,
             score: timeElapsed,
             cHash: hash,
@@ -274,6 +274,7 @@ export const Minesweeper = ({
         loading={loading}
       />
       <Board
+        cols={cols}
         grid={grid}
         gameOver={gameOver}
         explodedCell={explodedCell}
