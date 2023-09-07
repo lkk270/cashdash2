@@ -26,10 +26,11 @@ interface CellProps {
   pressedCell: { row: number; col: number } | null;
   setPressedCell: React.Dispatch<React.SetStateAction<{ row: number; col: number } | null>>;
   gameOver: boolean; // To denote whether the game is over
-  row: number; // Add this line
-  col: number; // Add this line
-  explodedRow?: number; // Add this line
-  explodedCol?: number; // Add this line
+  row: number;
+  col: number;
+  explodedRow?: number;
+  explodedCol?: number;
+  loading: boolean;
 }
 
 export const Cell = ({
@@ -43,10 +44,11 @@ export const Cell = ({
   gameOver,
   explodedRow,
   explodedCol,
+  loading,
 }: CellProps) => {
   // Mouse down event to set the isPressed state
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (cell.isRevealed || gameOver || cell.isFlagged) {
+    if (cell.isRevealed || gameOver || cell.isFlagged || loading) {
       return;
     }
     // Check if left button is pressed
@@ -56,15 +58,15 @@ export const Cell = ({
   };
 
   const handleMouseUp = (e: React.MouseEvent) => {
-    if (e.button === 2) {
-      return; // if right-click, do nothing
+    if (e.button === 2 || loading) {
+      return; // if right-click or loading, do nothing
     }
     setPressedCell(null);
     if (!gameOver) onReveal(e);
   };
 
   const handleMouseEnter = (e: React.MouseEvent) => {
-    if (cell.isRevealed || gameOver || cell.isFlagged) {
+    if (cell.isRevealed || gameOver || cell.isFlagged || loading) {
       return;
     }
     if (e.buttons === 1) {
@@ -74,6 +76,9 @@ export const Cell = ({
   };
 
   const handleMouseLeave = (e: React.MouseEvent) => {
+    if (loading) {
+      return;
+    }
     setPressedCell(null);
   };
 
@@ -83,7 +88,6 @@ export const Cell = ({
   //   : 'bg-c6c6c6 border-l border-t border-white border-r border-b border-808080';
 
   let cellContent;
-  console.log('Is the game over?', gameOver && cell.isFlagged, 'mine?', !cell.isMine);
 
   if (pressedCell && pressedCell.row === row && pressedCell.col === col) {
     cellContent = <Type0 />;
@@ -136,16 +140,17 @@ export const Cell = ({
 
   return (
     <div
+      key={row.toString() + col.toString()}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={(e) => {
-        if (!gameOver) onReveal(e);
+        if (!gameOver && !loading) onReveal(e);
       }}
       onContextMenu={(e) => {
         e.preventDefault();
-        if (!gameOver) onFlag(e);
+        if (!gameOver && !loading) onFlag(e);
       }}
       className={`${baseStyle}`}
     >

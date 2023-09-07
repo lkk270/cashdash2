@@ -1,39 +1,153 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-
+import axios from 'axios';
 import { Board } from './board';
 import { Header } from './header';
 
+import { ModifiedScoreType } from '@/app/types';
+import { useToast } from '@/components/ui/use-toast';
 import { initializeGrid } from '@/lib/minesweeper-utils';
+import { generateResponseHash } from '@/lib/hash';
 import { CellType } from '@/app/types';
 
 interface MinesweeperProps {
+  userBestScoreParam: ModifiedScoreType | null;
+  setScores: (scores: ModifiedScoreType[]) => void;
+  setTriggerAnimation: (animate: boolean) => void;
   size: number;
   numMines: number;
+  ids: {
+    gameId: string;
+    lobbySessionId: string;
+  };
 }
 
-export const Minesweeper = ({ size, numMines }: MinesweeperProps) => {
+export const Minesweeper = ({
+  size,
+  numMines,
+  ids,
+  userBestScoreParam,
+  setScores,
+  setTriggerAnimation,
+}: MinesweeperProps) => {
   const [grid, setGrid] = useState<CellType[][]>([]);
   const [explodedCell, setExplodedCell] = useState<{ row: number; col: number } | null>(null);
   const [gameOver, setGameOver] = useState<boolean>(false);
   const [gameStarted, setGameStarted] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [createGameSessionSuccess, setCreateGameSessionSuccess] = useState<boolean>(false);
+  const [initiatedGameEndSuccess, setInitiatedGameEndSuccess] = useState<boolean>(false);
+  const [gameSessionId, setGameSessionId] = useState<string>('');
+  const [startTime, setStartTime] = useState<number>(0);
+  const [userBestScore, setUserBestScore] = useState<ModifiedScoreType | null>(userBestScoreParam);
 
-  useEffect(() => {
-    const newGrid = initializeGrid(size, size, numMines); // For example: 10x10 grid with 20 mines
-    setGrid(newGrid);
-  }, []); // This useEffect will run once when the component mountss useEffect will run once when the component mounts
-
+  const { toast } = useToast();
   let gameStatus: 'won' | 'lost' | 'regular' = 'regular';
+
+  // Calculate the number of flags used
+  const flagsUsed = grid.reduce((count, row) => {
+    return count + row.filter((cell) => cell.isFlagged).length;
+  }, 0);
+
+  // Calculate the number of flags left
+  const flagsLeft = numMines - flagsUsed;
+
   if (gameOver) {
     gameStatus = explodedCell ? 'lost' : 'won';
+
+    if (gameStatus === 'won' && !initiatedGameEndSuccess) {
+      const timeElapsed = Date.now() - startTime;
+      setLoading(true);
+      setInitiatedGameEndSuccess(true);
+      axios
+        .post('/api/game-session', { gameSessionId: gameSessionId, at: '2' })
+        .then((response) => {
+          const hash = response.data.hash;
+          // Send another POST request with response.data.hash and at: '3'
+          return axios.post('/api/game-session', {
+            userBestScore: userBestScore,
+            gameSessionId: gameSessionId,
+            score: timeElapsed,
+            cHash: hash,
+            rHash: generateResponseHash(hash, timeElapsed),
+            at: '3',
+          });
+        })
+        .then((response) => {
+          const displayScore = response.data.displayScores;
+          if (displayScore) {
+            setScores(displayScore);
+            setUserBestScore(displayScore[0]);
+            setTriggerAnimation(true);
+          }
+          // Handle the response of the second POST request
+          toast({
+            description: response.data.message,
+          });
+        })
+        .catch((error) => {
+          // if (error.response.data && error.response.status === 302) {
+          //   router.refresh();
+          //   toast({
+          //     description:
+          //       'You can still see your top score for this tier session by visiting the stats page.',
+          //     variant: 'warning',
+          //   });
+          // }
+
+          toast({
+            description: error.response ? error.response.data : 'Network Error',
+            variant: 'destructive',
+          });
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
   }
 
-  function revealCell(grid: CellType[][], row: number, col: number): CellType[][] {
+  useEffect(() => {
+    onGameLoad();
+    const newGrid = initializeGrid(size, size, numMines);
+    setGrid(newGrid);
+  }, []);
+
+  const onGameLoad = () => {
+    setLoading(true);
+    setCreateGameSessionSuccess(false);
+    setInitiatedGameEndSuccess(false);
+    const updatedIds = { ...ids, at: '0' };
+    axios
+      .post('/api/game-session', updatedIds)
+      .then((response) => {
+        toast({
+          description: 'Game session created',
+        });
+        setGameSessionId(response.data.gameSessionId);
+        setCreateGameSessionSuccess(true);
+      })
+      .catch((error) => {
+        toast({
+          description: error.response.data,
+          variant: 'destructive',
+        });
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
+  const onGameStart = () => {
+    axios.post('/api/game-session', { gameSessionId: gameSessionId, at: '1' }).catch((error) => {
+      console.error('Error during onGameStart:', error);
+    });
+  };
+
+  const revealCell = (grid: CellType[][], row: number, col: number): CellType[][] => {
+    if (!createGameSessionSuccess) return grid;
     // Check boundaries first
-    if (!gameStarted) {
-      setGameStarted(true);
-    }
+
     if (row < 0 || row >= grid.length || col < 0 || col >= grid[0].length) {
       return grid; // Out of grid bounds
     }
@@ -80,11 +194,14 @@ export const Minesweeper = ({ size, numMines }: MinesweeperProps) => {
     }
 
     return newGrid;
-  }
+  };
 
   const toggleFlag = (e: React.MouseEvent, row: number, col: number) => {
+    if (!createGameSessionSuccess) return;
     if (!gameStarted) {
+      onGameStart();
       setGameStarted(true);
+      setStartTime(Date.now());
     }
     e.preventDefault(); // This prevents the default context menu from appearing
     const newGrid = [...grid];
@@ -95,6 +212,12 @@ export const Minesweeper = ({ size, numMines }: MinesweeperProps) => {
   const handleReveal = (row: number, col: number) => {
     const updatedGrid = revealCell(grid, row, col);
     setGrid(updatedGrid);
+
+    if (!gameStarted) {
+      setGameStarted(true);
+      onGameStart();
+      setStartTime(Date.now());
+    }
 
     if (checkWin()) {
       for (let r = 0; r < grid.length; r++) {
@@ -110,6 +233,8 @@ export const Minesweeper = ({ size, numMines }: MinesweeperProps) => {
   };
 
   const restartGame = () => {
+    setGameStarted(false);
+    onGameLoad();
     // Generate a fresh grid
     const newGrid = initializeGrid(size, size, numMines);
     setGrid(newGrid);
@@ -119,12 +244,6 @@ export const Minesweeper = ({ size, numMines }: MinesweeperProps) => {
 
     // Reset the gameOver flag
     setGameOver(false);
-
-    // resets the gameStarted state
-    setGameStarted(false);
-
-    // Reset the timer
-    // setTimeElapsed(0);
   };
 
   const handleTimeExceeded = () => {
@@ -142,14 +261,6 @@ export const Minesweeper = ({ size, numMines }: MinesweeperProps) => {
     return true; // All non-mine cells are revealed
   };
 
-  // Calculate the number of flags used
-  const flagsUsed = grid.reduce((count, row) => {
-    return count + row.filter((cell) => cell.isFlagged).length;
-  }, 0);
-
-  // Calculate the number of flags left
-  const flagsLeft = numMines - flagsUsed;
-
   return (
     <div>
       <Header
@@ -157,9 +268,8 @@ export const Minesweeper = ({ size, numMines }: MinesweeperProps) => {
         flagsLeft={flagsLeft}
         gameStatus={gameStatus}
         onTimeExceeded={handleTimeExceeded}
-        // timeElapsed={timeElapsed}
-        // setTimeElapsed={setTimeElapsed}
         onReset={restartGame}
+        loading={loading}
       />
       <Board
         grid={grid}
@@ -167,6 +277,7 @@ export const Minesweeper = ({ size, numMines }: MinesweeperProps) => {
         explodedCell={explodedCell}
         onRevealCell={handleReveal}
         onToggleFlag={toggleFlag}
+        loading={loading}
       />
     </div>
   );

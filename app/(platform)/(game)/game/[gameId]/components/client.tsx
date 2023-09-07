@@ -1,8 +1,7 @@
 'use client';
 
-import { Game, Lobby, GameAverageScore, LobbySession } from '@prisma/client';
+import { Game, Lobby, GameAverageScore, LobbySession, GameSession } from '@prisma/client';
 
-import { cn } from '@/lib/utils';
 import { Lobbies } from '@/components/lobbies';
 import { LobbyHeader } from '@/components/lobby-header';
 
@@ -19,13 +18,17 @@ import { LobbyHeader } from '@/components/lobby-header';
 interface GameClientPageProps {
   data: Game & {
     lobbies: (Lobby & {
-      sessions: LobbySession[];
+      sessions: (LobbySession & {
+        gameSession: {
+          id: string;
+        }[];
+      })[];
     })[];
     averageScores: GameAverageScore[];
   };
 }
 
-export const GameClient = async ({ data }: GameClientPageProps) => {
+export const GameClient = ({ data }: GameClientPageProps) => {
   return (
     <div className="h-full p-4 space-y-2">
       <div className="flex justify-center w-full p-1 pb-5">

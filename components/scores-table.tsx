@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -8,83 +8,73 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Lobby } from '@prisma/client';
-
-import { Star } from 'lucide-react';
-
+import { Badge } from '@/components/ui/badge';
+import { Lobby, LobbySession, ScoreType } from '@prisma/client';
+import { useUser } from '@clerk/nextjs';
 import { CountdownTimer } from '@/components/countdown-timer';
-import { Button } from '@/components/ui/button';
+import { CompletePopover } from '@/components/complete-popover';
+import { convertMillisecondsToMinSec } from '@/lib/utils';
+import { ModifiedScoreType } from '@/app/types';
 
 interface ScoresTableProps {
-  lobby: Lobby;
+  lobby: Lobby & {
+    sessions: LobbySession[];
+  };
+  scores: ModifiedScoreType[];
+  showSessionTimer?: boolean;
+  scoreType: ScoreType;
+  setTriggerAnimation?: (animate: boolean) => void;
+  triggerAnimation?: boolean;
 }
 
-const invoices = [
-  {
-    invoice: 'protein',
-    paymentStatus: '2:56',
-  },
-  {
-    invoice: 'dkd892',
-    paymentStatus: '3:01',
-  },
-  {
-    invoice: 'confound12',
-    paymentStatus: '3:21',
-  },
-  {
-    invoice: 'xaxi2',
-    paymentStatus: '3:40',
-  },
-  {
-    invoice: 'dantheman',
-    paymentStatus: '3:59',
-  },
-  {
-    invoice: 'leetheeel',
-    paymentStatus: '4:12',
-  },
-  {
-    invoice: 'ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ',
-    paymentStatus: '5:23',
-  },
-  {
-    invoice: 'xaxi2',
-    paymentStatus: '3:40',
-  },
-  {
-    invoice: 'dantheman',
-    paymentStatus: '3:59',
-  },
-  {
-    invoice: 'leetheeel',
-    paymentStatus: '4:12',
-  },
-  {
-    invoice: 'xaxi2',
-    paymentStatus: '3:40',
-  },
-  {
-    invoice: 'dantheman',
-    paymentStatus: '3:59',
-  },
-  {
-    invoice: 'leetheeel',
-    paymentStatus: '4:12',
-  },
-];
-export const ScoresTable = ({ lobby }: ScoresTableProps) => {
-  const [isVisible, setIsVisible] = useState(true);
-  const toggleTable = () => {
-    setIsVisible(!isVisible);
-  };
+export const ScoresTable = ({
+  lobby,
+  scoreType,
+  scores,
+  showSessionTimer,
+  setTriggerAnimation,
+  triggerAnimation,
+}: ScoresTableProps) => {
+  const [animate, setAnimate] = useState(false);
+  const { user } = useUser();
+  const userId = user?.id;
+  let countdownData;
+  if (showSessionTimer) {
+    countdownData = {
+      textSize: 'text-sm',
+      expiredDateTime: lobby.sessions[0].expiredDateTime,
+      startDateTime: lobby.sessions[0].startDateTime,
+    };
+  }
+
+  useEffect(() => {
+    if (triggerAnimation === true && setTriggerAnimation) {
+      setAnimate(true);
+      const timeout = setTimeout(() => {
+        setAnimate(false);
+        setTriggerAnimation(false);
+      }, 3000);
+
+      return () => clearTimeout(timeout);
+    }
+  });
 
   return (
-    <div className="flex flex-col justify-center h-full space-y-3 overflow-y-scroll text-primary bg-secondary">
-      <div className="flex justify-center">
+    <div className="flex flex-col h-full space-y-3 overflow-y-scroll text-primary bg-secondary">
+      {countdownData && (
+        <div className="flex items-center justify-center">
+          <CountdownTimer data={countdownData} />
+        </div>
+      )}
+      <div className="flex items-center justify-center">
         <h1 className="text-xl font-bold">Top 100 Scores</h1>
       </div>
-      {isVisible && (
+      {
+        // <div
+        //   className={`flex flex-col h-full space-y-3 overflow-y-scroll text-primary bg-secondary ${
+        //     animate ? 'fade-in' : ''
+        //   }`}
+        // >
         <Table>
           <TableHeader>
             <TableRow className="border-b border-primary/10">
@@ -93,44 +83,65 @@ export const ScoresTable = ({ lobby }: ScoresTableProps) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {invoices.map((invoice, i) => {
+            {scores.map((score, i) => {
+              const rank = score.rank || i + 1;
+              const adjustedScore =
+                scoreType === ScoreType.time
+                  ? convertMillisecondsToMinSec(score.score)
+                  : score.score;
               let tableValueColor =
-                i === 0
+                rank === 1
                   ? '#FFD700'
-                  : i === 1
+                  : rank === 2
                   ? '#C0C0C0'
-                  : i === 2
+                  : rank === 3
                   ? '#CD7F32'
-                  : i < lobby.numRewards
+                  : rank <= lobby.numRewards
                   ? '#429ADD'
                   : '';
 
+              const isCurrentUser = userId === score.userId;
+
               return (
                 <TableRow
-                  style={{ color: tableValueColor }}
-                  key={invoice.invoice + i.toString()}
-                  className={`border-b border-primary/10 ${
-                    i < lobby.numRewards ? 'font-extrabold' : ''
-                  }`}
+                  style={{
+                    color: tableValueColor,
+                    animation: animate && isCurrentUser ? 'pulse 2s 2' : '',
+                  }}
+                  key={score.username + i.toString()}
+                  className={`border-b border-primary/10 
+                    ${rank <= lobby.numRewards ? 'font-extrabold' : ''} 
+                    ${
+                      isCurrentUser
+                        ? 'border-2 border-indigo-500 rounded-lg shadow-lg bg-indigo-400'
+                        : ''
+                    }
+                   `}
                 >
-                  <TableCell
-                    style={{ width: '160px', wordBreak: 'break-all' }}
-                    className="flex items-start space-x-2 "
-                  >
-                    {/* <span className="flex font-bold">
-                    <Star />
-                    <span className="whitespace-nowrap">{i + 100}.</span>
-                  </span> */}
-                    <span className="whitespace-nowrap">{i + 1}.</span>
-                    <span className="flex-grow">{invoice.invoice}</span>
+                  <TableCell className="flex items-start w-40 space-x-2 break-all">
+                    <span className="whitespace-nowrap">{rank}.</span>{' '}
+                    <span className="flex-grow">{score.username}</span>
+                    {isCurrentUser && <Badge variant={'gradient1'}>You</Badge>}
                   </TableCell>
-                  <TableCell>{invoice.paymentStatus}</TableCell>
+                  <TableCell className="relative pr-8">
+                    <span>{adjustedScore}</span>
+                    {scoreType === ScoreType.time && (
+                      <CompletePopover
+                        title={'Exact Time'}
+                        content={[
+                          { title: 'Milliseconds', content: score.score.toString() },
+                          { title: 'Seconds', content: (score.score / 1000).toString() },
+                        ]}
+                      />
+                    )}
+                  </TableCell>
                 </TableRow>
               );
             })}
           </TableBody>
         </Table>
-      )}
+        // </div>
+      }
     </div>
   );
 };

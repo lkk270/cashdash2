@@ -1,14 +1,15 @@
+import classNames from 'classnames';
+
 import React, { useState, useEffect } from 'react';
-import { FaceLoss, FaceRegular, FaceWon, Flag } from './image-components/index';
+import { FaceLoss, FaceRegular, FaceWon } from './image-components/index';
 
 interface HeaderProps {
   flagsLeft: number;
   gameStatus: 'won' | 'lost' | 'regular';
   gameStarted: boolean;
   onTimeExceeded: () => void; // New prop
-  // timeElapsed: number;
-  // setTimeElapsed: React.Dispatch<React.SetStateAction<number>>;
   onReset: () => void;
+  loading: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -16,9 +17,8 @@ export const Header: React.FC<HeaderProps> = ({
   gameStatus,
   gameStarted,
   onTimeExceeded,
-  // timeElapsed,
-  // setTimeElapsed,
   onReset,
+  loading,
 }) => {
   const [timeElapsed, setTimeElapsed] = useState<number>(0);
 
@@ -29,12 +29,13 @@ export const Header: React.FC<HeaderProps> = ({
     }
     if (gameStatus === 'lost' || gameStatus === 'won') return;
 
+    setTimeElapsed((prevTime) => prevTime + 1); // Update timeElapsed immediately when gameStarted is set to true
+
     const timer = setInterval(() => {
       setTimeElapsed((prevTime: number) => {
         if (prevTime >= 3599) {
-          // Check if timer exceeded 59:59
-          onTimeExceeded(); // End the game
-          clearInterval(timer); // Stop the timer
+          onTimeExceeded();
+          clearInterval(timer);
           return prevTime;
         }
         return prevTime + 1;
@@ -60,7 +61,9 @@ export const Header: React.FC<HeaderProps> = ({
     .toString()
     .padStart(2, '0');
   const seconds = (timeElapsed % 60).toString().padStart(2, '0');
+
   const restartGame = () => {
+    if (loading || (timeElapsed === 0 && gameStatus !== 'lost')) return;
     onReset();
     // Reset the timer
     setTimeElapsed(0);
@@ -74,7 +77,15 @@ export const Header: React.FC<HeaderProps> = ({
         </span>
       </div>
 
-      <button onClick={restartGame}>{StatusIcon}</button>
+      <button
+        className={classNames({
+          'cursor-not-allowed': loading,
+          'transform active:scale-95': !loading,
+        })}
+        onClick={restartGame}
+      >
+        {StatusIcon}
+      </button>
 
       <div className="p-1 font-mono text-2xl bg-black rounded shadow-md">
         <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-sky-500">

@@ -22,14 +22,16 @@ enum ScoreType {
 }
 
 model Game {
-  id            String             @id @default(uuid())
-  name          String
-  description   String
-  imageSrc      String
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
-  category      Category           @relation(fields: [categoryId], references: [id])
-  categoryId    String
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  imageSrc    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  categoryId  String
+  cheatScore  Int
+  category    Category @relation(fields: [categoryId], references: [id])
+
   lobbies       Lobby[]
   averageScores GameAverageScore[]
   scoreType     ScoreType
@@ -81,7 +83,7 @@ model LobbySession {
   updatedAt       DateTime      @updatedAt
   scores          Score[]
   lobby           Lobby         @relation(fields: [lobbyId], references: [id])
-  GameSession     GameSession[]
+  gameSession     GameSession[]
 
   @@index([lobbyId])
 }
@@ -89,6 +91,7 @@ model LobbySession {
 model Score {
   id             String       @id @default(uuid())
   userId         String
+  username       String
   lobbySessionId String
   createdAt      DateTime     @default(now())
   score          Float
@@ -118,6 +121,8 @@ model GameSession {
   lobbySessionId String
   isValid        Boolean
   createdAt      DateTime     @default(now())
+  expiresAt      DateTime
+  startedAt      BigInt?
   lobbySession   LobbySession @relation(fields: [lobbySessionId], references: [id])
 
   @@index([lobbySessionId])

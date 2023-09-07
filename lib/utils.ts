@@ -11,6 +11,7 @@ interface ValidationResult {
 }
 
 export function isValidLobbyAccess(inputs: {
+  userPlayedInSession: boolean;
   scoreType: string;
   averageScore: number | null;
   scoreRestriction: number;
@@ -35,7 +36,8 @@ export function isValidLobbyAccess(inputs: {
     errorMessages.push('This lobby is not yet accessible');
   }
 
-  if (inputs.averageScore !== null) {
+  if (inputs.userPlayedInSession === false && inputs.averageScore !== null) {
+    //if the there is at least one score for this lobby session then even if the user becomes too good for the session, they are still allowed to access it for the remainder of the lobby session.
     if (
       (inputs.scoreType === 'time' && inputs.averageScore < inputs.scoreRestriction) ||
       (inputs.scoreType === 'points' && inputs.averageScore > inputs.scoreRestriction)

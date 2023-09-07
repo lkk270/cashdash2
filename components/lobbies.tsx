@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Game, Lobby, GameAverageScore, LobbySession } from '@prisma/client';
-import { ArrowUpRight, Crown, Info } from 'lucide-react';
+import { Info, Crown } from 'lucide-react';
 
 import { useToast } from '@/components/ui/use-toast';
 import { useLobbyAboutModal } from '@/hooks/use-lobby-about-modal';
@@ -14,12 +14,15 @@ import { isValidLobbyAccess } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Card, CardFooter, CardHeader } from '@/components/ui/card';
 import { CountdownTimer } from '@/components/countdown-timer';
-import { convertMillisecondsToMinSec } from '@/lib/utils';
-
+// ce
 interface LobbiesProps {
   data: Game & {
     lobbies: (Lobby & {
-      sessions: LobbySession[];
+      sessions: (LobbySession & {
+        gameSession: {
+          id: string;
+        }[];
+      })[];
     })[];
     averageScores: GameAverageScore[];
   };
@@ -37,8 +40,10 @@ export const Lobbies = ({ data }: LobbiesProps) => {
     <div className="flex justify-center">
       <div className="grid justify-center grid-cols-1 gap-2 pb-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {data.lobbies.map((item) => {
+          const userPlayedInSession = item.sessions[0].gameSession.length > 0 ? true : false;
           // console.log(item);
           let accessResult = isValidLobbyAccess({
+            userPlayedInSession: userPlayedInSession,
             scoreType: scoreType,
             averageScore: averageScore,
             scoreRestriction: item.scoreRestriction,
@@ -75,7 +80,7 @@ export const Lobbies = ({ data }: LobbiesProps) => {
                     >
                       <div className="relative flex items-center justify-center pt-4 text-primary/50">
                         <div className="absolute top-0 left-0 flex pt-3 pl-2 text-sm gap-x-1">
-                          <Crown className="w-5 h-5" />${item.firstPlacePrize}
+                          <Crown size={20} />${item.firstPlacePrize}
                         </div>
                         <Button
                           title="Details"
@@ -111,11 +116,11 @@ export const Lobbies = ({ data }: LobbiesProps) => {
                           <p className="text-xs text-left">{item.description}</p>
                         </CardHeader>
                         <CardFooter className="flex items-center justify-between text-xs text-muted-foreground">
-                          <div className="flex items-center">
+                          {/* <div className="flex items-center">
                             <ArrowUpRight className="w-3 h-3 mr-1" />
                             Current best {beatTitle.toLowerCase()}:{' '}
                             {convertMillisecondsToMinSec(item.scoreRestriction)}
-                          </div>
+                          </div> */}
                           <div>$ Top {item.numRewards} scores</div>
                         </CardFooter>
                       </Link>

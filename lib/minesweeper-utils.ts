@@ -1,6 +1,6 @@
 import { CellType } from '@/app/types';
 
-export function initializeGrid(rows: number, cols: number, mines: number): CellType[][] {
+export const initializeGrid = (rows: number, cols: number, mines: number): CellType[][] => {
   // Create a blank grid
   let grid: CellType[][] = Array.from({ length: rows }, () =>
     Array.from({ length: cols }, () => ({
@@ -48,4 +48,4 @@ export function initializeGrid(rows: number, cols: number, mines: number): CellT
     }
   }
   return grid;
-}
+};
