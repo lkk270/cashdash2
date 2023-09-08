@@ -49,11 +49,52 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
     return !!userScore; // Converts the value to a boolean: true if there's a score, false otherwise
   };
 
+  // game = await prismadb.game.findUnique({
+  //   where: {
+  //     id: gameId,
+  //   },
+  //   include: {
+  //     averageScores: {
+  //       where: {
+  //         userId: userId,
+  //       },
+  //     },
+  //   },
+  // });
+
   game = await prismadb.game.findUnique({
     where: {
-      id: gameId,
+      id: params.gameId,
     },
     include: {
+      lobbies: {
+        select: {
+          id: true,
+          name: true,
+          sessions: {
+            where: {
+              isActive: true,
+            },
+            orderBy: {
+              createdAt: 'desc',
+            },
+            include: {
+              gameSession: {
+                where: {
+                  userId: userId,
+                },
+                take: 1,
+                select: {
+                  id: true, // Only select the ID
+                },
+              },
+            },
+          },
+        },
+        orderBy: {
+          difficulty: 'asc',
+        },
+      },
       averageScores: {
         where: {
           userId: userId,
@@ -110,7 +151,16 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
         userPlayedInSession = await userHasScore(lobby.sessions[0].id);
       }
 
+      const lobbyWithGameSession = game.lobbies.find(
+        (lobby) =>
+          lobby.sessions &&
+          lobby.sessions.some((session) => session.gameSession && session.gameSession.length > 0)
+      );
+
       accessResult = isValidLobbyAccess({
+        lobbyId: lobby.id,
+        lobbyNameWithGameSession: lobbyWithGameSession?.name,
+        lobbyIdWithGameSession: lobbyWithGameSession?.id,
         userPlayedInSession: userPlayedInSession,
         scoreType: game.scoreType,
         averageScore: game.averageScores[0]?.averageScore || null, // Handling possible undefined averageScores array

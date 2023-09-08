@@ -11,6 +11,9 @@ interface ValidationResult {
 }
 
 export function isValidLobbyAccess(inputs: {
+  lobbyId: string;
+  lobbyNameWithGameSession?: string;
+  lobbyIdWithGameSession?: string;
   userPlayedInSession: boolean;
   scoreType: string;
   averageScore: number | null;
@@ -44,6 +47,12 @@ export function isValidLobbyAccess(inputs: {
     ) {
       errorMessages.push("You're too good of a player to access this tier!");
     }
+  }
+
+  if (inputs.lobbyIdWithGameSession && inputs.lobbyIdWithGameSession !== inputs.lobbyId) {
+    errorMessages.push(
+      `You have already played in a different tier: ${inputs.lobbyNameWithGameSession?.toUpperCase()}. You can only play in one tier at a time. Once the ${inputs.lobbyNameWithGameSession?.toUpperCase()} session resets, you will be able to choose another tier - skill level permitting`
+    );
   }
 
   // If there are any error messages, update the result to indicate access is denied and provide the error message(s)

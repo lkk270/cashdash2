@@ -16,21 +16,26 @@ export const EmptyState = ({ title, subtitle, withBackButton }: EmptyStateProps)
   return (
     <div
       className="
-        h-[60vh]
         flex 
         flex-col 
         gap-2 
         justify-center 
         items-center 
-        px-3
+        mt-10
+        px-32
+        text-center 
+        text-primary/50
       "
     >
-      <Heading center title={title} subtitle={subtitle} />
+      <h1 className="items-center text-4xl font-bold">{title}</h1>
+      <div className="max-w-lg mt-4 text-left">
+        <p>{subtitle}</p>
+      </div>
       <div className="relative w-60 h-60">
         <Image draggable={false} height={600} width={600} src="/images/empty.png" alt="Empty" />
       </div>
       {withBackButton ? (
-        <Button variant="default" size="sm" onClick={() => router.push('/dashboard')}>
+        <Button variant="default" size="lg" onClick={() => router.push('/dashboard')}>
           Go back to dashboard
         </Button>
       ) : null}

@@ -34,6 +34,12 @@ export const Lobbies = ({ data }: LobbiesProps) => {
   const { toast } = useToast();
   const averageScore = data.averageScores.length > 0 ? data.averageScores[0].averageScore : null;
   const scoreType = data.scoreType;
+  const lobbyWithGameSession = data.lobbies.find(
+    (lobby) =>
+      lobby.sessions &&
+      lobby.sessions.some((session) => session.gameSession && session.gameSession.length > 0)
+  );
+
   // const beatTitle = scoreType === 'time' ? 'Time' : 'Score';
 
   return (
@@ -45,6 +51,9 @@ export const Lobbies = ({ data }: LobbiesProps) => {
           }
           const userPlayedInSession = item.sessions[0].gameSession?.length > 0 ? true : false;
           let accessResult = isValidLobbyAccess({
+            lobbyId: item.id,
+            lobbyNameWithGameSession: lobbyWithGameSession?.name,
+            lobbyIdWithGameSession: lobbyWithGameSession?.id,
             userPlayedInSession: userPlayedInSession,
             scoreType: scoreType,
             averageScore: averageScore,
@@ -74,8 +83,8 @@ export const Lobbies = ({ data }: LobbiesProps) => {
                           e.preventDefault();
                           toast({
                             title: 'Lobby restricted',
-                            description: accessResult.message,
-                            duration: 3000,
+                            description: accessResult.message.split('&')[0],
+                            duration: 5000,
                           });
                         }
                       }}
@@ -130,7 +139,8 @@ export const Lobbies = ({ data }: LobbiesProps) => {
                     </Card>
                   </TooltipTrigger>
                   <TooltipContent className="max-w-xs break-words">
-                    <p>{disableCard ? accessResult.message : item.name}</p>
+                    <p>{item.name}</p>
+                    {/* <p>{disableCard ? accessResult.message.split('&')[0] : item.name}</p> */}
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>

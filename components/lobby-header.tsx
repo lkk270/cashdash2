@@ -18,11 +18,13 @@ export const LobbyHeader = () => {
 
       <div className="text-sm text-center text-primary/50">
         <h1 className="items-center text-4xl font-bold">Choose a Tier</h1>
-        <p className="max-w-lg mt-4">
-          To maintain an even playing field, better players are restricted to higher tiers. We use
-          your average score & individual scores to determine tier eligibility.
-        </p>
-
+        <div className="max-w-lg mt-4 text-left">
+          <p>
+            To maintain an even playing field, better players are restricted to more advanced tiers.
+            We use a combination of your average score & individual scores to determine tier
+            eligibility. Additionally, only one tier can be played in at a time
+          </p>
+        </div>
         <p className="flex justify-center mt-2 font-bold gap-x-1">
           {/* Click <Info /> for more details & prize info */}
           Click <Info size={18} strokeWidth={3} /> for prize info

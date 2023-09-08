@@ -30,8 +30,7 @@ export const LobbyAboutModal = () => {
     expiredDateTime: expiredDateTime,
     startDateTime: startDateTime,
   };
-  const numOtherPlacesTemp = lobbyAboutModal.data?.lobby.numRewards || 0;
-  const numOtherPlaces = numOtherPlacesTemp - 3 > 0 ? numOtherPlacesTemp - 3 : 0;
+  const numRewards = lobbyAboutModal.data?.lobby.numRewards || 0;
 
   // Placeholder Data (same as before)
   const prizes = {
@@ -82,9 +81,9 @@ export const LobbyAboutModal = () => {
               <span>3rd Place</span>
               <span className="text-sky-500">{prizes.third}</span>
             </li>
-            {numOtherPlaces > 0 && (
+            {numRewards > 3 && (
               <li className="flex justify-between">
-                <span>4th - {numOtherPlaces.toString()}th Places</span>
+                <span>4th - {numRewards.toString()}th Places</span>
                 <span className="text-sky-500">{prizes.other}</span>
               </li>
             )}
