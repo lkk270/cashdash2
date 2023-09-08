@@ -1,12 +1,13 @@
 import { auth, currentUser } from '@clerk/nextjs';
 import { NextResponse } from 'next/server';
 
+import { isValidLobbyAccess } from '@/lib/utils';
 import { processBestScores, prepareScoresForDisplay } from '@/lib/scores';
 import { generateChallengeHash, generateResponseHash } from '@/lib/hash';
 import prismadb from '@/lib/prismadb';
 import { ScoreType, LobbySession, GameSession } from '@prisma/client';
 
-const acceptedTypesObj: { [key: string]: number } = { '0': 3, '1': 2, '2': 2, '3': 6 };
+const acceptedTypesObj: { [key: string]: number } = { '0': 3, '1': 2, '2': 2, '3': 7 };
 
 export async function POST(req: Request) {
   const currentDate = new Date();
@@ -23,7 +24,7 @@ export async function POST(req: Request) {
     }
     if (
       bodyLength === 0 ||
-      bodyLength > 6 ||
+      bodyLength > 7 ||
       !validType ||
       acceptedTypesObj[receivedType] != bodyLength
     ) {
@@ -116,10 +117,37 @@ export async function POST(req: Request) {
               id: gameSession.gameId,
             },
             select: {
-              cheatScore: true,
               scoreType: true,
+              cheatScore: true,
+              lobbies: {
+                select: {
+                  id: true,
+                  name: true,
+                  scoreRestriction: true,
+                  sessions: {
+                    where: {
+                      isActive: true,
+                    },
+                    select: {
+                      id: true,
+                      expiredDateTime: true,
+                      startDateTime: true,
+                      scores: {
+                        where: {
+                          userId: userId,
+                        },
+                        take: 1,
+                        select: {
+                          id: true, // Only select the ID
+                        },
+                      },
+                    },
+                  },
+                },
+              },
             },
           });
+
           if (!game) {
             return new NextResponse('No game?', { status: 401 });
           }
@@ -137,12 +165,43 @@ export async function POST(req: Request) {
             return new NextResponse('Suspected of cheating', { status: 401 });
           }
 
+          const lobbyWithScores = game.lobbies.find(
+            (lobby) =>
+              lobby.sessions &&
+              lobby.sessions.some((session) => session.scores && session.scores.length > 0)
+          );
+
+          const currentLobby = game.lobbies.find(
+            (lobby) =>
+              lobby.sessions && lobby.sessions.some((session) => session.id === body.lobbySessionId)
+          );
+
+          if (!currentLobby) {
+            return new NextResponse('Lobby not found', { status: 404 });
+          }
+
           const currentGameAverageScore = await prismadb.gameAverageScore.findFirst({
             where: {
               userId: userId,
               gameId: gameSession.gameId,
             },
           });
+
+          const userPlayedInSession = currentLobby.sessions[0].scores?.length > 0 ? true : false;
+          let accessResult = isValidLobbyAccess({
+            lobbyId: currentLobby.id,
+            lobbyWithScoresName: lobbyWithScores?.name,
+            lobbyWithScoresId: lobbyWithScores?.id,
+            userPlayedInSession: userPlayedInSession,
+            scoreType: game.scoreType,
+            averageScore: currentGameAverageScore?.averageScore,
+            scoreRestriction: currentLobby.scoreRestriction,
+            expiredDateTime: currentLobby.sessions[0].expiredDateTime,
+            startDateTime: currentLobby.sessions[0].startDateTime,
+          });
+          if (!accessResult.isValid) {
+            return new NextResponse('INVALID! ' + accessResult.message, { status: 302 });
+          }
 
           let transaction; //make use of transaction - all updates/creates have to succeed for them to all succeed
 

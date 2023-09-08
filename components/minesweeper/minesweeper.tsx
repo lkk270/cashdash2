@@ -10,6 +10,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { initializeGrid } from '@/lib/minesweeper-utils';
 import { generateResponseHash } from '@/lib/hash';
 import { CellType } from '@/app/types';
+import { useRouter, usePathname } from 'next/navigation';
 
 interface MinesweeperProps {
   userBestScoreParam: ModifiedScoreType | null;
@@ -43,7 +44,9 @@ export const Minesweeper = ({
   const [gameSessionId, setGameSessionId] = useState<string>('');
   const [startTime, setStartTime] = useState<number>(0);
   const [userBestScore, setUserBestScore] = useState<ModifiedScoreType | null>(userBestScoreParam);
-  console.log(userBestScore);
+  const router = useRouter();
+  const pathname = usePathname();
+
   const { toast } = useToast();
   let gameStatus: 'won' | 'lost' | 'regular' = 'regular';
 
@@ -68,6 +71,7 @@ export const Minesweeper = ({
           const hash = response.data.hash;
           // Send another POST request with response.data.hash and at: '3'
           return axios.post('/api/game-session', {
+            lobbySessionId: ids.lobbySessionId,
             userBestScore: userBestScore ? userBestScore : false,
             gameSessionId: gameSessionId,
             score: timeElapsed,
@@ -89,14 +93,15 @@ export const Minesweeper = ({
           });
         })
         .catch((error) => {
-          // if (error.response.data && error.response.status === 302) {
-          //   router.refresh();
-          //   toast({
-          //     description:
-          //       'You can still see your top score for this tier session by visiting the stats page.',
-          //     variant: 'warning',
-          //   });
-          // }
+          const backPath = pathname.split('/').slice(0, -1).join('/');
+          if (error.response.data && error.response.status === 302) {
+            router.push(backPath);
+            toast({
+              description: error.response.data,
+              variant: 'warning',
+              duration: 7500,
+            });
+          }
 
           toast({
             description: error.response ? error.response.data : 'Network Error',

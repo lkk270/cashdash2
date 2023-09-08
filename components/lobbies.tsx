@@ -32,7 +32,7 @@ export const Lobbies = ({ data }: LobbiesProps) => {
   const lobbyAboutModal = useLobbyAboutModal();
   const pathname = usePathname();
   const { toast } = useToast();
-  const averageScore = data.averageScores.length > 0 ? data.averageScores[0].averageScore : null;
+  const averageScore = data.averageScores.length > 0 ? data.averageScores[0].averageScore : undefined;
   const scoreType = data.scoreType;
   const lobbyWithScores = data.lobbies.find(
     (lobby) =>

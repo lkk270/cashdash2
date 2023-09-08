@@ -48,7 +48,7 @@ export const LobbyClient = ({ lobby, game, scoresParam, userBestScore }: LobbyCl
                 ids={ids}
                 rows={12}
                 cols={12}
-                numMines={13}
+                numMines={6}
               />
             ) : gameName === 'minesweeper 16x16' ? (
               <Minesweeper
