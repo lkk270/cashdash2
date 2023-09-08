@@ -119,7 +119,7 @@ export const ScoresTable = ({
                     }
                    `}
                 >
-                  <TableCell className="flex items-start w-40 space-x-2 break-all">
+                  <TableCell className="flex items-start w-40 space-x-2 text-xs break-all">
                     <span className="whitespace-nowrap">{rank}.</span>{' '}
                     <span className="flex-grow">{score.username}</span>
                     {isCurrentUser && <Badge variant={'gradient1'}>You</Badge>}
