@@ -12,8 +12,8 @@ interface ValidationResult {
 
 export function isValidLobbyAccess(inputs: {
   lobbyId: string;
-  lobbyNameWithGameSession?: string;
-  lobbyIdWithGameSession?: string;
+  lobbyWithScoresName?: string;
+  lobbyWithScoresId?: string;
   userPlayedInSession: boolean;
   scoreType: string;
   averageScore: number | null;
@@ -49,9 +49,9 @@ export function isValidLobbyAccess(inputs: {
     }
   }
 
-  if (inputs.lobbyIdWithGameSession && inputs.lobbyIdWithGameSession !== inputs.lobbyId) {
+  if (inputs.lobbyWithScoresId && inputs.lobbyWithScoresId !== inputs.lobbyId) {
     errorMessages.push(
-      `You have already played in a different tier: ${inputs.lobbyNameWithGameSession?.toUpperCase()}. You can only play in one tier at a time. Once the ${inputs.lobbyNameWithGameSession?.toUpperCase()} session resets, you will be able to choose another tier - skill level permitting`
+      `You have already played in a different tier: ${inputs.lobbyWithScoresName?.toUpperCase()}. You can only play in one tier at a time. Once the ${inputs.lobbyWithScoresName?.toUpperCase()} session resets, you will be able to choose another tier - skill level permitting`
     );
   }
 

@@ -83,7 +83,7 @@ model LobbySession {
   updatedAt       DateTime      @updatedAt
   scores          Score[]
   lobby           Lobby         @relation(fields: [lobbyId], references: [id])
-  gameSession     GameSession[]
+  gameSessions    GameSession[]
 
   @@index([lobbyId])
 }

@@ -19,7 +19,7 @@ interface LobbiesProps {
   data: Game & {
     lobbies: (Lobby & {
       sessions: (LobbySession & {
-        gameSession: {
+        scores: {
           id: string;
         }[];
       })[];
@@ -34,10 +34,10 @@ export const Lobbies = ({ data }: LobbiesProps) => {
   const { toast } = useToast();
   const averageScore = data.averageScores.length > 0 ? data.averageScores[0].averageScore : null;
   const scoreType = data.scoreType;
-  const lobbyWithGameSession = data.lobbies.find(
+  const lobbyWithScores = data.lobbies.find(
     (lobby) =>
       lobby.sessions &&
-      lobby.sessions.some((session) => session.gameSession && session.gameSession.length > 0)
+      lobby.sessions.some((session) => session.scores && session.scores.length > 0)
   );
 
   // const beatTitle = scoreType === 'time' ? 'Time' : 'Score';
@@ -49,11 +49,11 @@ export const Lobbies = ({ data }: LobbiesProps) => {
           if (!item.sessions[0]) {
             return <div></div>;
           }
-          const userPlayedInSession = item.sessions[0].gameSession?.length > 0 ? true : false;
+          const userPlayedInSession = item.sessions[0].scores?.length > 0 ? true : false;
           let accessResult = isValidLobbyAccess({
             lobbyId: item.id,
-            lobbyNameWithGameSession: lobbyWithGameSession?.name,
-            lobbyIdWithGameSession: lobbyWithGameSession?.id,
+            lobbyWithScoresName: lobbyWithScores?.name,
+            lobbyWithScoresId: lobbyWithScores?.id,
             userPlayedInSession: userPlayedInSession,
             scoreType: scoreType,
             averageScore: averageScore,

@@ -79,7 +79,7 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
               createdAt: 'desc',
             },
             include: {
-              gameSession: {
+              scores: {
                 where: {
                   userId: userId,
                 },
@@ -151,16 +151,16 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
         userPlayedInSession = await userHasScore(lobby.sessions[0].id);
       }
 
-      const lobbyWithGameSession = game.lobbies.find(
+      const lobbyWithScores = game.lobbies.find(
         (lobby) =>
           lobby.sessions &&
-          lobby.sessions.some((session) => session.gameSession && session.gameSession.length > 0)
+          lobby.sessions.some((session) => session.scores && session.scores.length > 0)
       );
 
       accessResult = isValidLobbyAccess({
         lobbyId: lobby.id,
-        lobbyNameWithGameSession: lobbyWithGameSession?.name,
-        lobbyIdWithGameSession: lobbyWithGameSession?.id,
+        lobbyWithScoresName: lobbyWithScores?.name,
+        lobbyWithScoresId: lobbyWithScores?.id,
         userPlayedInSession: userPlayedInSession,
         scoreType: game.scoreType,
         averageScore: game.averageScores[0]?.averageScore || null, // Handling possible undefined averageScores array

@@ -39,7 +39,7 @@ const GameIdPage = async ({ params }: GameIdPageProps) => {
               createdAt: 'desc',
             },
             include: {
-              gameSession: {
+              scores: {
                 where: {
                   userId: userId,
                 },
@@ -69,7 +69,7 @@ const GameIdPage = async ({ params }: GameIdPageProps) => {
   // console.log(game);
 
   // if (game) {
-  //   console.log(game.lobbies[0].sessions[1].gameSession);
+  //   console.log(game.lobbies[0].sessions[1].gameSessions);
   // }
 
   // if (game.averageScores.length === 0) {
