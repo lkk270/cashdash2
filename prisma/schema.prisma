@@ -92,6 +92,7 @@ model Score {
   id             String       @id @default(uuid())
   userId         String
   username       String
+  gameId         String
   lobbySessionId String
   createdAt      DateTime     @default(now())
   score          Float

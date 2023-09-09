@@ -148,11 +148,11 @@ export const Cell = ({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={(e) => {
-        if (!gameOver && !loading) onReveal(e);
+        if (!gameOver && !loading && !cell.isRevealed) onReveal(e);
       }}
       onContextMenu={(e) => {
         e.preventDefault();
-        if (!gameOver && !loading) onFlag(e);
+        if (!gameOver && !loading && !cell.isRevealed) onFlag(e);
       }}
       className={`${baseStyle}`}
     >

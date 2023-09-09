@@ -226,6 +226,7 @@ export async function POST(req: Request) {
               prismadb.score.create({
                 data: {
                   userId: userId,
+                  gameId: gameSession.gameId,
                   username: user.username || '',
                   lobbySessionId: gameSession.lobbySessionId,
                   score: body.score,
@@ -245,6 +246,7 @@ export async function POST(req: Request) {
               prismadb.score.create({
                 data: {
                   userId: userId,
+                  gameId: gameSession.gameId,
                   username: user.username || '',
                   lobbySessionId: gameSession.lobbySessionId,
                   score: body.score,
