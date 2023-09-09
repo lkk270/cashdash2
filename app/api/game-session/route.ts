@@ -254,7 +254,6 @@ export async function POST(req: Request) {
               }),
             ]);
           }
-
           await transaction;
 
           if (

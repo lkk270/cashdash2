@@ -24,34 +24,42 @@ class WeightedScoreCalculator {
     return 1;
   }
 
-  private getWeightedScore(scoreObj: Score): number {
-    const R = this.getRecencyFactor(scoreObj.createdAt);
-    const S = this.getScoreFactor(scoreObj.score);
-    return scoreObj.score * R * S;
+  private calculateWeightedScore(score: number, R: number, S: number) {
+    return score * R * S;
   }
 
-  public getWeightedAverage(scores: Score[]): number {
+  public getWeightedScoreWithDetails(scoreObj: Score): { weightedScore: number; weight: number } {
+    const R = this.getRecencyFactor(scoreObj.createdAt);
+    const S = this.getScoreFactor(scoreObj.score);
+    const weightedScore = this.calculateWeightedScore(scoreObj.score, R, S);
+    return { weightedScore, weight: R * S };
+  }
+
+  public getWeightedAverage(scores: Score[]): {
+    weightedAverage: number;
+    weightedTimesPlayed: number;
+  } {
     let sumWeightedScores = 0;
-    let sumR = 0;
-    let sumS = 0;
+    let sumWeights = 0;
 
     for (const scoreObj of scores) {
-      const weightedScore = this.getWeightedScore(scoreObj);
       const R = this.getRecencyFactor(scoreObj.createdAt);
       const S = this.getScoreFactor(scoreObj.score);
+      const combinedWeight = R * S;
 
-      sumWeightedScores += weightedScore;
-      sumR += R;
-      sumS += S;
+      sumWeightedScores += this.calculateWeightedScore(scoreObj.score, R, S);
+      sumWeights += combinedWeight;
     }
+    const weightedAverage = sumWeightedScores / sumWeights;
 
-    return sumWeightedScores / (sumR * sumS);
+    return { weightedAverage: weightedAverage, weightedTimesPlayed: sumWeights };
   }
 }
 
-// Usage:
-
-export const calculateWeightedAverageScore = async (gameId: string, userId: string) => {
+export const calculateWeightedAverageScore = async (
+  gameId: string,
+  userId: string
+): Promise<{ weightedAverage: number; weightedTimesPlayed: number }> => {
   // Fetch the tiers from your database and pass them into the class constructor.
   const tiersFromDatabase: TierBoundary[] = await prismadb.tierBoundary.findMany({
     where: {
@@ -68,4 +76,22 @@ export const calculateWeightedAverageScore = async (gameId: string, userId: stri
 
   const calculator = new WeightedScoreCalculator(tiersFromDatabase);
   const average = calculator.getWeightedAverage(scores); // 'scores' is your array of Score objects
+  return average;
+};
+
+export const calculateSingleWeightedScore = async (
+  gameId: string,
+  scoreObj: Score,
+  tiersFromDatabaseParam?: TierBoundary[]
+): Promise<{ weightedScore: number; weight: number }> => {
+  const tiersFromDatabase = tiersFromDatabaseParam
+    ? tiersFromDatabaseParam
+    : await prismadb.tierBoundary.findMany({
+        where: {
+          gameId: gameId,
+        },
+      });
+
+  const calculator = new WeightedScoreCalculator(tiersFromDatabase);
+  return calculator.getWeightedScoreWithDetails(scoreObj);
 };

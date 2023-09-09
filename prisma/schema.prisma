@@ -115,14 +115,16 @@ model Score {
 }
 
 model GameAverageScore {
-  id           String   @id @default(uuid())
-  userId       String
-  gameId       String
-  game         Game     @relation(fields: [gameId], references: [id])
-  timesPlayed  Int
-  averageScore Float
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                   String   @id @default(uuid())
+  userId               String
+  gameId               String
+  game                 Game     @relation(fields: [gameId], references: [id])
+  timesPlayed          Int
+  averageScore         Float
+  weightedAverageScore Float?
+  weightedTimesPlayed  Float?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
   @@index([gameId])
 }
