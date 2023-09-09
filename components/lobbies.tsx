@@ -32,7 +32,7 @@ export const Lobbies = ({ data }: LobbiesProps) => {
   const lobbyAboutModal = useLobbyAboutModal();
   const pathname = usePathname();
   const { toast } = useToast();
-  const averageScore = data.averageScores.length > 0 ? data.averageScores[0].averageScore : undefined;
+  const { weightedAverageScore, timesPlayed = 0 } = data.averageScores?.[0] ?? {};
   const scoreType = data.scoreType;
   const lobbyWithScores = data.lobbies.find(
     (lobby) =>
@@ -56,7 +56,9 @@ export const Lobbies = ({ data }: LobbiesProps) => {
             lobbyWithScoresId: lobbyWithScores?.id,
             userPlayedInSession: userPlayedInSession,
             scoreType: scoreType,
-            averageScore: averageScore,
+            weightedAverageScore: weightedAverageScore,
+            timesPlayed: timesPlayed,
+            numScoresToAccess: item.numScoresToAccess,
             scoreRestriction: item.scoreRestriction,
             expiredDateTime: item.sessions[0].expiredDateTime,
             startDateTime: item.sessions[0].startDateTime,

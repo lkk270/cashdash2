@@ -17,7 +17,7 @@ import {
   Type6,
   Type7,
   Type8,
-} from './image-components/index';
+} from './image-components';
 
 interface CellProps {
   cell: CellType;

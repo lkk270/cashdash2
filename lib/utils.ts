@@ -16,7 +16,9 @@ export function isValidLobbyAccess(inputs: {
   lobbyWithScoresId?: string;
   userPlayedInSession: boolean;
   scoreType: string;
-  averageScore?: number;
+  weightedAverageScore?: number;
+  timesPlayed: number;
+  numScoresToAccess: number;
   scoreRestriction: number;
   expiredDateTime: Date;
   startDateTime: Date;
@@ -39,14 +41,24 @@ export function isValidLobbyAccess(inputs: {
     errorMessages.push('This lobby is not yet accessible');
   }
 
-  if (inputs.userPlayedInSession === false && inputs.averageScore) {
+  if (inputs.userPlayedInSession === false && inputs.weightedAverageScore) {
     //if the there is at least one score for this lobby session then even if the user becomes too good for the session, they are still allowed to access it for the remainder of the lobby session.
     if (
-      (inputs.scoreType === 'time' && inputs.averageScore < inputs.scoreRestriction) ||
-      (inputs.scoreType === 'points' && inputs.averageScore > inputs.scoreRestriction)
+      (inputs.scoreType === 'time' && inputs.weightedAverageScore < inputs.scoreRestriction) ||
+      (inputs.scoreType === 'points' && inputs.weightedAverageScore > inputs.scoreRestriction)
     ) {
       errorMessages.push("You're too good of a player to access this tier!");
     }
+  }
+
+  if (inputs.timesPlayed <= inputs.numScoresToAccess) {
+    const moreTimes = inputs.numScoresToAccess - inputs.timesPlayed + 1;
+    const timesStr = moreTimes === 1 ? 'time' : 'times';
+    errorMessages.push(
+      `You need to play & finish this game ${
+        inputs.numScoresToAccess - inputs.timesPlayed + 1
+      } more ${timesStr} to gain access to this tier - skill level permitting`
+    );
   }
 
   if (inputs.lobbyWithScoresId && inputs.lobbyWithScoresId !== inputs.lobbyId) {

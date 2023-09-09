@@ -1,6 +1,7 @@
 import { auth, currentUser } from '@clerk/nextjs';
 import { NextResponse } from 'next/server';
 
+import { calculateSingleWeightedScore } from '@/lib/average-score';
 import { isValidLobbyAccess } from '@/lib/utils';
 import { processBestScores, prepareScoresForDisplay } from '@/lib/scores';
 import { generateChallengeHash, generateResponseHash } from '@/lib/hash';
@@ -103,6 +104,7 @@ export async function POST(req: Request) {
       } else if (receivedType === '3') {
         let displayScores = null;
         let newAverageScore;
+        let newWeightedAverageScore;
         const responseHashToCompare = generateResponseHash(body.cHash, body.score);
         if (responseHashToCompare !== body.rHash) {
           return new NextResponse('Unauthorized1', { status: 401 });
@@ -119,11 +121,13 @@ export async function POST(req: Request) {
             select: {
               scoreType: true,
               cheatScore: true,
+              tierBoundaries: true,
               lobbies: {
                 select: {
                   id: true,
                   name: true,
                   scoreRestriction: true,
+                  numScoresToAccess: true,
                   sessions: {
                     where: {
                       isActive: true,
@@ -194,7 +198,9 @@ export async function POST(req: Request) {
             lobbyWithScoresId: lobbyWithScores?.id,
             userPlayedInSession: userPlayedInSession,
             scoreType: game.scoreType,
-            averageScore: currentGameAverageScore?.averageScore,
+            weightedAverageScore: currentGameAverageScore?.averageScore,
+            timesPlayed: currentGameAverageScore?.timesPlayed || 0,
+            numScoresToAccess: currentLobby.numScoresToAccess,
             scoreRestriction: currentLobby.scoreRestriction,
             expiredDateTime: currentLobby.sessions[0].expiredDateTime,
             startDateTime: currentLobby.sessions[0].startDateTime,
@@ -202,6 +208,11 @@ export async function POST(req: Request) {
           if (!accessResult.isValid) {
             return new NextResponse('INVALID! ' + accessResult.message, { status: 302 });
           }
+
+          const weightedScoreObj = await calculateSingleWeightedScore(
+            { score: body.score, createdAt: new Date() },
+            game.tierBoundaries
+          );
 
           let transaction; //make use of transaction - all updates/creates have to succeed for them to all succeed
 
@@ -211,6 +222,14 @@ export async function POST(req: Request) {
               (currentGameAverageScore.averageScore * currentGameAverageScore.timesPlayed +
                 body.score) /
               newTimesPlayed;
+
+            const newWeightedTimesPlayed =
+              currentGameAverageScore.weightedTimesPlayed + weightedScoreObj.weight;
+            newWeightedAverageScore =
+              (currentGameAverageScore.weightedAverageScore *
+                currentGameAverageScore.weightedTimesPlayed +
+                weightedScoreObj.weightedScore) /
+              newWeightedTimesPlayed;
 
             transaction = prismadb.$transaction([
               prismadb.gameAverageScore.updateMany({
@@ -241,6 +260,8 @@ export async function POST(req: Request) {
                   gameId: gameSession.gameId,
                   timesPlayed: 1,
                   averageScore: body.score,
+                  weightedAverageScore: weightedScoreObj.weightedScore,
+                  weightedTimesPlayed: weightedScoreObj.weight,
                 },
               }),
               prismadb.score.create({

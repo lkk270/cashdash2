@@ -22,16 +22,15 @@ enum ScoreType {
 }
 
 model Game {
-  id          String   @id @default(uuid())
-  name        String
-  description String
-  imageSrc    String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  categoryId  String
-  cheatScore  Int
-  category    Category @relation(fields: [categoryId], references: [id])
-
+  id             String             @id @default(uuid())
+  name           String
+  description    String
+  imageSrc       String
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  categoryId     String
+  cheatScore     Int
+  category       Category           @relation(fields: [categoryId], references: [id])
   lobbies        Lobby[]
   averageScores  GameAverageScore[]
   scoreType      ScoreType
@@ -58,13 +57,14 @@ model Lobby {
   createdAt             DateTime       @default(now())
   updatedAt             DateTime       @updatedAt
   scoreRestriction      Float
-  difficulty            Int            @default(0)
+  difficulty            Int
   gameId                String
-  numRewards            Int            @default(3)
-  firstPlacePrize       Float          @default(0)
-  secondPlacePrice      Float          @default(0)
-  thirdPlacePrize       Float          @default(0)
-  unspecifiedPlacePrize Float          @default(10)
+  numRewards            Int
+  firstPlacePrize       Float
+  secondPlacePrice      Float
+  thirdPlacePrize       Float
+  unspecifiedPlacePrize Float?
+  numScoresToAccess     Int            @default(0)
   // rewards          Reward[]
   game                  Game           @relation(fields: [gameId], references: [id])
   sessions              LobbySession[]
@@ -121,8 +121,8 @@ model GameAverageScore {
   game                 Game     @relation(fields: [gameId], references: [id])
   timesPlayed          Int
   averageScore         Float
-  weightedAverageScore Float?
-  weightedTimesPlayed  Float?
+  weightedAverageScore Float
+  weightedTimesPlayed  Float
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 

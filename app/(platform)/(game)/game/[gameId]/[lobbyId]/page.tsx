@@ -163,7 +163,9 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
         lobbyWithScoresId: lobbyWithScores?.id,
         userPlayedInSession: userPlayedInSession,
         scoreType: game.scoreType,
-        averageScore: game.averageScores[0]?.averageScore || undefined, // Handling possible undefined averageScores array
+        weightedAverageScore: game.averageScores[0]?.weightedAverageScore || undefined, // Handling possible undefined averageScores array
+        timesPlayed: game.averageScores[0]?.timesPlayed || 0, // Handling possible undefined averageScores array
+        numScoresToAccess: lobby.numScoresToAccess,
         scoreRestriction: lobby.scoreRestriction,
         expiredDateTime: lobby.sessions[0].expiredDateTime,
         startDateTime: lobby.sessions[0].startDateTime,

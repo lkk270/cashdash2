@@ -67,14 +67,12 @@ async function main() {
     // await db.score.createMany({
     //   data: data,
     // });
-
-    await db.score.deleteMany({
-      where: {
-        lobbySessionId: 'f8ab962c-60b9-41d9-a689-be731f8a8ce5',
-        createdAt: '2023-09-05T01:18:43.557Z',
-      },
-    });
-
+    // await db.score.deleteMany({
+    //   where: {
+    //     lobbySessionId: 'f8ab962c-60b9-41d9-a689-be731f8a8ce5',
+    //     createdAt: '2023-09-05T01:18:43.557Z',
+    //   },
+    // });
     // await db.gameSession.deleteMany({});
   } catch (error) {
     console.error('Error seeding default categories:', error);

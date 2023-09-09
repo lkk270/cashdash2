@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 
 import React, { useState, useEffect } from 'react';
-import { FaceLoss, FaceRegular, FaceWon } from './image-components/index';
+import { FaceLoss, FaceRegular, FaceWon } from './image-components';
 
 interface HeaderProps {
   flagsLeft: number;

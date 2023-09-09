@@ -20,3 +20,8 @@ export type ModifiedScoreType = {
   score: number;
   rank?: number;
 };
+
+export type ModifiedScoreType2 = {
+  score: number;
+  createdAt: Date;
+};

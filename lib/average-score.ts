@@ -1,4 +1,5 @@
-import { Score, TierBoundary } from '@prisma/client';
+import { TierBoundary } from '@prisma/client';
+import { ModifiedScoreType2 } from '@/app/types';
 import prismadb from '@/lib/prismadb';
 
 class WeightedScoreCalculator {
@@ -28,14 +29,17 @@ class WeightedScoreCalculator {
     return score * R * S;
   }
 
-  public getWeightedScoreWithDetails(scoreObj: Score): { weightedScore: number; weight: number } {
+  public getWeightedScoreWithDetails(scoreObj: ModifiedScoreType2): {
+    weightedScore: number;
+    weight: number;
+  } {
     const R = this.getRecencyFactor(scoreObj.createdAt);
     const S = this.getScoreFactor(scoreObj.score);
     const weightedScore = this.calculateWeightedScore(scoreObj.score, R, S);
     return { weightedScore, weight: R * S };
   }
 
-  public getWeightedAverage(scores: Score[]): {
+  public getWeightedAverage(scores: ModifiedScoreType2[]): {
     weightedAverage: number;
     weightedTimesPlayed: number;
   } {
@@ -67,10 +71,14 @@ export const calculateWeightedAverageScore = async (
     },
   });
 
-  const scores: Score[] = await prismadb.score.findMany({
+  const scores: ModifiedScoreType2[] = await prismadb.score.findMany({
     where: {
       gameId: gameId,
       userId: userId,
+    },
+    select: {
+      score: true,
+      createdAt: true,
     },
   });
 
@@ -79,10 +87,32 @@ export const calculateWeightedAverageScore = async (
   return average;
 };
 
-export const calculateSingleWeightedScore = async (
+export const calculateRegularAverageScore = async (
   gameId: string,
-  scoreObj: Score,
-  tiersFromDatabaseParam?: TierBoundary[]
+  userId: string
+): Promise<{ average: number; timesPlayed: number }> => {
+  const scores: ModifiedScoreType2[] = await prismadb.score.findMany({
+    where: {
+      gameId: gameId,
+      userId: userId,
+    },
+    select: {
+      score: true,
+      createdAt: true,
+    },
+  });
+  let sumOfScores = 0;
+  for (const scoreObj of scores) {
+    sumOfScores += scoreObj.score;
+  }
+  const average = sumOfScores / scores.length;
+  return { average: average, timesPlayed: scores.length };
+};
+
+export const calculateSingleWeightedScore = async (
+  scoreObj: ModifiedScoreType2,
+  tiersFromDatabaseParam?: TierBoundary[],
+  gameId?: string
 ): Promise<{ weightedScore: number; weight: number }> => {
   const tiersFromDatabase = tiersFromDatabaseParam
     ? tiersFromDatabaseParam
