@@ -32,11 +32,23 @@ model Game {
   cheatScore  Int
   category    Category @relation(fields: [categoryId], references: [id])
 
-  lobbies       Lobby[]
-  averageScores GameAverageScore[]
-  scoreType     ScoreType
+  lobbies        Lobby[]
+  averageScores  GameAverageScore[]
+  scoreType      ScoreType
+  tierBoundaries TierBoundary[]
 
   @@index([categoryId])
+}
+
+model TierBoundary {
+  id         String @id @default(uuid())
+  lowerBound Int
+  upperBound Int
+  weight     Float
+  gameId     String
+  game       Game   @relation(fields: [gameId], references: [id])
+
+  @@index([gameId])
 }
 
 model Lobby {
