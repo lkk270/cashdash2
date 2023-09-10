@@ -130,31 +130,33 @@ export const Lobbies = ({ data }: LobbiesProps) => {
                         }
                       }}
                     >
-                      <div className="relative flex items-center justify-center pt-4 text-primary/50">
-                        <div className="absolute top-0 left-0 flex pt-3 pl-2 text-sm gap-x-1">
-                          <Crown size={20} />${item.firstPlacePrize}
-                        </div>
-                        <Button
-                          title="Details"
-                          onClick={() =>
-                            lobbyAboutModal.onOpen({ gameName: data.name, lobby: item })
-                          }
-                          size="icon"
-                          variant="ghost"
-                          className="absolute top-0 right-0"
-                        >
-                          <Info className="w-6 h-6" />
-                        </Button>
-                        <div className="mt-3">
-                          <CountdownTimer data={countdownData} />
-                        </div>
-                      </div>
-
                       <Link
                         href={disableCard ? pathname : `${pathname}/${item.id}`}
                         onClick={disableCard ? (event) => event.preventDefault() : undefined}
                         className={`${disableCard ? 'cursor-not-allowed' : ''}`}
                       >
+                        <div className="relative flex items-center justify-center pt-4 text-primary/50">
+                          <div className="absolute top-0 left-0 flex pt-3 pl-2 text-sm gap-x-1">
+                            <Crown size={20} />${item.firstPlacePrize}
+                          </div>
+                          <Button
+                            title="Details"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              lobbyAboutModal.onOpen({ gameName: data.name, lobby: item });
+                            }}
+                            size="icon"
+                            variant="ghost"
+                            className="absolute top-0 right-0"
+                          >
+                            <Info className="w-6 h-6" />
+                          </Button>
+                          <div className="mt-3">
+                            <CountdownTimer data={countdownData} />
+                          </div>
+                        </div>
+
                         <CardHeader className="flex items-center justify-center text-center text-muted-foreground">
                           <div className="relative w-48 h-48">
                             <Image
@@ -162,6 +164,7 @@ export const Lobbies = ({ data }: LobbiesProps) => {
                               fill
                               className="object-cover rounded-xl"
                               alt="Character"
+                              draggable={false}
                             />
                           </div>
                           <p className="font-bold">{item.name}</p>
