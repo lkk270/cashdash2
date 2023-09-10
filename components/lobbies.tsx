@@ -95,7 +95,7 @@ export const Lobbies = ({ data }: LobbiesProps) => {
 
   return (
     <div className="flex justify-center">
-      <div className="grid justify-center grid-cols-1 gap-2 pb-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid justify-center grid-cols-1 gap-2 pb-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
         {data.lobbies.map((item) => {
           if (!item.sessions[0]) {
             return <div></div>;
@@ -152,7 +152,7 @@ export const Lobbies = ({ data }: LobbiesProps) => {
                           >
                             <Info className="w-6 h-6" />
                           </Button>
-                          <div className="mt-3">
+                          <div className="mt-5">
                             <CountdownTimer data={countdownData} />
                           </div>
                         </div>

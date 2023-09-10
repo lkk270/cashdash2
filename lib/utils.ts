@@ -85,7 +85,7 @@ export const convertMillisecondsToMinSec = (ms: number): string => {
 
 export const convertMillisecondsToMinExactSec = (exactSeconds: number): string => {
   const minutes: number = Math.floor(exactSeconds / 60);
-  const seconds: string = (exactSeconds - minutes * 60).toPrecision(3);
+  const seconds: string = (exactSeconds - minutes * 60).toPrecision(4);
   if (minutes === 0) {
     return `${seconds}s`;
   } else {

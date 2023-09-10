@@ -240,6 +240,8 @@ export async function POST(req: Request) {
                 data: {
                   timesPlayed: newTimesPlayed,
                   averageScore: newAverageScore,
+                  weightedTimesPlayed: newWeightedTimesPlayed,
+                  weightedAverageScore: newWeightedAverageScore,
                 },
               }),
               prismadb.score.create({
