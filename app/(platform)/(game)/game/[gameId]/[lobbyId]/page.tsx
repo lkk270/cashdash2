@@ -188,7 +188,8 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
           <EmptyState
             withBackButton={true}
             title="👾 Invalid Access 👾"
-            subtitle={accessResult.message}
+            subtitle={'Reasons:'}
+            reasons={accessResult.message.split('&')}
           />
         }
       />

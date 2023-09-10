@@ -123,7 +123,7 @@ export const Lobbies = ({ data }: LobbiesProps) => {
                           e.preventDefault();
                           toast({
                             title: 'Lobby restricted',
-                            description: 'Due to:',
+                            description: 'Reasons:',
                             reasons: accessResult?.message.split('&'),
                             duration: 6000,
                           });
@@ -168,11 +168,6 @@ export const Lobbies = ({ data }: LobbiesProps) => {
                           <p className="text-xs text-left">{item.description}</p>
                         </CardHeader>
                         <CardFooter className="flex items-center justify-between text-xs text-muted-foreground">
-                          {/* <div className="flex items-center">
-                            <ArrowUpRight className="w-3 h-3 mr-1" />
-                            Current best {beatTitle.toLowerCase()}:{' '}
-                            {convertMillisecondsToMinSec(item.scoreRestriction)}
-                          </div> */}
                           <div>$ Top {item.numRewards} scores</div>
                         </CardFooter>
                       </Link>

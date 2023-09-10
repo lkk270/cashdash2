@@ -101,6 +101,11 @@ export const ScoreChart = ({ scores, userGameAverageScores }: ScoreChartProps) =
     return gameAverage?.averageScore || 0;
   };
 
+  const getWeightedAverageScoreForGame = (gameId: string) => {
+    const gameAverage = userGameAverageScores.find((gameScore) => gameScore.gameId === gameId);
+    return gameAverage?.weightedAverageScore || 0;
+  };
+
   const getTimesPlayedForGame = (gameId: string) => {
     const gameAverage = userGameAverageScores.find((gameScore) => gameScore.gameId === gameId);
     return gameAverage?.timesPlayed || 0;
@@ -148,10 +153,15 @@ export const ScoreChart = ({ scores, userGameAverageScores }: ScoreChartProps) =
           const activeGameId = games[gameName]?.[0]?.lobbySession?.lobby?.game?.id;
 
           const averageScore = getAverageScoreForGame(activeGameId);
+          const weightedAverageScore = getWeightedAverageScoreForGame(activeGameId);
           const timesPlayed = getTimesPlayedForGame(activeGameId);
           const totalWinnings = getTotalWinningsForGame(games[gameName]);
           const formattedAverageScore =
             currentScoreType === 'time' ? convertMillisecondsToMinSec(averageScore) : averageScore;
+          const formattedWeightedAverageScore =
+            currentScoreType === 'time'
+              ? convertMillisecondsToMinSec(weightedAverageScore)
+              : weightedAverageScore;
 
           return (
             <TabsContent
@@ -161,6 +171,7 @@ export const ScoreChart = ({ scores, userGameAverageScores }: ScoreChartProps) =
             >
               <div className="justify-center pl-10 mb-3 text-sm text-gray-600 ">
                 <p>Average Score: {formattedAverageScore}</p>
+                <p>Weighted Average Score: {formattedWeightedAverageScore}</p>
                 <p>Times played i.e. recorded a score: {timesPlayed}</p>
                 <p>Total Winnings: ${totalWinnings}</p>
               </div>

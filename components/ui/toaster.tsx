@@ -21,12 +21,12 @@ export function Toaster() {
             <div className="grid gap-1">
               {title && <ToastTitle>{title}</ToastTitle>}
               {description && <ToastDescription>{description}</ToastDescription>}
-              <ol className="pl-5 text-sm list-decimal">
+              <ol className="pl-3 text-sm list-decimal">
                 {reasons &&
                   reasons.map((reason) => (
                     <li className="flex">
                       <span className="w-5">{reasons.indexOf(reason) + 1}.</span>
-                      <span className="flex-1 pl-2">{reason}</span>
+                      <span className="flex-1 pl-1">{reason}</span>
                     </li>
                   ))}
               </ol>
