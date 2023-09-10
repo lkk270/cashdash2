@@ -81,7 +81,13 @@ export const LobbyAboutModal = () => {
               <span>3rd Place</span>
               <span className="text-sky-500">{prizes.third}</span>
             </li>
-            {numRewards > 3 && (
+            {numRewards === 4 && (
+              <li className="flex justify-between">
+                <span>4th Place</span>
+                <span className="text-sky-500">{prizes.other}</span>
+              </li>
+            )}
+            {numRewards > 4 && (
               <li className="flex justify-between">
                 <span>4th - {numRewards.toString()}th Places</span>
                 <span className="text-sky-500">{prizes.other}</span>

@@ -6,7 +6,7 @@ import { isValidLobbyAccess } from '@/lib/utils';
 import { processBestScores, prepareScoresForDisplay } from '@/lib/scores';
 import { generateChallengeHash, generateResponseHash } from '@/lib/hash';
 import prismadb from '@/lib/prismadb';
-import { ScoreType, LobbySession, GameSession } from '@prisma/client';
+import { ScoreType, GameSession } from '@prisma/client';
 
 const acceptedTypesObj: { [key: string]: number } = { '0': 3, '1': 2, '2': 2, '3': 7 };
 
