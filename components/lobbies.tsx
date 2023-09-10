@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -13,8 +13,9 @@ import { Button } from '@/components/ui/button';
 import { isValidLobbyAccess } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Card, CardFooter, CardHeader } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { CountdownTimer } from '@/components/countdown-timer';
-// ce
+
 interface LobbiesProps {
   data: Game & {
     lobbies: (Lobby & {
@@ -28,6 +29,10 @@ interface LobbiesProps {
   };
 }
 
+type AccessResultsType = {
+  [key: string]: ReturnType<typeof isValidLobbyAccess>;
+};
+
 export const Lobbies = ({ data }: LobbiesProps) => {
   const lobbyAboutModal = useLobbyAboutModal();
   const pathname = usePathname();
@@ -40,7 +45,53 @@ export const Lobbies = ({ data }: LobbiesProps) => {
       lobby.sessions.some((session) => session.scores && session.scores.length > 0)
   );
 
+  const [accessResults, setAccessResults] = useState<AccessResultsType | null>(null);
+
+  useEffect(() => {
+    const results: AccessResultsType = {};
+
+    data.lobbies.forEach((item) => {
+      if (!item.sessions[0]) return;
+
+      const userPlayedInSession = item.sessions[0].scores?.length > 0;
+
+      results[item.id] = isValidLobbyAccess({
+        lobbyId: item.id,
+        lobbyWithScoresName: lobbyWithScores?.name,
+        lobbyWithScoresId: lobbyWithScores?.id,
+        userPlayedInSession: userPlayedInSession,
+        scoreType: scoreType,
+        weightedAverageScore: weightedAverageScore,
+        timesPlayed: timesPlayed,
+        numScoresToAccess: item.numScoresToAccess,
+        scoreRestriction: item.scoreRestriction,
+        expiredDateTime: item.sessions[0].expiredDateTime,
+        startDateTime: item.sessions[0].startDateTime,
+      });
+    });
+
+    setAccessResults(results);
+  }, [data.lobbies]);
+
   // const beatTitle = scoreType === 'time' ? 'Time' : 'Score';
+  if (!accessResults) {
+    return (
+      <div className="flex justify-center">
+        <div className="grid justify-center grid-cols-1 gap-2 pb-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div key={index} className="p-4 w-[250px] h-[350px] bg-primary/10 rounded-xl">
+              {/* Square Skeleton for Image */}
+              <Skeleton className="w-48 h-48 mb-4 rounded-lg bg-primary/10" />
+              {/* Line Skeletons for Text */}
+              <Skeleton className="w-full h-4 mb-2 rounded-md bg-primary/10" />
+              <Skeleton className="w-3/4 h-4 mb-2 rounded-md bg-primary/10" />
+              <Skeleton className="w-1/2 h-4 rounded-md bg-primary/10" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex justify-center">
@@ -49,21 +100,8 @@ export const Lobbies = ({ data }: LobbiesProps) => {
           if (!item.sessions[0]) {
             return <div></div>;
           }
-          const userPlayedInSession = item.sessions[0].scores?.length > 0 ? true : false;
-          let accessResult = isValidLobbyAccess({
-            lobbyId: item.id,
-            lobbyWithScoresName: lobbyWithScores?.name,
-            lobbyWithScoresId: lobbyWithScores?.id,
-            userPlayedInSession: userPlayedInSession,
-            scoreType: scoreType,
-            weightedAverageScore: weightedAverageScore,
-            timesPlayed: timesPlayed,
-            numScoresToAccess: item.numScoresToAccess,
-            scoreRestriction: item.scoreRestriction,
-            expiredDateTime: item.sessions[0].expiredDateTime,
-            startDateTime: item.sessions[0].startDateTime,
-          });
-          let disableCard = !accessResult.isValid;
+          const accessResult = accessResults[item.id];
+          let disableCard = accessResult ? !accessResult.isValid : true;
           const countdownData = {
             textSize: 'text-sm',
             expiredDateTime: item.sessions[0].expiredDateTime,
@@ -85,8 +123,9 @@ export const Lobbies = ({ data }: LobbiesProps) => {
                           e.preventDefault();
                           toast({
                             title: 'Lobby restricted',
-                            description: accessResult.message.split('&')[0],
-                            duration: 5000,
+                            description: 'Due to:',
+                            reasons: accessResult?.message.split('&'),
+                            duration: 6000,
                           });
                         }
                       }}

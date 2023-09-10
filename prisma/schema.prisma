@@ -64,7 +64,7 @@ model Lobby {
   secondPlacePrice      Float
   thirdPlacePrize       Float
   unspecifiedPlacePrize Float?
-  numScoresToAccess     Int            @default(0)
+  numScoresToAccess     Int
   // rewards          Reward[]
   game                  Game           @relation(fields: [gameId], references: [id])
   sessions              LobbySession[]

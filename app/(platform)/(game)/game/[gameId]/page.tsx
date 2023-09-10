@@ -67,6 +67,8 @@ const GameIdPage = async ({ params }: GameIdPageProps) => {
     return redirect('/dashboard');
   }
 
+  // console.log(game);
+
   // if (Date.now() < 1694283005594) {
   //   const weightedAverageObj = await calculateWeightedAverageScore(
   //     'b1798d4e-91e1-4115-8790-92d94319635a',

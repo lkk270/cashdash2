@@ -51,12 +51,12 @@ export function isValidLobbyAccess(inputs: {
     }
   }
 
-  if (inputs.timesPlayed <= inputs.numScoresToAccess) {
-    const moreTimes = inputs.numScoresToAccess - inputs.timesPlayed + 1;
+  if (inputs.timesPlayed < inputs.numScoresToAccess) {
+    const moreTimes = inputs.numScoresToAccess - inputs.timesPlayed;
     const timesStr = moreTimes === 1 ? 'time' : 'times';
     errorMessages.push(
-      `You need to play & finish this game ${
-        inputs.numScoresToAccess - inputs.timesPlayed + 1
+      `You need to play and finish this game ${
+        inputs.numScoresToAccess - inputs.timesPlayed
       } more ${timesStr} to gain access to this tier - skill level permitting`
     );
   }
