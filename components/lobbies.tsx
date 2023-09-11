@@ -13,8 +13,8 @@ import { Button } from '@/components/ui/button';
 import { isValidLobbyAccess } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Card, CardFooter, CardHeader } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
 import { CountdownTimer } from '@/components/countdown-timer';
+import { CardSkeleton } from '@/components/skeletons/card-skeleton';
 
 interface LobbiesProps {
   data: Game & {
@@ -80,12 +80,7 @@ export const Lobbies = ({ data }: LobbiesProps) => {
         <div className="grid justify-center grid-cols-1 gap-2 pb-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 3 }).map((_, index) => (
             <div key={index} className="p-4 w-[250px] h-[350px] bg-primary/10 rounded-xl">
-              {/* Square Skeleton for Image */}
-              <Skeleton className="w-48 h-48 mb-4 rounded-lg bg-primary/10" />
-              {/* Line Skeletons for Text */}
-              <Skeleton className="w-full h-4 mb-2 rounded-md bg-primary/10" />
-              <Skeleton className="w-3/4 h-4 mb-2 rounded-md bg-primary/10" />
-              <Skeleton className="w-1/2 h-4 rounded-md bg-primary/10" />
+              <CardSkeleton />
             </div>
           ))}
         </div>

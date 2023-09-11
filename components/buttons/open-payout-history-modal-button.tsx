@@ -8,10 +8,10 @@ export const OpenPayoutHistoryModal = () => {
 
   return (
     <Button
+      className="mb-3"
       onClick={() => payoutHistoryModal.onOpen()}
       variant="default"
       size="sm"
-      className="hidden xs:flex"
     >
       Payout History
     </Button>

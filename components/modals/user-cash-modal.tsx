@@ -107,7 +107,7 @@ export const UserCashModal = () => {
 
   return (
     <Dialog open={userCashModal.isOpen} onOpenChange={userCashModal.onClose}>
-      <DialogContent>
+      <DialogContent className="overflow-y-auto max-h-[80vh]">
         <DialogHeader className="space-y-4">
           <DialogTitle className="text-center">Withdraw your winnings</DialogTitle>
           {/* <DialogDescription className="space-y-2 text-center">
