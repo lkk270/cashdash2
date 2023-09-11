@@ -61,13 +61,10 @@ const calculate3BV = (grid: CellType[][]): number => {
           }
           if (adjacentToOpenSquare) break;
         }
-
         if (!adjacentToOpenSquare) bv++;
       }
     }
   }
-
-  console.log(bv);
   return bv;
 };
 
