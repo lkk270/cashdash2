@@ -3,7 +3,7 @@
 import { Game, Lobby, GameAverageScore, LobbySession, GameSession } from '@prisma/client';
 
 import { Lobbies } from '@/components/lobbies';
-import { LobbyHeader } from '@/components/lobby-header';
+import { LobbyHeader } from '@/components/headers/lobby-header';
 
 // interface GameClientPageProps {
 //   data: Lobby[];

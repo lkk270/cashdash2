@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Sidebar } from "@/components/sidebar";
-import { Menu } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sidebar } from '@/components/headers/sidebar';
+import { Menu } from 'lucide-react';
 
 export const MobileSidebar = () => {
   return (

@@ -1,19 +1,13 @@
 import { create } from 'zustand';
-import { UserStripeAccount } from '@prisma/client';
 
-interface useUserCashModalStore {
+interface usePayoutHistoryModalStore {
   isOpen: boolean;
-  userCash: string;
-  userStripeAccount?: UserStripeAccount;
-  onOpen: (userCash: string, userStripeAccount?: UserStripeAccount) => void;
+  onOpen: () => void;
   onClose: () => void;
 }
 
-export const useUserCashModal = create<useUserCashModalStore>((set) => ({
+export const usePayoutHistoryModal = create<usePayoutHistoryModalStore>((set) => ({
   isOpen: false,
-  userCash: '0.00',
-  userStripeAccount: undefined,
-  onOpen: (userCash, userStripeAccount) =>
-    set({ isOpen: true, userCash: userCash, userStripeAccount: userStripeAccount }),
+  onOpen: () => set({ isOpen: true }),
   onClose: () => set({ isOpen: false }),
 }));

@@ -11,15 +11,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { useUserCashModal } from '@/hooks/use-user-cash-modal';
+import { usePayoutHistoryModal } from '@/hooks/use-payout-history-modal';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ToastAction } from '@/components/ui/toast';
 import { useToast } from '@/components/ui/use-toast';
 
-export const UserCashModal = () => {
-  const userCashModal = useUserCashModal();
-  const userCashFloat = parseFloat(userCashModal.userCash);
+export const UserPayoutHistoryModal = () => {
+  const usePayoutHistory = usePayoutHistoryModal();
   const [isMounted, setIsMounted] = useState(false);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -33,7 +32,7 @@ export const UserCashModal = () => {
   }
 
   return (
-    <Dialog open={userCashModal.isOpen} onOpenChange={userCashModal.onClose}>
+    <Dialog open={usePayoutHistory.isOpen} onOpenChange={usePayoutHistory.onClose}>
       <DialogContent>
         <DialogHeader className="space-y-4">
           <DialogTitle className="text-center">Payout History</DialogTitle>

@@ -42,7 +42,7 @@ export const LinkStripeButton = ({ userStripeAccount }: LinkStripeButtonProps) =
     </Button>
   ) : (
     <Button
-      onClick={() => LinkStripeAboutModal.onOpen({ test: 'a' })}
+      onClick={() => LinkStripeAboutModal.onOpen()}
       variant="gradient1"
       size="sm"
       className="hidden xs:flex"

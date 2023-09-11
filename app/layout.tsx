@@ -6,10 +6,11 @@ import { Toaster } from '@/components/ui/toaster';
 
 import { cn } from '@/lib/utils';
 import { ThemeProvider } from '@/components/providers/theme-provider';
-import { ProModal } from '@/components/pro-modal';
-import { LobbyAboutModal } from '@/components/lobby-about-modal';
-import { UserCashModal } from '@/components/user-cash-modal';
-import { LinkStripeAboutModal } from '@/components/link-stripe-about-modal';
+import { ProModal } from '@/components/modals/pro-modal';
+import { LobbyAboutModal } from '@/components/modals/lobby-about-modal';
+import { UserCashModal } from '@/components/modals/user-cash-modal';
+import { LinkStripeAboutModal } from '@/components/modals/link-stripe-about-modal';
+import { UserPayoutHistoryModal } from '@/components/modals/payout-history-modal';
 
 import './globals.css';
 
@@ -37,6 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <UserCashModal />
             <LinkStripeAboutModal />
             <ProModal />
+            <UserPayoutHistoryModal />
             {children}
             <Toaster />
           </ThemeProvider>

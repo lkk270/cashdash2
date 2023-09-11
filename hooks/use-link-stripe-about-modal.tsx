@@ -2,14 +2,13 @@ import { create } from 'zustand';
 
 interface useLinkStripeAboutModalStore {
   isOpen: boolean;
-  data?: any;
-  onOpen: (data: any) => void;
+  onOpen: () => void;
   onClose: () => void;
 }
 
 export const useLinkStripeAboutModal = create<useLinkStripeAboutModalStore>((set) => ({
   isOpen: false,
   data: {},
-  onOpen: (data) => set({ isOpen: true, data: data }),
+  onOpen: () => set({ isOpen: true }),
   onClose: () => set({ isOpen: false }),
 }));

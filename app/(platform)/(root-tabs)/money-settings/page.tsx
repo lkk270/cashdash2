@@ -1,11 +1,12 @@
-import { SubscriptionButton } from '@/components/subscription-button';
-import { LinkStripeButton } from '@/components/link-stripe-button';
-import { CashOutButton } from '@/components/cash-out-button';
+import { SubscriptionButton } from '@/components/buttons/subscription-button';
+import { LinkStripeButton } from '@/components/buttons/link-stripe-button';
+import { CashOutButton } from '@/components/buttons/cash-out-button';
 import { Card } from '@/components/ui/card';
 import { Wallet } from 'lucide-react';
 import { checkSubscription } from '@/lib/subscription';
 import { getUserCash } from '@/lib/userCash';
 import { getUserStripeAccount } from '@/lib/stripeAccount';
+import { OpenPayoutHistoryModal } from '@/components/buttons/open-payout-history-modal-button';
 
 const SettingsPage = async () => {
   const isPro = await checkSubscription();
@@ -32,6 +33,7 @@ const SettingsPage = async () => {
         <div className="flex space-x-3">
           <LinkStripeButton userStripeAccount={userStripeAccount} />
           <CashOutButton userStripeAccount={userStripeAccount} userCash={userCash} />
+          <OpenPayoutHistoryModal />
         </div>
       </Card>
     </div>
