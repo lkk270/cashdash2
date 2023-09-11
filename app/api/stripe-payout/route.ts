@@ -12,6 +12,7 @@ const MAX_WITHDRAWAL = 500;
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+    const bodyLength = Object.keys(body).length;
     const { withdrawalAmount } = body;
     const { userId } = auth();
     const user = await currentUser();
@@ -29,6 +30,9 @@ export async function POST(req: Request) {
 
     if (!userStripeAccount || !userStripeAccount.stripeAccountId) {
       return new NextResponse('Unauthorized', { status: 401 });
+    }
+    if (bodyLength !== 1 || !withdrawalAmount) {
+      return new NextResponse('Invalid body', { status: 401 });
     }
 
     // Check if the user has enough funds.

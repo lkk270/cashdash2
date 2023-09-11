@@ -16,21 +16,47 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ToastAction } from '@/components/ui/toast';
 import { useToast } from '@/components/ui/use-toast';
+import { UserStripeAccount } from '@prisma/client';
 
 export const UserCashModal = () => {
   const userCashModal = useUserCashModal();
   const userCashFloat = parseFloat(userCashModal.userCash);
   const [isMounted, setIsMounted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [dataFetched, setDataFetched] = useState(false);
+  const [userStripeAccount, setUserStripeAccount] = useState<UserStripeAccount | undefined>(
+    undefined
+  );
   const { toast } = useToast();
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
+  useEffect(() => {
+    if (userCashModal.isOpen && !dataFetched) {
+      setLoading(true);
+      // Call the necessary API endpoint to get userCash and userStripeAccount here
+      axios
+        .post('/api/info', { getFunc: 'gusa' })
+        .then((response) => {
+          setUserStripeAccount(response.data.userStripeAccount);
+          setDataFetched(true); // Set dataFetched to true after fetching
+        })
+        .catch((error) => {
+          toast({
+            description: error.response ? error.response.data : 'Network Error',
+            variant: 'destructive',
+          });
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  }, [userCashModal.isOpen, dataFetched]);
+
   const onWithdraw = () => {
-    setLoading(true);
-    if (!userCashModal.userStripeAccount) {
+    if (!userStripeAccount) {
       toast({
         duration: 6000,
         description:
@@ -54,24 +80,25 @@ export const UserCashModal = () => {
         variant: 'warning',
       });
       return;
+    } else {
+      setLoading(true);
+      axios
+        .post('/api/stripe-payout', { withdrawalAmount: userCashFloat })
+        .then((response) => {
+          toast({
+            description: 'Withdrawal initiated successfully!',
+          });
+        })
+        .catch((error) => {
+          toast({
+            description: error.response ? error.response.data : 'Network Error',
+            variant: 'destructive',
+          });
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     }
-
-    axios
-      .post('/api/stripe-payout', { withdrawalAmount: userCashFloat })
-      .then((response) => {
-        toast({
-          description: 'Withdrawal initiated successfully!',
-        });
-      })
-      .catch((error) => {
-        toast({
-          description: error.response ? error.response.data : 'Network Error',
-          variant: 'destructive',
-        });
-      })
-      .finally(() => {
-        setLoading(false);
-      });
   };
 
   if (!isMounted) {

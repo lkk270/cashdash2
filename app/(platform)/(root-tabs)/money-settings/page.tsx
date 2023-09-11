@@ -11,7 +11,6 @@ const SettingsPage = async () => {
   const isPro = await checkSubscription();
   const userCash = await getUserCash();
   const userStripeAccount = await getUserStripeAccount();
-
   return (
     <div className="h-full p-4 space-y-6">
       <Card className="p-4 shadow-md bg-primary/10 rounded-xl">

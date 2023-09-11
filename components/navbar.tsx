@@ -29,7 +29,6 @@ interface NavbarProps {
 export const Navbar = ({ userValues }: NavbarProps) => {
   const isPro = userValues.isPro;
   const userCash = userValues.userCash;
-  const userStripeAccount = userValues.userStripeAccount;
   const proModal = useProModal();
   const userCashModal = useUserCashModal();
   return (
@@ -54,7 +53,7 @@ export const Navbar = ({ userValues }: NavbarProps) => {
         <div className="flex items-center sm:flex gap-x-3">
           {userCash && (
             <Button
-              onClick={() => userCashModal.onOpen(userCash, userStripeAccount)}
+              onClick={() => userCashModal.onOpen(userCash)}
               variant="gradient2"
               size="sm"
               className="hidden xs:flex"

@@ -1,6 +1,6 @@
 'use client';
 
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { UserStripeAccount } from '@prisma/client';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -13,13 +13,10 @@ interface CashOutButtonProps {
 
 export const CashOutButton = ({ userCash, userStripeAccount }: CashOutButtonProps) => {
   const userCashFloat = parseFloat(userCash);
-  const fallbackErrorMessage = 'An unexpected error occurred.';
   const [isLoading, setLoading] = useState(false);
   const { toast } = useToast();
 
   const onClick = () => {
-    setLoading(true);
-
     if (!userStripeAccount) {
       toast({
         duration: 6000,
@@ -35,24 +32,25 @@ export const CashOutButton = ({ userCash, userStripeAccount }: CashOutButtonProp
         variant: 'warning',
       });
       return;
+    } else {
+      setLoading(true);
+      axios
+        .post('/api/stripe-payout', { withdrawalAmount: userCashFloat })
+        .then((response) => {
+          toast({
+            description: 'Withdrawal initiated successfully!',
+          });
+        })
+        .catch((error) => {
+          toast({
+            description: error.response ? error.response.data : 'Network Error',
+            variant: 'destructive',
+          });
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     }
-
-    axios
-      .post('/api/stripe-payout', { withdrawalAmount: userCashFloat })
-      .then((response) => {
-        toast({
-          description: 'Withdrawal initiated successfully!',
-        });
-      })
-      .catch((error) => {
-        toast({
-          description: error.response ? error.response.data : 'Network Error',
-          variant: 'destructive',
-        });
-      })
-      .finally(() => {
-        setLoading(false);
-      });
   };
 
   return (
