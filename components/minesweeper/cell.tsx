@@ -17,7 +17,7 @@ import {
   Type6,
   Type7,
   Type8,
-} from './image-components/index';
+} from './image-components';
 
 interface CellProps {
   cell: CellType;
@@ -28,6 +28,7 @@ interface CellProps {
   gameOver: boolean; // To denote whether the game is over
   row: number;
   col: number;
+  cols: number;
   explodedRow?: number;
   explodedCol?: number;
   loading: boolean;
@@ -36,6 +37,7 @@ interface CellProps {
 export const Cell = ({
   row,
   col,
+  cols,
   cell,
   pressedCell,
   setPressedCell,
@@ -82,10 +84,10 @@ export const Cell = ({
     setPressedCell(null);
   };
 
-  const baseStyle = 'w-6 h-6 flex items-center justify-center text-center';
-  // const revealedStyle = cell.isRevealed
-  //   ? 'bg-c6c6c6 border border-gray-500'
-  //   : 'bg-c6c6c6 border-l border-t border-white border-r border-b border-808080';
+  const sizeClassNameObj: { [key: number]: string } = { 30: 'w-6 h-6' };
+  const sizeClassName = sizeClassNameObj[cols] || 'w-8 h-8';
+
+  const baseStyle = `${sizeClassName} flex items-center justify-center text-center`;
 
   let cellContent;
 
@@ -146,11 +148,11 @@ export const Cell = ({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={(e) => {
-        if (!gameOver && !loading) onReveal(e);
+        if (!gameOver && !loading && !cell.isRevealed) onReveal(e);
       }}
       onContextMenu={(e) => {
         e.preventDefault();
-        if (!gameOver && !loading) onFlag(e);
+        if (!gameOver && !loading && !cell.isRevealed) onFlag(e);
       }}
       className={`${baseStyle}`}
     >

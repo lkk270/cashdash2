@@ -13,7 +13,7 @@ import { Lobby, LobbySession, ScoreType } from '@prisma/client';
 import { useUser } from '@clerk/nextjs';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { CompletePopover } from '@/components/complete-popover';
-import { convertMillisecondsToMinSec } from '@/lib/utils';
+import { convertMillisecondsToMinExactSec } from '@/lib/utils';
 import { ModifiedScoreType } from '@/app/types';
 
 interface ScoresTableProps {
@@ -85,9 +85,10 @@ export const ScoresTable = ({
           <TableBody>
             {scores.map((score, i) => {
               const rank = score.rank || i + 1;
+              const exactSeconds = scoreType === ScoreType.time ? score.score / 1000 : 0;
               const adjustedScore =
                 scoreType === ScoreType.time
-                  ? convertMillisecondsToMinSec(score.score)
+                  ? convertMillisecondsToMinExactSec(exactSeconds)
                   : score.score;
               let tableValueColor =
                 rank === 1
@@ -118,19 +119,19 @@ export const ScoresTable = ({
                     }
                    `}
                 >
-                  <TableCell className="flex items-start w-40 space-x-2 break-all">
+                  <TableCell className="flex items-start w-40 space-x-2 text-xs break-all">
                     <span className="whitespace-nowrap">{rank}.</span>{' '}
                     <span className="flex-grow">{score.username}</span>
                     {isCurrentUser && <Badge variant={'gradient1'}>You</Badge>}
                   </TableCell>
                   <TableCell className="relative pr-8">
-                    <span>{adjustedScore}</span>
+                    <span className="text-sm">{adjustedScore}</span>
                     {scoreType === ScoreType.time && (
                       <CompletePopover
                         title={'Exact Time'}
                         content={[
                           { title: 'Milliseconds', content: score.score.toString() },
-                          { title: 'Seconds', content: (score.score / 1000).toString() },
+                          { title: 'Seconds', content: exactSeconds.toString() },
                         ]}
                       />
                     )}

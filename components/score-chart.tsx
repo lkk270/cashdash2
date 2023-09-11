@@ -14,7 +14,7 @@ import {
 import { ScoreRelationsType } from '@/app/types';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { GameAverageScore } from '@prisma/client';
-import { convertMillisecondsToMinSec } from '@/lib/utils';
+import { cn, convertMillisecondsToMinSec } from '@/lib/utils';
 
 interface ScoreChartProps {
   scores: ScoreRelationsType[];
@@ -87,6 +87,11 @@ export const ScoreChart = ({ scores, userGameAverageScores }: ScoreChartProps) =
   };
 
   const gameNames = Object.keys(games);
+  let gameNames2 = Object.keys(games);
+  for (let i = 0; i < 20; i++) {
+    gameNames2.push('testicles' + i.toString());
+  }
+
   if (gameNames.length > 0 && !activeTab) {
     setActiveTab(gameNames[0]);
   }
@@ -94,6 +99,11 @@ export const ScoreChart = ({ scores, userGameAverageScores }: ScoreChartProps) =
   const getAverageScoreForGame = (gameId: string) => {
     const gameAverage = userGameAverageScores.find((gameScore) => gameScore.gameId === gameId);
     return gameAverage?.averageScore || 0;
+  };
+
+  const getWeightedAverageScoreForGame = (gameId: string) => {
+    const gameAverage = userGameAverageScores.find((gameScore) => gameScore.gameId === gameId);
+    return gameAverage?.weightedAverageScore || 0;
   };
 
   const getTimesPlayedForGame = (gameId: string) => {
@@ -110,6 +120,8 @@ export const ScoreChart = ({ scores, userGameAverageScores }: ScoreChartProps) =
     }, 0);
   };
 
+  const tabsClassName = gameNames.length <= 10 ? 'justify-center' : '';
+
   return (
     <div className="flex flex-col items-center justify-center w-full pt-5 space-y-5 font-sans text-primary">
       <div className="text-sm text-center text-primary/50">
@@ -117,19 +129,17 @@ export const ScoreChart = ({ scores, userGameAverageScores }: ScoreChartProps) =
         <p className="mt-4">The graph shows the your best score per session entered.</p>
       </div>
       <Tabs defaultValue={activeTab} className="w-full rounded-sm ">
-        <div className="">
-          <TabsList className="flex overflow-x-auto scrollbar-hide">
-            {gameNames.map((gameName) => (
-              <TabsTrigger
-                key={gameName}
-                value={gameName}
-                className="px-4 transition duration-200 transform border-b-2 border-transparent hover:border-blue-500"
-              >
-                {gameName}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </div>
+        <TabsList className={`${tabsClassName} flex min-w-0 overflow-x-scroll  scrollbar-hide`}>
+          {gameNames.map((gameName) => (
+            <TabsTrigger
+              key={gameName}
+              value={gameName}
+              className="flex-none min-w-0 px-4 transition duration-200 transform border-b-2 border-transparent hover:border-blue-500"
+            >
+              {gameName}
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
         {gameNames.map((gameName) => {
           const currentScoreType = games[gameName][0].lobbySession.lobby.game.scoreType;
@@ -143,10 +153,15 @@ export const ScoreChart = ({ scores, userGameAverageScores }: ScoreChartProps) =
           const activeGameId = games[gameName]?.[0]?.lobbySession?.lobby?.game?.id;
 
           const averageScore = getAverageScoreForGame(activeGameId);
+          const weightedAverageScore = getWeightedAverageScoreForGame(activeGameId);
           const timesPlayed = getTimesPlayedForGame(activeGameId);
           const totalWinnings = getTotalWinningsForGame(games[gameName]);
           const formattedAverageScore =
             currentScoreType === 'time' ? convertMillisecondsToMinSec(averageScore) : averageScore;
+          const formattedWeightedAverageScore =
+            currentScoreType === 'time'
+              ? convertMillisecondsToMinSec(weightedAverageScore)
+              : weightedAverageScore;
 
           return (
             <TabsContent
@@ -156,6 +171,7 @@ export const ScoreChart = ({ scores, userGameAverageScores }: ScoreChartProps) =
             >
               <div className="justify-center pl-10 mb-3 text-sm text-gray-600 ">
                 <p>Average Score: {formattedAverageScore}</p>
+                <p>Weighted Average Score: {formattedWeightedAverageScore}</p>
                 <p>Times played i.e. recorded a score: {timesPlayed}</p>
                 <p>Total Winnings: ${totalWinnings}</p>
               </div>

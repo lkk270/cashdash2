@@ -19,7 +19,7 @@ export const MobileScoresTable = ({ lobby, scoreType, scores }: MobileScoresTabl
       <SheetTrigger className="pr-4 xl:hidden">
         <BarChart4 />
       </SheetTrigger>
-      <SheetContent side="left" className="w-64 p-0 pt-10 bg-secondary">
+      <SheetContent side="left" className="p-0 pt-10 w-72 bg-secondary">
         <ScoresTable scores={scores} scoreType={scoreType} showSessionTimer={true} lobby={lobby} />
       </SheetContent>
     </Sheet>

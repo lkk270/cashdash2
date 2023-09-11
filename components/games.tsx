@@ -27,6 +27,7 @@ export const Games = ({ data }: GamesProps) => {
                   fill
                   className="object-cover rounded-xl"
                   alt="Character"
+                  draggable={false}
                 />
               </div>
               <p className="font-bold">{item.name}</p>

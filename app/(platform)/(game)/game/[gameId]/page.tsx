@@ -1,5 +1,5 @@
 import { auth, redirectToSignIn } from '@clerk/nextjs';
-
+import { calculateWeightedAverageScore, calculateRegularAverageScore } from '@/lib/average-score';
 import prismadb from '@/lib/prismadb';
 import { redirect } from 'next/navigation';
 
@@ -39,7 +39,7 @@ const GameIdPage = async ({ params }: GameIdPageProps) => {
               createdAt: 'desc',
             },
             include: {
-              gameSession: {
+              scores: {
                 where: {
                   userId: userId,
                 },
@@ -67,8 +67,30 @@ const GameIdPage = async ({ params }: GameIdPageProps) => {
     return redirect('/dashboard');
   }
 
+  // console.log(game);
+
+  // if (Date.now() < 1694283005594) {
+  //   const weightedAverageObj = await calculateWeightedAverageScore(
+  //     'b1798d4e-91e1-4115-8790-92d94319635a',
+  //     'user_2TKskwGmolB1V1OQ7FvEZvjkzh2'
+  //   );
+
+  //   console.log('averageObjaverageObjaverageObjaverageObjaverageObjaverageObj');
+  //   console.log(weightedAverageObj);
+
+  //   const regularAverageObj = await calculateRegularAverageScore(
+  //     'b1798d4e-91e1-4115-8790-92d94319635a',
+  //     'user_2TKskwGmolB1V1OQ7FvEZvjkzh2'
+  //   );
+  //   console.log(
+  //     'regularAverageObjregularAverageObjregularAverageObjregularAverageObjregularAverageObj'
+  //   );
+  //   console.log(regularAverageObj);
+  // }
+  // console.log(game);
+
   // if (game) {
-  //   console.log(game.lobbies[0].sessions[1].gameSession);
+  //   console.log(game.lobbies[0].sessions[1].gameSessions);
   // }
 
   // if (game.averageScores.length === 0) {

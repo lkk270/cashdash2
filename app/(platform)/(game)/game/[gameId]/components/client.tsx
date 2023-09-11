@@ -19,7 +19,7 @@ interface GameClientPageProps {
   data: Game & {
     lobbies: (Lobby & {
       sessions: (LobbySession & {
-        gameSession: {
+        scores: {
           id: string;
         }[];
       })[];

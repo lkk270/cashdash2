@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 
 import React, { useState, useEffect } from 'react';
-import { FaceLoss, FaceRegular, FaceWon } from './image-components/index';
+import { FaceLoss, FaceRegular, FaceWon } from './image-components';
 
 interface HeaderProps {
   flagsLeft: number;
@@ -73,7 +73,7 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="flex items-center p-1 font-mono text-2xl bg-black rounded shadow-md gap-x-4">
         <span className="transform scale-x-[-1]">🚩</span>
         <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-sky-500">
-          {flagsLeft}
+          {String(flagsLeft).padStart(2, '0')}
         </span>
       </div>
 

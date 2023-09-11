@@ -11,9 +11,14 @@ interface ValidationResult {
 }
 
 export function isValidLobbyAccess(inputs: {
+  lobbyId: string;
+  lobbyWithScoresName?: string;
+  lobbyWithScoresId?: string;
   userPlayedInSession: boolean;
   scoreType: string;
-  averageScore: number | null;
+  weightedAverageScore?: number;
+  timesPlayed: number;
+  numScoresToAccess: number;
   scoreRestriction: number;
   expiredDateTime: Date;
   startDateTime: Date;
@@ -36,14 +41,30 @@ export function isValidLobbyAccess(inputs: {
     errorMessages.push('This lobby is not yet accessible');
   }
 
-  if (inputs.userPlayedInSession === false && inputs.averageScore !== null) {
+  if (inputs.userPlayedInSession === false && inputs.weightedAverageScore) {
     //if the there is at least one score for this lobby session then even if the user becomes too good for the session, they are still allowed to access it for the remainder of the lobby session.
     if (
-      (inputs.scoreType === 'time' && inputs.averageScore < inputs.scoreRestriction) ||
-      (inputs.scoreType === 'points' && inputs.averageScore > inputs.scoreRestriction)
+      (inputs.scoreType === 'time' && inputs.weightedAverageScore < inputs.scoreRestriction) ||
+      (inputs.scoreType === 'points' && inputs.weightedAverageScore > inputs.scoreRestriction)
     ) {
       errorMessages.push("You're too good of a player to access this tier!");
     }
+  }
+
+  if (inputs.timesPlayed < inputs.numScoresToAccess) {
+    const moreTimes = inputs.numScoresToAccess - inputs.timesPlayed;
+    const timesStr = moreTimes === 1 ? 'time' : 'times';
+    errorMessages.push(
+      `You need to play and finish this game ${
+        inputs.numScoresToAccess - inputs.timesPlayed
+      } more ${timesStr} to gain access to this tier - skill level permitting`
+    );
+  }
+
+  if (inputs.lobbyWithScoresId && inputs.lobbyWithScoresId !== inputs.lobbyId) {
+    errorMessages.push(
+      `You have already played in a different tier: ${inputs.lobbyWithScoresName?.toUpperCase()}. You can only play in one tier at a time. Once the ${inputs.lobbyWithScoresName?.toUpperCase()} session resets, you will be able to choose another tier - skill level permitting`
+    );
   }
 
   // If there are any error messages, update the result to indicate access is denied and provide the error message(s)
@@ -60,6 +81,16 @@ export const convertMillisecondsToMinSec = (ms: number): string => {
   const minutes: number = Math.floor(total_seconds / 60);
   const seconds: number = total_seconds % 60;
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+};
+
+export const convertMillisecondsToMinExactSec = (exactSeconds: number): string => {
+  const minutes: number = Math.floor(exactSeconds / 60);
+  const seconds: string = (exactSeconds - minutes * 60).toPrecision(4);
+  if (minutes === 0) {
+    return `${seconds}s`;
+  } else {
+    return `${minutes}m ${seconds}s`;
+  }
 };
 
 export function absoluteUrl(path: string) {
