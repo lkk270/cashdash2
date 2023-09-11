@@ -49,6 +49,7 @@ export const LobbyClient = ({ lobby, game, scoresParam, userBestScore }: LobbyCl
                 rows={12}
                 cols={12}
                 numMines={13}
+                min3bv={15}
               />
             ) : gameName === 'minesweeper 16x16' ? (
               <Minesweeper
@@ -59,6 +60,7 @@ export const LobbyClient = ({ lobby, game, scoresParam, userBestScore }: LobbyCl
                 rows={16}
                 cols={16}
                 numMines={40}
+                min3bv={35}
               />
             ) : gameName === 'minesweeper 16x30' ? (
               <Minesweeper
@@ -68,7 +70,8 @@ export const LobbyClient = ({ lobby, game, scoresParam, userBestScore }: LobbyCl
                 ids={ids}
                 rows={16}
                 cols={30}
-                numMines={20}
+                numMines={99}
+                min3bv={135}
               />
             ) : (
               <div></div>

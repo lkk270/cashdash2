@@ -19,6 +19,7 @@ interface MinesweeperProps {
   rows: number;
   cols: number;
   numMines: number;
+  min3bv: number;
   ids: {
     gameId: string;
     lobbySessionId: string;
@@ -29,6 +30,7 @@ export const Minesweeper = ({
   rows,
   cols,
   numMines,
+  min3bv,
   ids,
   userBestScoreParam,
   setScores,
@@ -116,7 +118,7 @@ export const Minesweeper = ({
 
   useEffect(() => {
     onGameLoad();
-    const newGrid = initializeGrid(rows, cols, numMines);
+    const newGrid = initializeGrid(rows, cols, numMines, min3bv);
     setGrid(newGrid);
   }, []);
 
@@ -243,7 +245,7 @@ export const Minesweeper = ({
     setGameStarted(false);
     onGameLoad();
     // Generate a fresh grid
-    const newGrid = initializeGrid(rows, cols, numMines);
+    const newGrid = initializeGrid(rows, cols, numMines, min3bv);
     setGrid(newGrid);
 
     // Reset the exploded cell
