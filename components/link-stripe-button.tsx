@@ -20,7 +20,7 @@ export const LinkStripeButton = ({ userStripeAccount }: LinkStripeButtonProps) =
     try {
       setLoading(true);
 
-      const response = await axios.post('/api/stripe-connect', { amount: 'userCash' });
+      const response = await axios.get('/api/stripe-connect');
 
       window.location.href = response.data.url;
     } catch (error) {

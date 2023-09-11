@@ -12,55 +12,47 @@ interface CashOutButtonProps {
 }
 
 export const CashOutButton = ({ userCash, userStripeAccount }: CashOutButtonProps) => {
+  const userCashFloat = parseFloat(userCash);
   const fallbackErrorMessage = 'An unexpected error occurred.';
   const [isLoading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const onClick = async () => {
-    try {
-      setLoading(true);
+  const onClick = () => {
+    setLoading(true);
 
-      if (!userStripeAccount) {
-        toast({
-          duration: 6000,
-          description:
-            'Please first link your bank account by clicking the Link Bank Account button',
-          variant: 'warning',
-        });
-        return;
-      }
-      if (parseFloat(userCash) < 20) {
-        toast({
-          duration: 6000,
-          description: 'You can only cash out a balance of at least $20',
-          variant: 'warning',
-        });
-        return;
-      }
+    if (!userStripeAccount) {
+      toast({
+        duration: 6000,
+        description: 'Please first link your bank account by clicking the Link Bank Account button',
+        variant: 'warning',
+      });
+      return;
+    }
+    if (userCashFloat < 20) {
+      toast({
+        duration: 6000,
+        description: 'You can only cash out a balance of at least $20',
+        variant: 'warning',
+      });
+      return;
+    }
 
-      const response = await axios.post('/api/stripe-payout', { amount: userCash });
-
-      if (response.status === 200) {
+    axios
+      .post('/api/stripe-payout', { withdrawalAmount: userCashFloat })
+      .then((response) => {
         toast({
           description: 'Withdrawal initiated successfully!',
         });
-      }
-    } catch (error: unknown) {
-      if (error instanceof AxiosError) {
+      })
+      .catch((error) => {
         toast({
-          duration: 6000,
-          description: error.response?.data || fallbackErrorMessage,
+          description: error.response ? error.response.data : 'Network Error',
           variant: 'destructive',
         });
-      } else {
-        toast({
-          description: fallbackErrorMessage,
-          variant: 'destructive',
-        });
-      }
-    } finally {
-      setLoading(false);
-    }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (

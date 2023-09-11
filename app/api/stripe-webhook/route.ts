@@ -54,7 +54,14 @@ export async function POST(req: Request) {
 
   if (event.type === 'account.updated') {
     let account = event.data.object as Stripe.Account;
-
+    const externalAccounts = await stripe.accounts.listExternalAccounts(account.id, {
+      object: 'bank_account',
+      limit: 1,
+    });
+    const externalAccountId =
+      externalAccounts.data.length > 0 ? externalAccounts.data[0].id : undefined;
+    console.log(externalAccounts);
+    console.log(externalAccountId);
     const userId = session?.metadata?.userId;
     if (!userId) {
       return new NextResponse('User id is required', { status: 400 });
@@ -65,11 +72,12 @@ export async function POST(req: Request) {
         userId: userId,
       },
     });
-    if (!userStripeAccount) {
+    if (!userStripeAccount && externalAccountId) {
       await prismadb.userStripeAccount.create({
         data: {
           userId: userId,
           stripeAccountId: account.id,
+          stripeBankAccountId: externalAccountId,
         },
       });
     }
