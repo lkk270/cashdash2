@@ -37,7 +37,13 @@ export const LinkStripeButton = ({ userStripeAccount }: LinkStripeButtonProps) =
   };
 
   return userStripeAccount ? (
-    <Button className="mb-3" size="sm" variant="gradient1" disabled={isLoading} onClick={onClick}>
+    <Button
+      className="mb-3 mr-3"
+      size="sm"
+      variant="gradient1"
+      disabled={isLoading}
+      onClick={onClick}
+    >
       {isLoading ? 'Loading...' : 'Manage Bank Details'}
     </Button>
   ) : (
@@ -45,7 +51,7 @@ export const LinkStripeButton = ({ userStripeAccount }: LinkStripeButtonProps) =
       onClick={() => LinkStripeAboutModal.onOpen()}
       variant="gradient1"
       size="sm"
-      className="mb-3"
+      className="mb-3 mr-3"
     >
       Link Bank Account
     </Button>

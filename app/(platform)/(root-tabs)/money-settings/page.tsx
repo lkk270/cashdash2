@@ -30,7 +30,7 @@ const SettingsPage = async () => {
           <Wallet size={24} />
           <span className="text-zinc-500">Manage your stripe account used for cashing out.</span>
         </div>
-        <div className="flex flex-wrap space-x-3 min-w-[100px]">
+        <div className="flex flex-wrap min-w-[100px]">
           <LinkStripeButton userStripeAccount={userStripeAccount} />
           <CashOutButton userStripeAccount={userStripeAccount} userCash={userCash} />
           <OpenPayoutHistoryModal />

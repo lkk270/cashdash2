@@ -1,4 +1,4 @@
-import { Reward } from '@prisma/client';
+import { Reward, PayoutStatus } from '@prisma/client';
 
 export type ScoreRelationsType = {
   id: string;
@@ -25,3 +25,18 @@ export type ModifiedScoreType2 = {
   score: number;
   createdAt: Date;
 };
+
+export type ModifiedPaymentType = {
+  id: string;
+  amount: number;
+  status: PayoutStatus;
+  createdAt: string;
+};
+
+export type ModifiedPaymentType2 = {
+  id: string;
+  amount: number;
+  status: PayoutStatus;
+  createdAt: Date;
+};
+

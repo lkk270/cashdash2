@@ -54,7 +54,13 @@ export const CashOutButton = ({ userCash, userStripeAccount }: CashOutButtonProp
   };
 
   return (
-    <Button className="mb-3" size="sm" variant="gradient2" disabled={isLoading} onClick={onClick}>
+    <Button
+      className="mb-3 mr-3"
+      size="sm"
+      variant="gradient2"
+      disabled={isLoading}
+      onClick={onClick}
+    >
       Cash Out ${userCash}
     </Button>
   );
