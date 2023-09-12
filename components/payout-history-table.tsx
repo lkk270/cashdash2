@@ -65,15 +65,30 @@ export const PayoutHistoryTable = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {payouts.map((payout, i) => {
-              return (
-                <TableRow key={payout.id}>
-                  <TableCell>{payout.createdAt.split('T')[0]}</TableCell>
-                  <TableCell>${payout.amount.toString()}</TableCell>
-                  <TableCell>{payout.status}</TableCell>
-                </TableRow>
-              );
-            })}
+            {payouts.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={3}>
+                  <div className="text-lg font-bold text-center">No payouts</div>
+                  <img
+                    draggable={false}
+                    height={600}
+                    width={600}
+                    src="/images/empty.png"
+                    alt="Empty"
+                  />
+                </TableCell>
+              </TableRow>
+            ) : (
+              payouts.map((payout, i) => {
+                return (
+                  <TableRow key={payout.id}>
+                    <TableCell>{payout.createdAt.split('T')[0]}</TableCell>
+                    <TableCell>${payout.amount.toString()}</TableCell>
+                    <TableCell>{payout.status}</TableCell>
+                  </TableRow>
+                );
+              })
+            )}
           </TableBody>
         </Table>
       </div>

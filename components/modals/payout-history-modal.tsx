@@ -62,7 +62,11 @@ export const UserPayoutHistoryModal = () => {
           {!dataFetched && usePayoutHistory.isOpen ? (
             <TableSkeleton />
           ) : (
-            <PayoutHistoryTable setParentsPayouts={setPayouts} numOfPayouts={totalNumOfPayouts} payoutsParam={payouts} />
+            <PayoutHistoryTable
+              setParentsPayouts={setPayouts}
+              numOfPayouts={totalNumOfPayouts}
+              payoutsParam={payouts}
+            />
           )}
         </DialogHeader>
         <Separator />
