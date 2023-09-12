@@ -41,15 +41,15 @@ export const GameNavbar = ({ lobby, game, scores }: LobbyHeaderProps) => {
         <div className="grid items-center w-full grid-cols-3 pb-4 border-b border-primary/10">
           {/* Left content */}
           <div className="z-10 flex items-center">
-            <MobileScoresTable scores={scores} scoreType={game.scoreType} lobby={lobby} />
             <Button
               onClick={() => router.push(backPath)}
               size="icon"
               variant="default"
-              className="hidden sm:flex"
+              className="hidden mr-2 sm:flex"
             >
               <ChevronLeft className="w-8 h-8" />
             </Button>
+            <MobileScoresTable scores={scores} scoreType={game.scoreType} lobby={lobby} />
             <div className="flex items-center sm:hidden">
               <Button
                 title="Details"
