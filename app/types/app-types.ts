@@ -31,6 +31,8 @@ export type ModifiedPaymentType = {
   amount: number;
   status: PayoutStatus;
   createdAt: string;
+  stripePayoutId?: string | null;
+  stripeAccountId?: string | null;
 };
 
 export type ModifiedPaymentType2 = {
@@ -38,5 +40,6 @@ export type ModifiedPaymentType2 = {
   amount: number;
   status: PayoutStatus;
   createdAt: Date;
+  stripePayoutId?: string | null;
+  stripeAccountId?: string | null;
 };
-

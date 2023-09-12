@@ -97,6 +97,7 @@ export async function POST(req: Request) {
           amount: withdrawalAmount,
           status: 'PENDING',
           stripePayoutId: payout.id,
+          stripeAccountId: userStripeAccount.stripeAccountId,
         },
       }),
       // Deduct the amount from the UserCash balance.

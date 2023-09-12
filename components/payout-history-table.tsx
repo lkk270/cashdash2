@@ -40,7 +40,7 @@ export const PayoutHistoryTable = ({
         const newPayouts = payouts.concat(response.data.userPayouts);
         setPayouts(newPayouts);
         setParentsPayouts(newPayouts);
-        setLoadedEntries(payouts.length);
+        setLoadedEntries(newPayouts.length);
       })
       .catch((error) => {
         toast({
@@ -69,7 +69,7 @@ export const PayoutHistoryTable = ({
               return (
                 <TableRow key={payout.id}>
                   <TableCell>{payout.createdAt.split('T')[0]}</TableCell>
-                  <TableCell>{payout.amount.toString()}</TableCell>
+                  <TableCell>${payout.amount.toString()}</TableCell>
                   <TableCell>{payout.status}</TableCell>
                 </TableRow>
               );

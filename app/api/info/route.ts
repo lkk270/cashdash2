@@ -1,6 +1,8 @@
 import { auth, currentUser } from '@clerk/nextjs';
 import { NextResponse } from 'next/server';
 import prismadb from '@/lib/prismadb';
+import { stripe } from '@/lib/stripe';
+import { PayoutStatus } from '@prisma/client';
 
 import { getUserStripeAccount } from '@/lib/stripeAccount';
 import { ModifiedPaymentType2 } from '@/app/types';
@@ -42,6 +44,8 @@ export async function POST(req: Request) {
           createdAt: true,
           amount: true,
           status: true,
+          stripePayoutId: true,
+          stripeAccountId: true,
         },
         orderBy: {
           createdAt: 'desc', // Order by createdAt in descending order to get the most recent
@@ -56,9 +60,66 @@ export async function POST(req: Request) {
           },
         });
       }
+      // Lists to track payouts that need updating
+      const idsToUpdateCanceledOrFailed: string[] = [];
+      const idsToUpdatePaid: string[] = [];
+
+      for (const payoutObj of userPayouts) {
+        if (
+          payoutObj.stripePayoutId &&
+          payoutObj.stripeAccountId &&
+          payoutObj.status === PayoutStatus.PENDING
+        ) {
+          const payout = await stripe.payouts.retrieve(payoutObj.stripePayoutId, {
+            stripeAccount: payoutObj.stripeAccountId,
+          });
+          const payoutStatus = payout.status;
+          if (payoutStatus === 'canceled' || payoutStatus === 'failed') {
+            idsToUpdateCanceledOrFailed.push(payoutObj.id);
+            payoutObj.status = 'FAILED';
+          } else if (payoutStatus === 'paid') {
+            idsToUpdatePaid.push(payoutObj.id);
+            payoutObj.status = 'COMPLETED';
+          }
+        }
+      }
+
+      // Now update the database in one batch for each status type
+      if (idsToUpdateCanceledOrFailed.length > 0) {
+        await prismadb.userPayout.updateMany({
+          where: {
+            id: {
+              in: idsToUpdateCanceledOrFailed,
+            },
+          },
+          data: {
+            status: 'FAILED', 
+          },
+        });
+      }
+
+      if (idsToUpdatePaid.length > 0) {
+        await prismadb.userPayout.updateMany({
+          where: {
+            id: {
+              in: idsToUpdatePaid,
+            },
+          },
+          data: {
+            status: 'COMPLETED',
+          },
+        });
+      }
+
+      const filteredUserPayouts = userPayouts.map((payout) => ({
+        id: payout.id,
+        createdAt: payout.createdAt,
+        amount: payout.amount,
+        status: payout.status,
+      }));
 
       return new NextResponse(
-        JSON.stringify({ userPayouts: userPayouts, totalNumOfPayouts: totalNumOfPayouts })
+        JSON.stringify({ userPayouts: filteredUserPayouts, totalNumOfPayouts: totalNumOfPayouts })
       );
     }
   } catch (error: any) {
