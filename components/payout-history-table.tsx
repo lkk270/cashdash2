@@ -19,9 +19,14 @@ import { useToast } from '@/components/ui/use-toast';
 interface PayoutHistoryTableProps {
   payoutsParam: ModifiedPaymentType[];
   numOfPayouts: number;
+  setParentsPayouts: (payouts: ModifiedPaymentType[]) => void;
 }
 
-export const PayoutHistoryTable = ({ payoutsParam, numOfPayouts }: PayoutHistoryTableProps) => {
+export const PayoutHistoryTable = ({
+  payoutsParam,
+  numOfPayouts,
+  setParentsPayouts,
+}: PayoutHistoryTableProps) => {
   const [loading, setLoading] = useState(false);
   const [loadedEntries, setLoadedEntries] = useState(payoutsParam.length);
   const [payouts, setPayouts] = useState<ModifiedPaymentType[]>(payoutsParam);
@@ -32,7 +37,9 @@ export const PayoutHistoryTable = ({ payoutsParam, numOfPayouts }: PayoutHistory
     axios
       .post('/api/info', { getFunc: 'guph', loadedEntries: loadedEntries, needCount: false })
       .then((response) => {
-        setPayouts(payouts.concat(response.data.userPayouts));
+        const newPayouts = payouts.concat(response.data.userPayouts);
+        setPayouts(newPayouts);
+        setParentsPayouts(newPayouts);
         setLoadedEntries(payouts.length);
       })
       .catch((error) => {
