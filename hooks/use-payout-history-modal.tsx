@@ -1,14 +1,13 @@
 import { create } from 'zustand';
 
-interface useLinkStripeAboutModalStore {
+interface usePayoutHistoryModalStore {
   isOpen: boolean;
   onOpen: () => void;
   onClose: () => void;
 }
 
-export const useLinkStripeAboutModal = create<useLinkStripeAboutModalStore>((set) => ({
+export const usePayoutHistoryModal = create<usePayoutHistoryModalStore>((set) => ({
   isOpen: false,
-  data: {},
   onOpen: () => set({ isOpen: true }),
   onClose: () => set({ isOpen: false }),
 }));

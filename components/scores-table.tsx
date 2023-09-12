@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -83,34 +82,48 @@ export const ScoresTable = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {scores.map((score, i) => {
-              const rank = score.rank || i + 1;
-              const exactSeconds = scoreType === ScoreType.time ? score.score / 1000 : 0;
-              const adjustedScore =
-                scoreType === ScoreType.time
-                  ? convertMillisecondsToMinExactSec(exactSeconds)
-                  : score.score;
-              let tableValueColor =
-                rank === 1
-                  ? '#FFD700'
-                  : rank === 2
-                  ? '#C0C0C0'
-                  : rank === 3
-                  ? '#CD7F32'
-                  : rank <= lobby.numRewards
-                  ? '#429ADD'
-                  : '';
+            {scores.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={2}>
+                  <div className="text-lg font-bold text-center">No scores</div>
+                  <img
+                    draggable={false}
+                    height={600}
+                    width={600}
+                    src="/images/empty.png"
+                    alt="Empty"
+                  />
+                </TableCell>
+              </TableRow>
+            ) : (
+              scores.map((score, i) => {
+                const rank = score.rank || i + 1;
+                const exactSeconds = scoreType === ScoreType.time ? score.score / 1000 : 0;
+                const adjustedScore =
+                  scoreType === ScoreType.time
+                    ? convertMillisecondsToMinExactSec(exactSeconds)
+                    : score.score;
+                let tableValueColor =
+                  rank === 1
+                    ? '#FFD700'
+                    : rank === 2
+                    ? '#C0C0C0'
+                    : rank === 3
+                    ? '#CD7F32'
+                    : rank <= lobby.numRewards
+                    ? '#429ADD'
+                    : '';
 
-              const isCurrentUser = userId === score.userId;
+                const isCurrentUser = userId === score.userId;
 
-              return (
-                <TableRow
-                  style={{
-                    color: tableValueColor,
-                    animation: animate && isCurrentUser ? 'pulse 2s 2' : '',
-                  }}
-                  key={score.username + i.toString()}
-                  className={`border-b border-primary/10 
+                return (
+                  <TableRow
+                    style={{
+                      color: tableValueColor,
+                      animation: animate && isCurrentUser ? 'pulse 2s 2' : '',
+                    }}
+                    key={score.username + i.toString()}
+                    className={`border-b border-primary/10 
                     ${rank <= lobby.numRewards ? 'font-extrabold' : ''} 
                     ${
                       isCurrentUser
@@ -118,27 +131,28 @@ export const ScoresTable = ({
                         : ''
                     }
                    `}
-                >
-                  <TableCell className="flex items-start w-40 space-x-2 text-xs break-all">
-                    <span className="whitespace-nowrap">{rank}.</span>{' '}
-                    <span className="flex-grow">{score.username}</span>
-                    {isCurrentUser && <Badge variant={'gradient1'}>You</Badge>}
-                  </TableCell>
-                  <TableCell className="relative pr-8">
-                    <span className="text-sm">{adjustedScore}</span>
-                    {scoreType === ScoreType.time && (
-                      <CompletePopover
-                        title={'Exact Time'}
-                        content={[
-                          { title: 'Milliseconds', content: score.score.toString() },
-                          { title: 'Seconds', content: exactSeconds.toString() },
-                        ]}
-                      />
-                    )}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
+                  >
+                    <TableCell className="flex items-start w-40 space-x-2 text-xs break-all">
+                      <span className="whitespace-nowrap">{rank}.</span>{' '}
+                      <span className="flex-grow">{score.username}</span>
+                      {isCurrentUser && <Badge variant={'gradient1'}>You</Badge>}
+                    </TableCell>
+                    <TableCell className="relative pr-8">
+                      <span className="text-sm">{adjustedScore}</span>
+                      {scoreType === ScoreType.time && (
+                        <CompletePopover
+                          title={'Exact Time'}
+                          content={[
+                            { title: 'Milliseconds', content: score.score.toString() },
+                            { title: 'Seconds', content: exactSeconds.toString() },
+                          ]}
+                        />
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
           </TableBody>
         </Table>
         // </div>

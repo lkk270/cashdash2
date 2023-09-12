@@ -1,5 +1,4 @@
 import { auth, redirectToSignIn } from '@clerk/nextjs';
-import { calculateWeightedAverageScore, calculateRegularAverageScore } from '@/lib/average-score';
 import prismadb from '@/lib/prismadb';
 import { redirect } from 'next/navigation';
 

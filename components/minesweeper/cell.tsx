@@ -1,7 +1,7 @@
 'use client';
 
 import { CellType } from '@/app/types';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Closed,
   Flag,
@@ -48,6 +48,16 @@ export const Cell = ({
   explodedCol,
   loading,
 }: CellProps) => {
+  const [touchStartTime, setTouchStartTime] = useState<number>(0);
+  const [longPressDetected, setLongPressDetected] = useState<boolean>(false);
+
+  useEffect(() => {
+    return () => {
+      // Clear any existing timeouts
+      clearTimeout(touchStartTime);
+    };
+  }, []);
+
   // Mouse down event to set the isPressed state
   const handleMouseDown = (e: React.MouseEvent) => {
     if (cell.isRevealed || gameOver || cell.isFlagged || loading) {
@@ -82,6 +92,28 @@ export const Cell = ({
       return;
     }
     setPressedCell(null);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (cell.isRevealed || gameOver || cell.isFlagged || loading) {
+      return;
+    }
+    e.preventDefault(); // prevent the default behavior here
+    setTouchStartTime(Date.now());
+    setLongPressDetected(false);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const duration = Date.now() - touchStartTime;
+
+    if (duration > 500) {
+      // consider it a long press if it lasts for more than 500ms
+      setLongPressDetected(true);
+      e.preventDefault();
+      if (!gameOver && !loading && !cell.isRevealed) onFlag(e as any); // you might need to adapt the type here
+    } else {
+      if (!gameOver && !loading && !cell.isRevealed) onReveal(e as any);
+    }
   };
 
   const sizeClassNameObj: { [key: number]: string } = { 30: 'w-6 h-6' };
@@ -142,6 +174,8 @@ export const Cell = ({
 
   return (
     <div
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
       key={row.toString() + col.toString()}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}

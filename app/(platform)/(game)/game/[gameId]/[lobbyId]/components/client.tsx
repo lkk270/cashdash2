@@ -2,7 +2,7 @@
 
 import { ModifiedScoreType } from '@/app/types';
 import { Lobby, Game, LobbySession } from '@prisma/client';
-import { GameNavbar } from '@/components/game-navbar';
+import { GameNavbar } from '@/components/headers/game-navbar';
 import { ScoresTable } from '@/components/scores-table';
 import { Minesweeper } from '@/components/minesweeper/minesweeper';
 import { useState } from 'react';

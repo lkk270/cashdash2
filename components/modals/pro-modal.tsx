@@ -26,20 +26,23 @@ export const ProModal = () => {
     setIsMounted(true);
   }, []);
 
-  const onSubscribe = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get('/api/stripe-subscription');
+  const onSubscribe = () => {
+    setLoading(true);
+    axios
+      .get('/api/stripe-subscription')
+      .then((response) => {
+        window.location.href = response.data.url;
+      })
 
-      window.location.href = response.data.url;
-    } catch (error) {
-      toast({
-        description: 'Something went wrong',
-        variant: 'destructive',
+      .catch((error) => {
+        toast({
+          description: 'Something went wrong',
+          variant: 'destructive',
+        });
+      })
+      .finally(() => {
+        setLoading(false);
       });
-    } finally {
-      setLoading(false);
-    }
   };
 
   if (!isMounted) {

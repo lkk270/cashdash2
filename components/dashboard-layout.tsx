@@ -1,5 +1,5 @@
-import { Navbar } from '@/components/navbar';
-import { Sidebar } from '@/components/sidebar';
+import { Navbar } from '@/components/headers/navbar';
+import { Sidebar } from '@/components/headers/sidebar';
 import { UserStripeAccount } from '@prisma/client';
 
 export const DashboardLayout = async ({

@@ -2,8 +2,8 @@ import { auth } from '@clerk/nextjs';
 
 import prismadb from '@/lib/prismadb';
 
-export const getUserStripeAccount = async () => {
-  const { userId } = auth();
+export const getUserStripeAccount = async (userIdParam?: string) => {
+  let userId = userIdParam ? userIdParam : auth().userId;
 
   if (!userId) {
     return undefined;

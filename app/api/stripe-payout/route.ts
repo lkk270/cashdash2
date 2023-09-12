@@ -12,6 +12,7 @@ const MAX_WITHDRAWAL = 500;
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+    const bodyLength = Object.keys(body).length;
     const { withdrawalAmount } = body;
     const { userId } = auth();
     const user = await currentUser();
@@ -28,46 +29,14 @@ export async function POST(req: Request) {
     });
 
     if (!userStripeAccount || !userStripeAccount.stripeAccountId) {
-      const account = await stripe.accounts.create({
-        country: 'US',
-        type: 'express',
-        capabilities: {
-          card_payments: {
-            requested: true,
-          },
-          transfers: {
-            requested: true,
-          },
-        },
-        business_type: 'individual',
-      });
-      const accountLink = await stripe.accountLinks.create({
-        account: account.id,
-        refresh_url: settingsUrl,
-        return_url: settingsUrl,
-        type: 'account_onboarding',
-      });
-      return new NextResponse(JSON.stringify({ url: accountLink.url }));
-
-      // const accountLink = await stripe.accountLinks.create({
-      //   account: 'acct_1NeIh3HqGVW0nQyi', // Your platform's Stripe ID
-      //   refresh_url: settingsUrl, // URL to redirect if the user's link has expired or they need to reauthenticate
-      //   return_url: settingsUrl, // URL to redirect after they complete the onboarding
-      //   type: 'account_onboarding',
-      // });
-
-      // Redirect the user to the account link for Stripe onboarding
-      // return new NextResponse(JSON.stringify({ url: accountLink.url }));
-
-      // return new NextResponse(
-      //   'No bank or debit card associated with your account! Click the "Manage Bank Details" button to connect your bank/debit card before you cashing out!',
-      //   { status: 400 }
-      // );
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+    if (bodyLength !== 1 || !withdrawalAmount) {
+      return new NextResponse('Invalid body', { status: 401 });
     }
 
     // Check if the user has enough funds.
     const userCash = await prismadb.userCash.findUnique({ where: { userId } });
-
     if (!userCash || userCash.cash < withdrawalAmount) {
       return new NextResponse('Insufficient funds', { status: 400 });
     }
@@ -75,23 +44,43 @@ export async function POST(req: Request) {
       return new NextResponse('Can only withdraw $500 at a time', { status: 400 });
     }
 
-    if (!userStripeAccount || !userStripeAccount.stripeAccountId) {
+    if (
+      !userStripeAccount ||
+      !userStripeAccount.stripeAccountId ||
+      !userStripeAccount.stripeBankAccountId
+    ) {
       return new NextResponse(
         'No bank or debit card associated with your account! Click the "Manage Bank Details" button to connect your bank/debit card before you cashing out!',
         { status: 400 }
       );
     }
 
-    // Initiate the Stripe Payout.
-    const payout = await stripe.payouts.create({
-      amount: Math.round(withdrawalAmount * 100), // Convert to cents.
+    const transfer = await stripe.transfers.create({
+      amount: Math.round(1 * 100), // Convert to cents.
       currency: 'usd',
-      destination: userStripeAccount.stripeAccountId,
+      destination: userStripeAccount.stripeAccountId, // The ID of the connected Stripe account.
       metadata: {
         userId: userId,
-        note: 'User withdrawal',
+        note: 'Transfer for user withdrawal',
       },
     });
+    // Initiate the Stripe Payout.
+
+    const payout = await stripe.payouts.create(
+      {
+        amount: Math.round(1 * 100), // Convert to cents.
+        currency: 'usd',
+        destination: userStripeAccount.stripeBankAccountId, // The ID for the bank account or card.
+        metadata: {
+          userId: userId,
+          note: 'User withdrawal',
+        },
+      },
+      {
+        stripeAccount: userStripeAccount.stripeAccountId,
+      }
+    );
+    // The Stripe account ID
 
     // Double-check the user's balance before deduction.
     const latestUserCash = await prismadb.userCash.findUnique({ where: { userId } });
@@ -108,6 +97,7 @@ export async function POST(req: Request) {
           amount: withdrawalAmount,
           status: 'PENDING',
           stripePayoutId: payout.id,
+          stripeAccountId: userStripeAccount.stripeAccountId,
         },
       }),
       // Deduct the amount from the UserCash balance.

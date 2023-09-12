@@ -26,21 +26,24 @@ export const LinkStripeAboutModal = () => {
     setIsMounted(true);
   }, []);
 
-  const onClick = async () => {
-    try {
-      setLoading(true);
+  const onClick = () => {
+    setLoading(true);
 
-      const response = await axios.get('/api/stripe-connect');
+    axios
+      .get('/api/stripe-connect')
+      .then((response) => {
+        window.location.href = response.data.url;
+      })
 
-      window.location.href = response.data.url;
-    } catch (error) {
-      toast({
-        description: 'Something went wrong while linking to Stripe',
-        variant: 'destructive',
+      .catch((error) => {
+        toast({
+          description: 'Something went wrong while linking to Stripe',
+          variant: 'destructive',
+        });
+      })
+      .finally(() => {
+        setLoading(false);
       });
-    } finally {
-      setLoading(false);
-    }
   };
 
   if (!isMounted) {
