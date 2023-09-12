@@ -97,3 +97,7 @@ body,
 .grid-cols-30 {
   grid-template-columns: repeat(30, minmax(0, 1fr));
 }
+
+.no-pointer-events {
+  pointer-events: none;
+}

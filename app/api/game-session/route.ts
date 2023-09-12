@@ -48,7 +48,6 @@ export async function POST(req: Request) {
 
       return new NextResponse(JSON.stringify({ gameSessionId: gameSession.id }));
     } else if (receivedType === '1') {
-      console.log('IN TRIGGERED');
       await prismadb.gameSession.update({
         where: {
           id: body.gameSessionId,

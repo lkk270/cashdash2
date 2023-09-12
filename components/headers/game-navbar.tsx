@@ -1,6 +1,7 @@
 'use client';
 
 import { UserButton } from '@clerk/nextjs';
+import Link from 'next/link';
 import { Lobby, Game, LobbySession } from '@prisma/client';
 import { useRouter, usePathname } from 'next/navigation';
 import { ChevronLeft, Info } from 'lucide-react';
@@ -36,10 +37,10 @@ export const GameNavbar = ({ lobby, game, scores }: LobbyHeaderProps) => {
   };
   return (
     <div className="w-full max-w-4xl mx-auto">
-      <div className="flex flex-col h-full p-4 space-y-2">
+      <div className="flex flex-col h-full p-3 space-y-2">
         <div className="grid items-center w-full grid-cols-3 pb-4 border-b border-primary/10">
           {/* Left content */}
-          <div className="z-10 flex items-center gap-x-2">
+          <div className="z-10 flex items-center">
             <MobileScoresTable scores={scores} scoreType={game.scoreType} lobby={lobby} />
             <Button
               onClick={() => router.push(backPath)}
@@ -49,7 +50,7 @@ export const GameNavbar = ({ lobby, game, scores }: LobbyHeaderProps) => {
             >
               <ChevronLeft className="w-8 h-8" />
             </Button>
-            <div className="flex items-center sm:hidden gap-x-2">
+            <div className="flex items-center sm:hidden">
               <Button
                 title="Details"
                 onClick={() => lobbyAboutModal.onOpen({ gameName: game.name, lobby: lobby })}
@@ -64,12 +65,21 @@ export const GameNavbar = ({ lobby, game, scores }: LobbyHeaderProps) => {
             </div>
           </div>
           {/* Center content */}
-          <div className="flex flex-col items-center justify-center">
-            <Logo />
+          <div className="flex flex-col items-center justify-center text-xs xxs:text-sm sm:text-lg">
+            <Link href="/dashboard">
+              <div className="px-3">
+                <Logo />
+              </div>
+            </Link>
             <span
               className={`${orbitronFont.className} font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent whitespace-nowrap`}
             >
-              {game.name} {lobby.name}
+              {game.name}
+            </span>
+            <span
+              className={`${orbitronFont.className} font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent whitespace-nowrap flex-grow`}
+            >
+              {lobby.name}
             </span>
           </div>
 
