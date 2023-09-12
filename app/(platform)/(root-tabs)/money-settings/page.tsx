@@ -28,7 +28,7 @@ const SettingsPage = async () => {
         <h3 className="mb-3 text-lg font-bold text-sky-300">Cash Outs</h3>
         <div className="flex items-center mb-4 space-x-3">
           <Wallet size={24} />
-          <span className="text-zinc-500">Manage your stripe account used for cashing out.</span>
+          <span className="text-zinc-500">Manage your Stripe account used for cashing out.</span>
         </div>
         <div className="flex flex-wrap min-w-[100px]">
           <LinkStripeButton userStripeAccount={userStripeAccount} />

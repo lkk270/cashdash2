@@ -55,7 +55,7 @@ export const UserPayoutHistoryModal = () => {
     <Dialog open={usePayoutHistory.isOpen} onOpenChange={usePayoutHistory.onClose}>
       <DialogContent className="overflow-x-scroll overflow-y-auto max-h-[80vh]">
         <DialogHeader className="space-y-4">
-          <DialogTitle className="text-center">Payout History</DialogTitle>
+          <DialogTitle className="text-center">Cashout History</DialogTitle>
           {/* <DialogDescription className="space-y-2 text-center">
             <span className="mx-1 font-medium text-sky-500">Good job!</span>
           </DialogDescription> */}

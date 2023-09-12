@@ -13,7 +13,7 @@ export const OpenPayoutHistoryModal = () => {
       variant="default"
       size="sm"
     >
-      Payout History
+      Cashout History
     </Button>
   );
 };
