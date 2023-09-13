@@ -5,6 +5,7 @@ import { Lobby, Game, LobbySession } from '@prisma/client';
 import { GameNavbar } from '@/components/headers/game-navbar';
 import { ScoresTable } from '@/components/scores-table';
 import { Minesweeper } from '@/components/minesweeper/minesweeper';
+import { FlappyBirb } from '@/components/flappy-birb/flappy-birb';
 import { useState } from 'react';
 
 interface LobbyClientProps {
@@ -16,6 +17,31 @@ interface LobbyClientProps {
   userBestScore: ModifiedScoreType | null;
 }
 
+type CommonPropsType = {
+  setTriggerAnimation: (value: boolean) => void;
+  userBestScoreParam: ModifiedScoreType | null;
+  setScores: (scores: ModifiedScoreType[]) => void;
+  ids: {
+    gameId: string;
+    lobbySessionId: string;
+  };
+};
+
+const renderGameComponent = (gameName: string, commonProps: CommonPropsType) => {
+  switch (gameName) {
+    case 'minesweeper 12x12':
+      return <Minesweeper {...commonProps} rows={12} cols={12} numMines={13} min3bv={15} />;
+    case 'minesweeper 16x16':
+      return <Minesweeper {...commonProps} rows={16} cols={16} numMines={40} min3bv={35} />;
+    case 'minesweeper 16x30':
+      return <Minesweeper {...commonProps} rows={16} cols={30} numMines={99} min3bv={135} />;
+    case 'flappy birb':
+      return <FlappyBirb />;
+    default:
+      return <div></div>;
+  }
+};
+
 export const LobbyClient = ({ lobby, game, scoresParam, userBestScore }: LobbyClientProps) => {
   const [scores, setScores] = useState<ModifiedScoreType[]>(scoresParam);
   const [triggerAnimation, setTriggerAnimationBase] = useState<boolean>(true);
@@ -24,9 +50,17 @@ export const LobbyClient = ({ lobby, game, scoresParam, userBestScore }: LobbyCl
     gameId: game.id,
     lobbySessionId: lobby.sessions[0].id,
   };
+
+  const commonProps: CommonPropsType = {
+    setTriggerAnimation: setTriggerAnimationBase,
+    userBestScoreParam: userBestScore,
+    setScores: setScores,
+    ids: ids,
+  };
+
   return (
     // <TimerProvider>
-    <div className="h-full">
+    <div className="flex flex-col h-screen">
       <GameNavbar scores={scores} game={game} lobby={lobby} />
       <div className="fixed inset-y-0 flex-col hidden mt-20 w-72 xl:flex">
         <ScoresTable
@@ -37,45 +71,10 @@ export const LobbyClient = ({ lobby, game, scoresParam, userBestScore }: LobbyCl
           lobby={lobby}
         />
       </div>
-      <main className="">
+      <main className="flex-grow">
         <div className="h-full p-4 space-y-2 ">
-          <div className="flex justify-center">
-            {gameName === 'minesweeper 12x12' ? (
-              <Minesweeper
-                setTriggerAnimation={setTriggerAnimationBase}
-                userBestScoreParam={userBestScore}
-                setScores={setScores}
-                ids={ids}
-                rows={12}
-                cols={12}
-                numMines={13}
-                min3bv={15}
-              />
-            ) : gameName === 'minesweeper 16x16' ? (
-              <Minesweeper
-                setTriggerAnimation={setTriggerAnimationBase}
-                userBestScoreParam={userBestScore}
-                setScores={setScores}
-                ids={ids}
-                rows={16}
-                cols={16}
-                numMines={40}
-                min3bv={35}
-              />
-            ) : gameName === 'minesweeper 16x30' ? (
-              <Minesweeper
-                setTriggerAnimation={setTriggerAnimationBase}
-                userBestScoreParam={userBestScore}
-                setScores={setScores}
-                ids={ids}
-                rows={16}
-                cols={30}
-                numMines={99}
-                min3bv={135}
-              />
-            ) : (
-              <div></div>
-            )}
+          <div className="flex justify-center h-full">
+            {renderGameComponent(gameName, commonProps)}
           </div>
         </div>
       </main>
