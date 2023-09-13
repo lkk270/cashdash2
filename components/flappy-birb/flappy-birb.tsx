@@ -10,13 +10,23 @@ export const FlappyBirb = () => {
   const baseGap = 10; // this is the base gap in vertical height (vh) units
   const gapVH = baseGap + gapSize * 5; // Adjusting the gap size by multiplying by 5. You can adjust this multiplier to increase or decrease the gap increment.
   const randomGapPosition = 25 + Math.random() * 50; // Randomizes the center point of the gap between 25% and 75% of the game's height
+  const [gapCenter, setGapCenter] = useState(25 + Math.random() * 50);
 
   useEffect(() => {
     const flapInterval = setInterval(() => {
       setBirdFlap((prevFlap) => !prevFlap);
-    }, 500);
+    }, 300);
 
     return () => clearInterval(flapInterval); // Cleanup on component unmount
+  }, []);
+
+  useEffect(() => {
+    const treeInterval = setInterval(() => {
+      // Calculate a new gap center every few seconds (e.g., every 3 seconds here)
+      setGapCenter(25 + Math.random() * 50);
+    }, 3000);
+
+    return () => clearInterval(treeInterval); // Cleanup on component unmount
   }, []);
 
   return (
@@ -34,8 +44,8 @@ export const FlappyBirb = () => {
         alt="Top Tree"
         height={250}
         width={250}
-        className="absolute right-0"
-        style={{ top: `calc(${randomGapPosition}% - ${gapVH / 2}vh - 125px)` }}
+        className="absolute right-0 treeAnimation"
+        style={{ top: `calc(${gapCenter}% - ${gapVH / 2}vh - 125px)` }}
         src="/flappy-birb/treedown.svg"
       />
 
@@ -47,8 +57,8 @@ export const FlappyBirb = () => {
         alt="Bottom Tree"
         height={250}
         width={250}
-        className="absolute bottom-0 right-0"
-        style={{ bottom: `calc(100% - ${randomGapPosition}% - ${gapVH / 2}vh - 125px)` }}
+        className="absolute bottom-0 right-0 treeAnimation"
+        style={{ bottom: `calc(100% - ${gapCenter}% - ${gapVH / 2}vh - 125px)` }}
         src="/flappy-birb/treeup.svg"
       />
     </div>
