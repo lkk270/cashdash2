@@ -3,6 +3,10 @@ export default class FlappyBirdScene extends Phaser.Scene {
   flippedTree: Phaser.GameObjects.Sprite | null = null; // Create a bird property to hold our bird sprite
   gameStarted: boolean = false;
   previousGapPosition: number | null = null;
+  trees: Phaser.Physics.Arcade.Group | null = null;
+  nests: Phaser.Physics.Arcade.Group | null = null;
+  leaves: Phaser.Physics.Arcade.Group | null = null;
+  timerEvent: Phaser.Time.TimerEvent | null = null; // Define this at the class level
 
   constructor() {
     super({ key: 'FlappyBirdScene' });
@@ -29,9 +33,8 @@ export default class FlappyBirdScene extends Phaser.Scene {
     // Trunk Width
     const trunkWidth = 20;
 
-    // If there was a previous gap, adjust the range for the new gap.
+    // Detect gap position logic based on previous gap and screen width
     if (window.innerWidth < 368) {
-      // Detect if on mobile
       if (this.previousGapPosition !== null) {
         const minGapPosition = Math.max(gapSize * 2, this.previousGapPosition - 200);
         const maxGapPosition = Math.min(
@@ -47,51 +50,90 @@ export default class FlappyBirdScene extends Phaser.Scene {
     }
 
     // Top Tree
-    const topTreeHeight = randomGapPosition - gapSize / 2 - 70; // Deducted 40 to accommodate the size of the leaves.
-    const topTree = this.add.graphics();
-    topTree.fillStyle(0x64320b);
-    topTree.fillRect(820 - trunkWidth / 2, 0, trunkWidth, topTreeHeight);
+    const topTreeHeight = randomGapPosition - gapSize / 2 - 70;
+    const topTree = this.add.rectangle(
+      820 - trunkWidth / 2,
+      topTreeHeight / 2,
+      trunkWidth,
+      topTreeHeight,
+      0x64320b
+    );
+    this.physics.add.existing(topTree, false);
+
+    // Adjusting the tree trunk's hitbox to avoid overlaps
+    if (topTree.body instanceof Phaser.Physics.Arcade.Body) {
+      topTree.body.setSize(trunkWidth, topTreeHeight, true);
+      topTree.body.offset.y = -75;
+
+      // Replace 'someValue' with the amount of pixels you want to reduce from the bottom.
+    }
 
     const topLeaves = this.add.image(820 + 8, topTreeHeight, 'leaves');
-    topLeaves.setScale(0.015);
+    topLeaves.setScale(0.25);
     topLeaves.setAngle(180);
-
-    // Bottom Tree
-    const bottomTreeHeight = this.scale.height - (randomGapPosition + gapSize / 2 + 35); // Adjusted this to visually increase the gap.
-    const bottomTree = this.add.graphics();
-    bottomTree.fillStyle(0x64320b);
-    bottomTree.fillRect(
-      820 - trunkWidth / 2,
-      randomGapPosition + gapSize / 2 + 35, // Added 20 to visually increase the gap.
-      trunkWidth,
-      bottomTreeHeight
-    );
-
-    const bottomNest = this.add.image(820, randomGapPosition + gapSize / 2 + 30, 'nest'); // Adjusted the Y position here
-    bottomNest.setScale(0.25);
-
-    // Add physics and movement logic similar to before
-    this.physics.add.existing(topTree, false);
     this.physics.add.existing(topLeaves, false);
+    if (topLeaves.body instanceof Phaser.Physics.Arcade.Body) {
+      topLeaves.body.setSize(300, 200, true);
+      topLeaves.body.offset.x = 25;
+      // Replace 'desiredOffset' with the desired vertical offset.
+    }
+    // Bottom Tree
+    const bottomTreeHeight = this.scale.height - (randomGapPosition + gapSize / 2 + 35);
+    const bottomTree = this.add.rectangle(
+      820 - trunkWidth / 2,
+      this.scale.height - bottomTreeHeight / 2,
+      trunkWidth,
+      bottomTreeHeight,
+      0x64320b
+    );
     this.physics.add.existing(bottomTree, false);
+
+    // Adjusting the tree trunk's hitbox to avoid overlaps
+    if (bottomTree.body instanceof Phaser.Physics.Arcade.Body) {
+      bottomTree.body.setSize(trunkWidth, bottomTreeHeight, true);
+      bottomTree.body.offset.y = 25;
+      // Replace 'someValue' with the amount of pixels you want to reduce from the top.
+    }
+
+    const bottomNest = this.add.image(820, randomGapPosition + gapSize / 2 + 30, 'nest');
+    bottomNest.setScale(0.25);
     this.physics.add.existing(bottomNest, false);
+    if (bottomNest.body instanceof Phaser.Physics.Arcade.Body) {
+      bottomNest.body.setSize(300, 200, true);
+      //   bottomNest.body.offset.y = 20;
+      // Replace 'desiredOffset' with the desired vertical offset.
+    }
 
-    (topTree.body as Phaser.Physics.Arcade.StaticBody).velocity.x = -200;
-    (topLeaves.body as Phaser.Physics.Arcade.StaticBody).velocity.x = -200;
-    (bottomTree.body as Phaser.Physics.Arcade.StaticBody).velocity.x = -200;
-    (bottomNest.body as Phaser.Physics.Arcade.StaticBody).velocity.x = -200;
+    // Add them to their respective groups
+    this.trees?.add(topTree);
+    this.trees?.add(bottomTree);
+    this.leaves?.add(topLeaves);
+    this.nests?.add(bottomNest);
 
+    // Set the physics velocity for movement
+
+    (topTree.body as Phaser.Physics.Arcade.Body).velocity.x = -200;
+    (topLeaves.body as Phaser.Physics.Arcade.Body).velocity.x = -200;
+    (bottomTree.body as Phaser.Physics.Arcade.Body).velocity.x = -200;
+    (bottomNest.body as Phaser.Physics.Arcade.Body).velocity.x = -200;
+
+    // Destruction logic after some time
     this.time.addEvent({
       delay: 5000,
       callback: () => {
+        this.trees?.remove(topTree);
         topTree.destroy();
-        topLeaves.destroy();
+        this.trees?.remove(bottomTree);
         bottomTree.destroy();
+        this.nests?.remove(bottomNest);
         bottomNest.destroy();
+        this.leaves?.remove(topLeaves);
+        topLeaves.destroy();
       },
       callbackScope: this,
       loop: false,
     });
+
     this.previousGapPosition = randomGapPosition;
   }
 
@@ -112,6 +154,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
     }
 
     const isMobile = window.innerWidth < 568;
+    // alert(isMobile);
     const jumpStrength = isMobile ? -350 : -275;
 
     if (this.bird) {
@@ -120,6 +163,12 @@ export default class FlappyBirdScene extends Phaser.Scene {
   }
 
   create() {
+    this.physics.world.createDebugGraphic();
+    this.physics.world.gravity.y = 0; // This ensures that the world starts with no gravity each time the scene starts.
+
+    this.trees = this.physics.add.group();
+    this.nests = this.physics.add.group();
+    this.leaves = this.physics.add.group();
     // Creating an animation for the bird
     this.anims.create({
       key: 'flap',
@@ -128,8 +177,8 @@ export default class FlappyBirdScene extends Phaser.Scene {
       repeat: -1, // infinite loop
     });
 
-    this.time.addEvent({
-      delay: 1750, // time in ms, e.g., 2000ms = 2s
+    this.timerEvent = this.time.addEvent({
+      delay: 1750,
       callback: this.addTreePair,
       callbackScope: this,
       loop: true,
@@ -140,6 +189,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
     this.bird.setScale(0.125);
 
     this.physics.add.existing(this.bird);
+    (this.bird.body as Phaser.Physics.Arcade.Body).setImmovable(false);
 
     // Do not set gravity here, so the bird stays stationary
     // The gravity will be set in the flap() method when the game starts
@@ -153,18 +203,44 @@ export default class FlappyBirdScene extends Phaser.Scene {
     }
 
     this.input.on('pointerdown', this.flap, this); // Add this if you want the bird to flap on a click/tap as well.
+    this.physics.add.overlap(this.bird, this.trees, this.endGame, undefined, this);
+    this.physics.add.overlap(this.bird, this.nests, this.endGame, undefined, this);
+    this.physics.add.overlap(this.bird, this.leaves, this.endGame, undefined, this);
+
+    if (this.bird && this.bird.body) {
+      const birdBody = this.bird.body as Phaser.Physics.Arcade.Body;
+      birdBody.setGravityY(0); // Start with no gravity
+      birdBody.setVelocity(0); // Start with no velocity
+      birdBody.setSize(80, 80, true);
+    }
+
+    this.gameStarted = false; // Ensure the game starts from the beginning
   }
 
   update() {
     if (this.bird) {
       if (this.bird.y > this.scale.height) {
-        this.bird.y = this.scale.height;
-        (this.bird.body as Phaser.Physics.Arcade.Body).setVelocityY(0);
+        this.endGame();
       }
       if (this.bird.y < 0) {
         this.bird.y = 0;
         (this.bird.body as Phaser.Physics.Arcade.Body).setVelocityY(50); // Pushing it down a bit if it goes beyond the top
       }
     }
+  }
+  endGame() {
+    this.timerEvent?.destroy(); // Destroy the timer if it exists
+
+    // Placeholder for now, can add more logic later
+    console.log('Game Over!');
+    this.scene.restart();
+    if (this.bird && this.bird.body) {
+      const birdBody = this.bird.body as Phaser.Physics.Arcade.Body;
+      birdBody.setVelocity(0); // Reset velocity
+      birdBody.setGravityY(0); // Reset individual gravity
+    }
+
+    this.gameStarted = false; // Ensure the game starts from the beginning
+    this.scene.restart();
   }
 }
