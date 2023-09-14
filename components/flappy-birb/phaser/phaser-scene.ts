@@ -2,6 +2,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
   bird: Phaser.GameObjects.Sprite | null = null; // Create a bird property to hold our bird sprite
   flippedTree: Phaser.GameObjects.Sprite | null = null; // Create a bird property to hold our bird sprite
   gameStarted: boolean = false;
+  previousGapPosition: number | null = null;
 
   constructor() {
     super({ key: 'FlappyBirdScene' });
@@ -21,14 +22,32 @@ export default class FlappyBirdScene extends Phaser.Scene {
     if (!this.gameStarted) {
       return; // Don't add trees unless the game has started
     }
-    const gapSize = 60; // Adjusted this to increase the gap slightly
-    const randomGapPosition = Phaser.Math.Between(gapSize * 2, this.scale.height - gapSize * 2);
+
+    const gapSize = 70; // Adjusted this to increase the gap slightly
+    let randomGapPosition;
 
     // Trunk Width
     const trunkWidth = 20;
 
+    // If there was a previous gap, adjust the range for the new gap.
+    if (window.innerWidth < 368) {
+      // Detect if on mobile
+      if (this.previousGapPosition !== null) {
+        const minGapPosition = Math.max(gapSize * 2, this.previousGapPosition - 200);
+        const maxGapPosition = Math.min(
+          this.scale.height - gapSize * 2,
+          this.previousGapPosition + 200
+        );
+        randomGapPosition = Phaser.Math.Between(minGapPosition, maxGapPosition);
+      } else {
+        randomGapPosition = Phaser.Math.Between(gapSize * 2, this.scale.height - gapSize * 2);
+      }
+    } else {
+      randomGapPosition = Phaser.Math.Between(gapSize * 2, this.scale.height - gapSize * 2);
+    }
+
     // Top Tree
-    const topTreeHeight = randomGapPosition - gapSize / 2 - 60; // Deducted 40 to accommodate the size of the leaves.
+    const topTreeHeight = randomGapPosition - gapSize / 2 - 70; // Deducted 40 to accommodate the size of the leaves.
     const topTree = this.add.graphics();
     topTree.fillStyle(0x64320b);
     topTree.fillRect(820 - trunkWidth / 2, 0, trunkWidth, topTreeHeight);
@@ -38,12 +57,12 @@ export default class FlappyBirdScene extends Phaser.Scene {
     topLeaves.setAngle(180);
 
     // Bottom Tree
-    const bottomTreeHeight = this.scale.height - (randomGapPosition + gapSize / 2 + 30); // Adjusted this to visually increase the gap.
+    const bottomTreeHeight = this.scale.height - (randomGapPosition + gapSize / 2 + 35); // Adjusted this to visually increase the gap.
     const bottomTree = this.add.graphics();
     bottomTree.fillStyle(0x64320b);
     bottomTree.fillRect(
       820 - trunkWidth / 2,
-      randomGapPosition + gapSize / 2 + 30, // Added 20 to visually increase the gap.
+      randomGapPosition + gapSize / 2 + 35, // Added 20 to visually increase the gap.
       trunkWidth,
       bottomTreeHeight
     );
@@ -73,6 +92,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
       callbackScope: this,
       loop: false,
     });
+    this.previousGapPosition = randomGapPosition;
   }
 
   // Rest of the file remains the same...
@@ -83,16 +103,19 @@ export default class FlappyBirdScene extends Phaser.Scene {
     this.load.image('nest', '/flappy-birb/nest.png');
     this.load.image('leaves', '/flappy-birb/leaves.png');
   }
-
   flap() {
     if (!this.gameStarted) {
       this.gameStarted = true;
-      // Begin the game's main logic, such as starting tree generation or other mechanics.
-      // Maybe start bird's gravity here, so it doesn't fall before the game starts.
+      if (this.bird) {
+        (this.bird.body as Phaser.Physics.Arcade.Body).setGravityY(1000); // Set gravity here
+      }
     }
 
+    const isMobile = window.innerWidth < 568;
+    const jumpStrength = isMobile ? -350 : -275;
+
     if (this.bird) {
-      (this.bird.body as Phaser.Physics.Arcade.Body).setVelocityY(-350); // Adjust the value for a smaller/bigger jump.
+      (this.bird.body as Phaser.Physics.Arcade.Body).setVelocityY(jumpStrength);
     }
   }
 
@@ -117,25 +140,31 @@ export default class FlappyBirdScene extends Phaser.Scene {
     this.bird.setScale(0.125);
 
     this.physics.add.existing(this.bird);
-    (this.bird!.body as Phaser.Physics.Arcade.Body).setGravityY(300); // This makes the bird fall. Adjust the gravity value for faster/slower fall.
+
+    // Do not set gravity here, so the bird stays stationary
+    // The gravity will be set in the flap() method when the game starts
 
     this.scale.on('resize', (gameSize: any) => {
       this.resizeAssets();
     });
 
-    this.input.on('pointerdown', this.flap, this);
-
-    // Listen to space bar press
     if (this.input && this.input.keyboard) {
       this.input.keyboard.on('keydown-SPACE', this.flap, this);
     }
+
+    this.input.on('pointerdown', this.flap, this); // Add this if you want the bird to flap on a click/tap as well.
   }
 
   update() {
-    if (this.bird && this.bird.y > this.scale.height) {
-      this.bird.y = this.scale.height; // Put the bird on the ground.
-      (this.bird.body as Phaser.Physics.Arcade.Body).setVelocityY(0); // Stop the bird from falling further.
-      // Here you can also end the game or restart it, if you want.
+    if (this.bird) {
+      if (this.bird.y > this.scale.height) {
+        this.bird.y = this.scale.height;
+        (this.bird.body as Phaser.Physics.Arcade.Body).setVelocityY(0);
+      }
+      if (this.bird.y < 0) {
+        this.bird.y = 0;
+        (this.bird.body as Phaser.Physics.Arcade.Body).setVelocityY(50); // Pushing it down a bit if it goes beyond the top
+      }
     }
   }
 }
