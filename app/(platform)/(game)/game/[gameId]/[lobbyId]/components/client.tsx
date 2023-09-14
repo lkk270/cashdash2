@@ -60,7 +60,7 @@ export const LobbyClient = ({ lobby, game, scoresParam, userBestScore }: LobbyCl
 
   return (
     // <TimerProvider>
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col">
       <GameNavbar scores={scores} game={game} lobby={lobby} />
       <div className="fixed inset-y-0 flex-col hidden mt-20 w-72 xl:flex">
         <ScoresTable
@@ -79,7 +79,5 @@ export const LobbyClient = ({ lobby, game, scoresParam, userBestScore }: LobbyCl
         </div>
       </main>
     </div>
-    // </TimerProvider>
   );
 };
-//       <div className="fixed inset-y-0 flex-col hidden mt-16 ml-8 w-30 xl:flex">

@@ -111,15 +111,6 @@ body,
   }
 }
 
-@keyframes moveTree {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(-200%);
-  }
-}
-
-.treeAnimation {
-  animation: moveTree 7s linear infinite;
+canvas {
+  margin-top: 0px !important;
 }
