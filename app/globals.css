@@ -102,11 +102,24 @@ body,
   pointer-events: none;
 }
 
-@keyframes moveTree {
+@keyframes slide {
   0% {
-    right: 100%;
+    transform: translateX(0);
   }
   100% {
-    right: -50%;
+    transform: translateX(-100vw);
   }
+}
+
+@keyframes moveTree {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(-200%);
+  }
+}
+
+.treeAnimation {
+  animation: moveTree 7s linear infinite;
 }
