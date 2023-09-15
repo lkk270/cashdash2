@@ -36,7 +36,7 @@ const renderGameComponent = (gameName: string, commonProps: CommonPropsType) => 
     case 'minesweeper 16x30':
       return <Minesweeper {...commonProps} rows={16} cols={30} numMines={99} min3bv={135} />;
     case 'flappy birb':
-      return <FlappyBirb />;
+      return <FlappyBirb props={{ ...commonProps }} />;
     default:
       return <div></div>;
   }

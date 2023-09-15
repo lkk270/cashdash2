@@ -1,4 +1,7 @@
+import React from 'react';
+
 export default class FlappyBirdScene extends Phaser.Scene {
+  onGameLoad: () => void;
   bird: Phaser.GameObjects.Sprite | null = null; // Create a bird property to hold our bird sprite
   flippedTree: Phaser.GameObjects.Sprite | null = null; // Create a bird property to hold our bird sprite
   gameStarted: boolean = false;
@@ -14,9 +17,10 @@ export default class FlappyBirdScene extends Phaser.Scene {
   private restartButton: Phaser.GameObjects.Text | null = null;
   gameOver: boolean = false;
 
-  constructor() {
-    super({ key: 'FlappyBirdScene' });
+  constructor(config: Phaser.Types.Scenes.SettingsConfig, onGameLoad: () => void) {
+    super({ key: 'FlappyBirdScene', ...config });
     this.addTreePair = this.addTreePair.bind(this);
+    this.onGameLoad = onGameLoad;
   }
 
   resizeAssets() {
@@ -263,46 +267,6 @@ export default class FlappyBirdScene extends Phaser.Scene {
     }
   }
 
-  //   endGameAnimation() {
-  //     // Stop everything from moving
-  //     this.trees?.setVelocityX(0);
-  //     this.nests?.setVelocityX(0);
-  //     this.leaves?.setVelocityX(0);
-  //     if (this.bird) {
-  //       (this.bird.body as Phaser.Physics.Arcade.Body).setVelocityY(0);
-  //       this.bird.setAlpha(0); // You can also choose to hide the bird or display it differently.
-  //     }
-
-  //     // Move the score text to the center
-  //     if (this.scoreText) {
-  //       this.tweens.add({
-  //         targets: this.scoreText,
-  //         x: this.scale.width / 2 - this.scoreText.width / 2,
-  //         y: this.scale.height / 2 - this.scoreText.height / 2,
-  //         duration: 1000,
-  //         onComplete: this.showRestartButton,
-  //         callbackScope: this,
-  //       });
-  //     }
-  //   }
-
-  //   showRestartButton() {
-  //     this.restartButton = this.add
-  //       .text(this.scale.width / 2, this.scale.height / 2 + 30, 'RESTART', {
-  //         fontSize: '24px',
-  //         color: '#580d82',
-  //         backgroundColor: '#c183fa',
-  //         fontFamily: 'Arial Black',
-  //         padding: { left: 10, right: 10, top: 5, bottom: 5 },
-  //       })
-  //       .setInteractive()
-  //       .setOrigin(0.5);
-
-  //     this.restartButton.on('pointerdown', () => {
-  //       this.scene.restart();
-  //     });
-  //   }
-
   cleanUp() {
     if (this.restartButton) {
       this.restartButton.destroy();
@@ -368,10 +332,13 @@ export default class FlappyBirdScene extends Phaser.Scene {
         padding: { left: 10, right: 10, top: 5, bottom: 5 },
       })
       .setOrigin(0.5, 0.5)
-      .setInteractive()
-      .on('pointerdown', () => {
-        this.scene.restart();
-      });
+      .setInteractive();
+    restartButton.on('pointerdown', async () => {
+      if (this.onGameLoad) {
+        this.onGameLoad(); // Awaiting onGameLoad function if it's asynchronous
+      }
+      this.scene.restart(); // Restarting the game scene
+    });
 
     // Optionally, you can make the button slightly bigger when hovered
     restartButton.on('pointerover', () => {
