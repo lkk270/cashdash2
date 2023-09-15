@@ -68,7 +68,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
       // Replace 'someValue' with the amount of pixels you want to reduce from the bottom.
     }
 
-    const topLeaves = this.add.image(820 + 8, topTreeHeight, 'leaves');
+    const topLeaves = this.add.image(820 - 10, topTreeHeight, 'leaves');
     topLeaves.setScale(0.25);
     topLeaves.setAngle(180);
     this.physics.add.existing(topLeaves, false);
@@ -143,7 +143,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
     this.load.image('birdup', '/flappy-birb/birdup.png');
     this.load.image('birddown', '/flappy-birb/birddown.png');
     this.load.image('nest', '/flappy-birb/nest.png');
-    this.load.image('leaves', '/flappy-birb/leaves.png');
+    this.load.image('leaves', '/flappy-birb/leaves2.png');
   }
   flap() {
     if (!this.gameStarted) {
