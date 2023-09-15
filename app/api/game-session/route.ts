@@ -8,8 +8,8 @@ import { generateChallengeHash, generateResponseHash } from '@/lib/hash';
 import prismadb from '@/lib/prismadb';
 import { ScoreType, GameSession } from '@prisma/client';
 
-const acceptedTypesObj: { [key: string]: number } = { '0': 3, '05': 3, '1': 2, '2': 2, '3': 7 };
-
+const acceptedTypesObj: { [key: string]: number } = { '05': 3, '2': 2, '3': 7 };
+//oldTypes: { [key: string]: number } = { '0': 3, '1': 2};
 export async function POST(req: Request) {
   const currentDate = new Date();
   const body = await req.json();
@@ -48,34 +48,36 @@ export async function POST(req: Request) {
       });
 
       return new NextResponse(JSON.stringify({ gameSessionId: gameSession.id }));
-    } else if (receivedType === '0') {
-      const expiresAt = currentDate;
-      expiresAt.setSeconds(expiresAt.getSeconds() + 3599); // 59 minutes 59 seconds from now
+    }
+    // else if (receivedType === '0') {
+    //   const expiresAt = currentDate;
+    //   expiresAt.setSeconds(expiresAt.getSeconds() + 3599); // 59 minutes 59 seconds from now
 
-      const gameSession = await prismadb.gameSession.create({
-        data: {
-          userId: userId,
-          gameId: body.gameId,
-          lobbySessionId: body.lobbySessionId,
-          isValid: true,
-          expiresAt: expiresAt,
-        },
-      });
+    //   const gameSession = await prismadb.gameSession.create({
+    //     data: {
+    //       userId: userId,
+    //       gameId: body.gameId,
+    //       lobbySessionId: body.lobbySessionId,
+    //       isValid: true,
+    //       expiresAt: expiresAt,
+    //     },
+    //   });
 
-      return new NextResponse(JSON.stringify({ gameSessionId: gameSession.id }));
-    } else if (receivedType === '1') {
-      await prismadb.gameSession.update({
-        where: {
-          id: body.gameSessionId,
-          isValid: true,
-          expiresAt: {
-            gt: currentDate,
-          },
-        },
-        data: { startedAt: Date.now() },
-      });
-      return new NextResponse();
-    } else if (receivedType === '2' || receivedType === '3') {
+    //   return new NextResponse(JSON.stringify({ gameSessionId: gameSession.id }));
+    // } else if (receivedType === '1') {
+    //   await prismadb.gameSession.update({
+    //     where: {
+    //       id: body.gameSessionId,
+    //       isValid: true,
+    //       expiresAt: {
+    //         gt: currentDate,
+    //       },
+    //     },
+    //     data: { startedAt: Date.now() },
+    //   });
+    //   return new NextResponse();
+    // }
+    else if (receivedType === '2' || receivedType === '3') {
       const gameSession: (GameSession & { lobbySession?: { id: string } }) | null =
         await prismadb.gameSession.findFirst({
           where: {

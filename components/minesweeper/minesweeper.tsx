@@ -117,44 +117,43 @@ export const Minesweeper = ({
   }
 
   useEffect(() => {
-    onGameLoad();
     const newGrid = initializeGrid(rows, cols, numMines, min3bv);
     setGrid(newGrid);
   }, []);
 
-  const onGameLoad = () => {
-    setLoading(true);
-    setCreateGameSessionSuccess(false);
+  const onGameStart = () => {
+    // setLoading(true);
+    // setCreateGameSessionSuccess(false);
     setInitiatedGameEndSuccess(false);
-    const updatedIds = { ...ids, at: '0' };
+    const updatedIds = { ...ids, at: '05' };
     axios
       .post('/api/game-session', updatedIds)
       .then((response) => {
-        toast({
-          description: 'Game session created',
-        });
+        // toast({
+        //   description: 'Game session created',
+        // });
         setGameSessionId(response.data.gameSessionId);
-        setCreateGameSessionSuccess(true);
+        // setCreateGameSessionSuccess(true);
       })
       .catch((error) => {
         toast({
           description: error.response.data,
           variant: 'destructive',
         });
-      })
-      .finally(() => {
-        setLoading(false);
       });
+    // .finally(() => {
+    //   setLoading(false);
+    // });
   };
 
-  const onGameStart = () => {
-    axios.post('/api/game-session', { gameSessionId: gameSessionId, at: '1' }).catch((error) => {
-      console.error('Error during onGameStart:', error);
-    });
-  };
+  // const onGameStart = () => {
+  //   axios.post('/api/game-session', { gameSessionId: gameSessionId, at: '1' }).catch((error) => {
+  //     console.error('Error during onGameStart:', error);
+  //   });
+  // };
 
   const revealCell = (grid: CellType[][], row: number, col: number): CellType[][] => {
-    if (!createGameSessionSuccess) return grid;
+    // if (!createGameSessionSuccess) return grid;
     // Check boundaries first
 
     if (row < 0 || row >= grid.length || col < 0 || col >= grid[0].length) {
@@ -206,7 +205,7 @@ export const Minesweeper = ({
   };
 
   const toggleFlag = (e: React.MouseEvent, row: number, col: number) => {
-    if (!createGameSessionSuccess) return;
+    // if (!createGameSessionSuccess) return;
     if (!gameStarted) {
       onGameStart();
       setGameStarted(true);
@@ -243,7 +242,6 @@ export const Minesweeper = ({
 
   const restartGame = () => {
     setGameStarted(false);
-    onGameLoad();
     // Generate a fresh grid
     const newGrid = initializeGrid(rows, cols, numMines, min3bv);
     setGrid(newGrid);

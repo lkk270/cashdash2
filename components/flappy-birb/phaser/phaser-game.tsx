@@ -23,37 +23,26 @@ interface FlappyBirbProps {
 const PhaserGame = ({ props }: FlappyBirbProps) => {
   const [loading, setLoading] = useState(false);
   const [gameSessionId, setGameSessionId] = useState(null);
-  const [createGameSessionSuccess, setCreateGameSessionSuccess] = useState(false);
   const [initiatedGameEndSuccess, setInitiatedGameEndSuccess] = useState(false);
   const { toast } = useToast();
   const gameSessionIdRef = useRef();
 
   const onGameStart = () => {
-    setLoading(true);
-    setCreateGameSessionSuccess(false);
     setInitiatedGameEndSuccess(false);
     const updatedIds = { ...props.ids, at: '05' };
     axios
       .post('/api/game-session', updatedIds)
       .then((response) => {
-        toast({
-          description: 'Game session created',
-        });
         setGameSessionId(response.data.gameSessionId);
         gameSessionIdRef.current = response.data.gameSessionId;
-        setCreateGameSessionSuccess(true);
       })
       .catch((error) => {
         toast({
           description: error.response.data,
           variant: 'destructive',
         });
-      })
-      .finally(() => {
-        setLoading(false);
       });
   };
-
 
   useEffect(() => {
     // onGameLoad();
