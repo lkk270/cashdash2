@@ -101,7 +101,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
       // Replace 'someValue' with the amount of pixels you want to reduce from the top.
     }
 
-    const bottomNest = this.add.image(820, randomGapPosition + gapSize / 2 + 30, 'nest');
+    const bottomNest = this.add.image(820 - 8, randomGapPosition + gapSize / 2 + 30, 'nest');
     bottomNest.setScale(0.25);
     this.physics.add.existing(bottomNest, false);
     if (bottomNest.body instanceof Phaser.Physics.Arcade.Body) {
@@ -171,12 +171,13 @@ export default class FlappyBirdScene extends Phaser.Scene {
   }
 
   create() {
-    this.physics.world.createDebugGraphic();
+    // this.physics.world.createDebugGraphic();
     // this.cleanUp();
     this.gameOver = false;
     this.scoreText = this.add.text(16, 16, 'Score: 0', {
       fontSize: '20px',
       color: '#580d82',
+      fontFamily: 'Arial Black',
     });
     this.scoreText.setDepth(1000);
 
@@ -262,44 +263,45 @@ export default class FlappyBirdScene extends Phaser.Scene {
     }
   }
 
-  endGameAnimation() {
-    // Stop everything from moving
-    this.trees?.setVelocityX(0);
-    this.nests?.setVelocityX(0);
-    this.leaves?.setVelocityX(0);
-    if (this.bird) {
-      (this.bird.body as Phaser.Physics.Arcade.Body).setVelocityY(0);
-      this.bird.setAlpha(0); // You can also choose to hide the bird or display it differently.
-    }
+  //   endGameAnimation() {
+  //     // Stop everything from moving
+  //     this.trees?.setVelocityX(0);
+  //     this.nests?.setVelocityX(0);
+  //     this.leaves?.setVelocityX(0);
+  //     if (this.bird) {
+  //       (this.bird.body as Phaser.Physics.Arcade.Body).setVelocityY(0);
+  //       this.bird.setAlpha(0); // You can also choose to hide the bird or display it differently.
+  //     }
 
-    // Move the score text to the center
-    if (this.scoreText) {
-      this.tweens.add({
-        targets: this.scoreText,
-        x: this.scale.width / 2 - this.scoreText.width / 2,
-        y: this.scale.height / 2 - this.scoreText.height / 2,
-        duration: 1000,
-        onComplete: this.showRestartButton,
-        callbackScope: this,
-      });
-    }
-  }
+  //     // Move the score text to the center
+  //     if (this.scoreText) {
+  //       this.tweens.add({
+  //         targets: this.scoreText,
+  //         x: this.scale.width / 2 - this.scoreText.width / 2,
+  //         y: this.scale.height / 2 - this.scoreText.height / 2,
+  //         duration: 1000,
+  //         onComplete: this.showRestartButton,
+  //         callbackScope: this,
+  //       });
+  //     }
+  //   }
 
-  showRestartButton() {
-    this.restartButton = this.add
-      .text(this.scale.width / 2, this.scale.height / 2 + 30, 'RESTART', {
-        fontSize: '24px',
-        color: '#580d82',
-        backgroundColor: '#FFFFFF',
-        padding: { left: 10, right: 10, top: 5, bottom: 5 },
-      })
-      .setInteractive()
-      .setOrigin(0.5);
+  //   showRestartButton() {
+  //     this.restartButton = this.add
+  //       .text(this.scale.width / 2, this.scale.height / 2 + 30, 'RESTART', {
+  //         fontSize: '24px',
+  //         color: '#580d82',
+  //         backgroundColor: '#c183fa',
+  //         fontFamily: 'Arial Black',
+  //         padding: { left: 10, right: 10, top: 5, bottom: 5 },
+  //       })
+  //       .setInteractive()
+  //       .setOrigin(0.5);
 
-    this.restartButton.on('pointerdown', () => {
-      this.scene.restart();
-    });
-  }
+  //     this.restartButton.on('pointerdown', () => {
+  //       this.scene.restart();
+  //     });
+  //   }
 
   cleanUp() {
     if (this.restartButton) {
@@ -359,9 +361,10 @@ export default class FlappyBirdScene extends Phaser.Scene {
 
     let restartButton = this.add
       .text(centerX, centerY + 30, 'Restart', {
-        fontSize: '25px',
+        fontSize: '20px',
         color: '#580d82',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: '#429add',
+        fontFamily: 'Arial Black',
         padding: { left: 10, right: 10, top: 5, bottom: 5 },
       })
       .setOrigin(0.5, 0.5)
