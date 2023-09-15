@@ -7,6 +7,12 @@ export default class FlappyBirdScene extends Phaser.Scene {
   nests: Phaser.Physics.Arcade.Group | null = null;
   leaves: Phaser.Physics.Arcade.Group | null = null;
   timerEvent: Phaser.Time.TimerEvent | null = null; // Define this at the class level
+  score: number = 0;
+  scoreText: Phaser.GameObjects.Text | null = null;
+  treesPassed: number = 0;
+  destructionTimers: Phaser.Time.TimerEvent[] = [];
+  private restartButton: Phaser.GameObjects.Text | null = null;
+  gameOver: boolean = false;
 
   constructor() {
     super({ key: 'FlappyBirdScene' });
@@ -36,10 +42,10 @@ export default class FlappyBirdScene extends Phaser.Scene {
     // Detect gap position logic based on previous gap and screen width
     if (window.innerWidth < 368) {
       if (this.previousGapPosition !== null) {
-        const minGapPosition = Math.max(gapSize * 2, this.previousGapPosition - 200);
+        const minGapPosition = Math.max(gapSize, this.previousGapPosition - 100);
         const maxGapPosition = Math.min(
           this.scale.height - gapSize * 2,
-          this.previousGapPosition + 200
+          this.previousGapPosition + 100
         );
         randomGapPosition = Phaser.Math.Between(minGapPosition, maxGapPosition);
       } else {
@@ -118,7 +124,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
     (bottomNest.body as Phaser.Physics.Arcade.Body).velocity.x = -200;
 
     // Destruction logic after some time
-    this.time.addEvent({
+    const destructionTimer = this.time.addEvent({
       delay: 5000,
       callback: () => {
         this.trees?.remove(topTree);
@@ -133,6 +139,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
       callbackScope: this,
       loop: false,
     });
+    this.destructionTimers.push(destructionTimer);
 
     this.previousGapPosition = randomGapPosition;
   }
@@ -146,6 +153,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
     this.load.image('leaves', '/flappy-birb/leaves3.png');
   }
   flap() {
+    if (this.gameOver) return;
     if (!this.gameStarted) {
       this.gameStarted = true;
       if (this.bird) {
@@ -164,6 +172,17 @@ export default class FlappyBirdScene extends Phaser.Scene {
 
   create() {
     this.physics.world.createDebugGraphic();
+    // this.cleanUp();
+    this.gameOver = false;
+    this.scoreText = this.add.text(16, 16, 'Score: 0', {
+      fontSize: '20px',
+      color: '#580d82',
+    });
+    this.scoreText.setDepth(1000);
+
+    this.score = 0;
+    this.treesPassed = 0;
+
     this.physics.world.gravity.y = 0; // This ensures that the world starts with no gravity each time the scene starts.
 
     this.trees = this.physics.add.group();
@@ -220,28 +239,144 @@ export default class FlappyBirdScene extends Phaser.Scene {
 
   update() {
     if (this.bird) {
-      if (this.bird.y > this.scale.height) {
+      const bird = this.bird; // Define it here to reassure TypeScript that it's non-null
+      this.trees?.getChildren().forEach((tree: any) => {
+        if (tree.body.velocity.x < 0 && tree.x + tree.width < bird.x && !tree['passed']) {
+          tree['passed'] = true;
+          this.treesPassed += 1;
+
+          if (this.treesPassed % 2 === 0) {
+            this.score += 1;
+            this.scoreText?.setText('Score: ' + this.score);
+          }
+        }
+      });
+
+      if (bird.y > this.scale.height) {
         this.endGame();
       }
-      if (this.bird.y < 0) {
-        this.bird.y = 0;
-        (this.bird.body as Phaser.Physics.Arcade.Body).setVelocityY(50); // Pushing it down a bit if it goes beyond the top
+      if (bird.y < 0) {
+        bird.y = 0;
+        (bird.body as Phaser.Physics.Arcade.Body).setVelocityY(50); // Pushing it down a bit if it goes beyond the top
       }
     }
   }
+
+  endGameAnimation() {
+    // Stop everything from moving
+    this.trees?.setVelocityX(0);
+    this.nests?.setVelocityX(0);
+    this.leaves?.setVelocityX(0);
+    if (this.bird) {
+      (this.bird.body as Phaser.Physics.Arcade.Body).setVelocityY(0);
+      this.bird.setAlpha(0); // You can also choose to hide the bird or display it differently.
+    }
+
+    // Move the score text to the center
+    if (this.scoreText) {
+      this.tweens.add({
+        targets: this.scoreText,
+        x: this.scale.width / 2 - this.scoreText.width / 2,
+        y: this.scale.height / 2 - this.scoreText.height / 2,
+        duration: 1000,
+        onComplete: this.showRestartButton,
+        callbackScope: this,
+      });
+    }
+  }
+
+  showRestartButton() {
+    this.restartButton = this.add
+      .text(this.scale.width / 2, this.scale.height / 2 + 30, 'RESTART', {
+        fontSize: '24px',
+        color: '#580d82',
+        backgroundColor: '#FFFFFF',
+        padding: { left: 10, right: 10, top: 5, bottom: 5 },
+      })
+      .setInteractive()
+      .setOrigin(0.5);
+
+    this.restartButton.on('pointerdown', () => {
+      this.scene.restart();
+    });
+  }
+
+  cleanUp() {
+    if (this.restartButton) {
+      this.restartButton.destroy();
+      this.restartButton = null;
+    }
+    if (this.scoreText) {
+      this.scoreText.setPosition(16, 16); // Reset score text position
+    }
+  }
+
   endGame() {
-    this.timerEvent?.destroy(); // Destroy the timer if it exists
+    this.gameOver = true;
+    for (const timer of this.destructionTimers) {
+      timer.destroy();
+    }
+    this.destructionTimers = [];
+    // Destroy the timer if it exists
+    this.timerEvent?.destroy();
 
     // Placeholder for now, can add more logic later
-    console.log('Game Over!');
-    this.scene.restart();
+
     if (this.bird && this.bird.body) {
       const birdBody = this.bird.body as Phaser.Physics.Arcade.Body;
       birdBody.setVelocity(0); // Reset velocity
       birdBody.setGravityY(0); // Reset individual gravity
     }
 
-    this.gameStarted = false; // Ensure the game starts from the beginning
-    this.scene.restart();
+    // Stop motion of all objects
+    this.trees?.getChildren().forEach((tree: any) => {
+      (tree.body as Phaser.Physics.Arcade.Body).setVelocityX(0);
+    });
+
+    this.leaves?.getChildren().forEach((leaf: any) => {
+      (leaf.body as Phaser.Physics.Arcade.Body).setVelocityX(0);
+    });
+
+    this.nests?.getChildren().forEach((nest: any) => {
+      (nest.body as Phaser.Physics.Arcade.Body).setVelocityX(0);
+    });
+
+    this.gameStarted = false; // Ensure the game doesn't start immediately
+
+    // Center the score text and display the restart button
+    const centerX = this.scale.width / 2;
+    const centerY = this.scale.height / 2;
+
+    if (this.scoreText) {
+      this.tweens.add({
+        targets: this.scoreText,
+        x: centerX - this.scoreText.width / 2,
+        y: centerY - this.scoreText.height / 2,
+        duration: 1000,
+        ease: 'Power2',
+      });
+    }
+
+    let restartButton = this.add
+      .text(centerX, centerY + 30, 'Restart', {
+        fontSize: '25px',
+        color: '#580d82',
+        backgroundColor: '#FFFFFF',
+        padding: { left: 10, right: 10, top: 5, bottom: 5 },
+      })
+      .setOrigin(0.5, 0.5)
+      .setInteractive()
+      .on('pointerdown', () => {
+        this.scene.restart();
+      });
+
+    // Optionally, you can make the button slightly bigger when hovered
+    restartButton.on('pointerover', () => {
+      restartButton.setScale(1.1);
+    });
+
+    restartButton.on('pointerout', () => {
+      restartButton.setScale(1);
+    });
   }
 }

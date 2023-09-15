@@ -14,8 +14,11 @@ const PhaserGame: React.FC = () => {
     }
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
+
       width: gameWidth,
       height: gameHeight,
+      autoFocus: true,
+      antialias: true,
       scene: FlappyBirdScene,
       parent: 'phaser-game',
       backgroundColor: '#5fa6f9',
