@@ -63,18 +63,18 @@ export default class FlappyBirdScene extends Phaser.Scene {
     // Adjusting the tree trunk's hitbox to avoid overlaps
     if (topTree.body instanceof Phaser.Physics.Arcade.Body) {
       topTree.body.setSize(trunkWidth, topTreeHeight, true);
-      topTree.body.offset.y = -75;
+      //   topTree.body.offset.y = 0;
 
       // Replace 'someValue' with the amount of pixels you want to reduce from the bottom.
     }
 
-    const topLeaves = this.add.image(820 - 10, topTreeHeight, 'leaves');
+    const topLeaves = this.add.image(820 - 15, topTreeHeight, 'leaves');
     topLeaves.setScale(0.25);
     topLeaves.setAngle(180);
     this.physics.add.existing(topLeaves, false);
     if (topLeaves.body instanceof Phaser.Physics.Arcade.Body) {
-      topLeaves.body.setSize(300, 200, true);
-      topLeaves.body.offset.x = 25;
+      topLeaves.body.setSize(375, 300, true);
+      topLeaves.body.offset.x = 50;
       // Replace 'desiredOffset' with the desired vertical offset.
     }
     // Bottom Tree
@@ -99,8 +99,8 @@ export default class FlappyBirdScene extends Phaser.Scene {
     bottomNest.setScale(0.25);
     this.physics.add.existing(bottomNest, false);
     if (bottomNest.body instanceof Phaser.Physics.Arcade.Body) {
-      bottomNest.body.setSize(300, 200, true);
-      //   bottomNest.body.offset.y = 20;
+      bottomNest.body.setSize(300, 220, true);
+      bottomNest.body.offset.y = 175;
       // Replace 'desiredOffset' with the desired vertical offset.
     }
 
@@ -143,7 +143,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
     this.load.image('birdup', '/flappy-birb/birdup.png');
     this.load.image('birddown', '/flappy-birb/birddown.png');
     this.load.image('nest', '/flappy-birb/nest.png');
-    this.load.image('leaves', '/flappy-birb/leaves2.png');
+    this.load.image('leaves', '/flappy-birb/leaves3.png');
   }
   flap() {
     if (!this.gameStarted) {
@@ -211,7 +211,8 @@ export default class FlappyBirdScene extends Phaser.Scene {
       const birdBody = this.bird.body as Phaser.Physics.Arcade.Body;
       birdBody.setGravityY(0); // Start with no gravity
       birdBody.setVelocity(0); // Start with no velocity
-      birdBody.setSize(80, 80, true);
+      birdBody.setSize(250, 175, true);
+      birdBody.offset.x = 175;
     }
 
     this.gameStarted = false; // Ensure the game starts from the beginning
