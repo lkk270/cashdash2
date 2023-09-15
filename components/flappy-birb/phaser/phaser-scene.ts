@@ -1,7 +1,7 @@
 import React from 'react';
 
 export default class FlappyBirdScene extends Phaser.Scene {
-  onGameLoad: () => void;
+  onGameStart: () => void;
   bird: Phaser.GameObjects.Sprite | null = null; // Create a bird property to hold our bird sprite
   flippedTree: Phaser.GameObjects.Sprite | null = null; // Create a bird property to hold our bird sprite
   gameStarted: boolean = false;
@@ -17,10 +17,10 @@ export default class FlappyBirdScene extends Phaser.Scene {
   private restartButton: Phaser.GameObjects.Text | null = null;
   gameOver: boolean = false;
 
-  constructor(config: Phaser.Types.Scenes.SettingsConfig, onGameLoad: () => void) {
+  constructor(config: Phaser.Types.Scenes.SettingsConfig, onGameStart: () => void) {
     super({ key: 'FlappyBirdScene', ...config });
     this.addTreePair = this.addTreePair.bind(this);
-    this.onGameLoad = onGameLoad;
+    this.onGameStart = onGameStart;
   }
 
   resizeAssets() {
@@ -159,6 +159,9 @@ export default class FlappyBirdScene extends Phaser.Scene {
   flap() {
     if (this.gameOver) return;
     if (!this.gameStarted) {
+      if (this.onGameStart) {
+        this.onGameStart();
+      }
       this.gameStarted = true;
       if (this.bird) {
         (this.bird.body as Phaser.Physics.Arcade.Body).setGravityY(1000); // Set gravity here
@@ -334,9 +337,6 @@ export default class FlappyBirdScene extends Phaser.Scene {
       .setOrigin(0.5, 0.5)
       .setInteractive();
     restartButton.on('pointerdown', async () => {
-      if (this.onGameLoad) {
-        this.onGameLoad(); // Awaiting onGameLoad function if it's asynchronous
-      }
       this.scene.restart(); // Restarting the game scene
     });
 

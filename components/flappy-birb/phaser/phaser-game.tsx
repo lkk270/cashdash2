@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Phaser from 'phaser';
 import axios from 'axios';
 
@@ -26,12 +26,13 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
   const [createGameSessionSuccess, setCreateGameSessionSuccess] = useState(false);
   const [initiatedGameEndSuccess, setInitiatedGameEndSuccess] = useState(false);
   const { toast } = useToast();
+  const gameSessionIdRef = useRef();
 
-  const onGameLoad = () => {
+  const onGameStart = () => {
     setLoading(true);
     setCreateGameSessionSuccess(false);
     setInitiatedGameEndSuccess(false);
-    const updatedIds = { ...props.ids, at: '0' };
+    const updatedIds = { ...props.ids, at: '05' };
     axios
       .post('/api/game-session', updatedIds)
       .then((response) => {
@@ -39,6 +40,7 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
           description: 'Game session created',
         });
         setGameSessionId(response.data.gameSessionId);
+        gameSessionIdRef.current = response.data.gameSessionId;
         setCreateGameSessionSuccess(true);
       })
       .catch((error) => {
@@ -52,8 +54,9 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
       });
   };
 
+
   useEffect(() => {
-    onGameLoad();
+    // onGameLoad();
     let gameWidth = 800;
     let gameHeight = 600;
     if (window.innerHeight / window.innerWidth > 1.5) {
@@ -66,7 +69,7 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
       height: gameHeight,
       autoFocus: true,
       antialias: true,
-      scene: new FlappyBirdScene({ key: 'FlappyBirdScene' }, onGameLoad),
+      scene: new FlappyBirdScene({ key: 'FlappyBirdScene' }, onGameStart),
       parent: 'phaser-game',
       backgroundColor: '#5fa6f9',
       physics: {
@@ -91,9 +94,7 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
     };
   }, []);
 
-  return (
-      <div id="phaser-game" className="max-w-[100vw]"></div>
-  );
+  return <div id="phaser-game" className="max-w-[100vw]"></div>;
 };
 
 export default PhaserGame;
