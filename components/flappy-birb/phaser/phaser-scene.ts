@@ -8,7 +8,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
   gameStarted: boolean = false;
   previousGapPosition: number | null = null;
   trees: Phaser.Physics.Arcade.Group | null = null;
-  nests: Phaser.Physics.Arcade.Group | null = null;
+  dragons: Phaser.Physics.Arcade.Group | null = null;
   leaves: Phaser.Physics.Arcade.Group | null = null;
   timerEvent: Phaser.Time.TimerEvent | null = null; // Define this at the class level
   score: number = 0;
@@ -66,7 +66,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
     }
 
     // Top Tree
-    const topTreeHeight = randomGapPosition - gapSize / 2 - 70;
+    const topTreeHeight = randomGapPosition - gapSize / 2 - gapSize;
     const topTree = this.add.rectangle(
       820 - trunkWidth / 2,
       topTreeHeight / 2,
@@ -94,7 +94,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
       // Replace 'desiredOffset' with the desired vertical offset.
     }
     // Bottom Tree
-    const bottomTreeHeight = this.scale.height - (randomGapPosition + gapSize / 2 + 35);
+    const bottomTreeHeight = this.scale.height - (randomGapPosition + gapSize);
     const bottomTree = this.add.rectangle(
       820 - trunkWidth / 2,
       this.scale.height - bottomTreeHeight / 2,
@@ -111,12 +111,13 @@ export default class FlappyBirdScene extends Phaser.Scene {
       // Replace 'someValue' with the amount of pixels you want to reduce from the top.
     }
 
-    const bottomNest = this.add.image(820 - 8, randomGapPosition + gapSize / 2 + 30, 'nest');
-    bottomNest.setScale(0.25);
-    this.physics.add.existing(bottomNest, false);
-    if (bottomNest.body instanceof Phaser.Physics.Arcade.Body) {
-      bottomNest.body.setSize(300, 220, true);
-      bottomNest.body.offset.y = 175;
+    const bottomDragon = this.add.image(820 - 30, randomGapPosition + gapSize / 2 + 30, 'dragon');
+    bottomDragon.setScale(0.2);
+    this.physics.add.existing(bottomDragon, false);
+    if (bottomDragon.body instanceof Phaser.Physics.Arcade.Body) {
+      bottomDragon.body.setSize(300, 300, true);
+      bottomDragon.body.offset.y = 100;
+      bottomDragon.body.offset.x = 175;
       // Replace 'desiredOffset' with the desired vertical offset.
     }
 
@@ -124,14 +125,14 @@ export default class FlappyBirdScene extends Phaser.Scene {
     this.trees?.add(topTree);
     this.trees?.add(bottomTree);
     this.leaves?.add(topLeaves);
-    this.nests?.add(bottomNest);
+    this.dragons?.add(bottomDragon);
 
     // Set the physics velocity for movement
 
     (topTree.body as Phaser.Physics.Arcade.Body).velocity.x = -200;
     (topLeaves.body as Phaser.Physics.Arcade.Body).velocity.x = -200;
     (bottomTree.body as Phaser.Physics.Arcade.Body).velocity.x = -200;
-    (bottomNest.body as Phaser.Physics.Arcade.Body).velocity.x = -200;
+    (bottomDragon.body as Phaser.Physics.Arcade.Body).velocity.x = -200;
 
     // Destruction logic after some time
     const destructionTimer = this.time.addEvent({
@@ -141,8 +142,8 @@ export default class FlappyBirdScene extends Phaser.Scene {
         topTree.destroy();
         this.trees?.remove(bottomTree);
         bottomTree.destroy();
-        this.nests?.remove(bottomNest);
-        bottomNest.destroy();
+        this.dragons?.remove(bottomDragon);
+        bottomDragon.destroy();
         this.leaves?.remove(topLeaves);
         topLeaves.destroy();
       },
@@ -159,8 +160,8 @@ export default class FlappyBirdScene extends Phaser.Scene {
   preload() {
     this.load.image('birdup', '/flappy-birb/birdup.png');
     this.load.image('birddown', '/flappy-birb/birddown.png');
-    this.load.image('nest', '/flappy-birb/nest.png');
     this.load.image('leaves', '/flappy-birb/leaves3.png');
+    this.load.image('dragon', '/flappy-birb/dragon.png');
   }
   flap() {
     if (this.gameOver) return;
@@ -184,7 +185,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
   }
 
   create() {
-    // this.physics.world.createDebugGraphic();
+    this.physics.world.createDebugGraphic();
     // this.cleanUp();
     this.gameOver = false;
     this.scoreText = this.add.text(16, 16, 'Score: 0', {
@@ -200,7 +201,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
     this.physics.world.gravity.y = 0; // This ensures that the world starts with no gravity each time the scene starts.
 
     this.trees = this.physics.add.group();
-    this.nests = this.physics.add.group();
+    this.dragons = this.physics.add.group();
     this.leaves = this.physics.add.group();
     // Creating an animation for the bird
     this.anims.create({
@@ -237,7 +238,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
 
     this.input.on('pointerdown', this.flap, this); // Add this if you want the bird to flap on a click/tap as well.
     this.physics.add.overlap(this.bird, this.trees, this.endGame, undefined, this);
-    this.physics.add.overlap(this.bird, this.nests, this.endGame, undefined, this);
+    this.physics.add.overlap(this.bird, this.dragons, this.endGame, undefined, this);
     this.physics.add.overlap(this.bird, this.leaves, this.endGame, undefined, this);
 
     if (this.bird && this.bird.body) {
@@ -278,9 +279,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
     });
 
     gameEvents.on('gameEnded', () => {
-      if (this.restartButton) {
-        this.restartButton.setVisible(true);
-      }
+      this.showRestartButton();
     });
 
     this.gameStarted = false; // Ensure the game starts from the beginning
@@ -332,6 +331,10 @@ export default class FlappyBirdScene extends Phaser.Scene {
 
   endGame() {
     if (this.gameOver === true) return;
+
+    if (this.score === 0) {
+      this.showRestartButton();
+    }
     if (this.score > 0) {
       this.onGameEnd(this.score);
     }
@@ -361,8 +364,8 @@ export default class FlappyBirdScene extends Phaser.Scene {
       (leaf.body as Phaser.Physics.Arcade.Body).setVelocityX(0);
     });
 
-    this.nests?.getChildren().forEach((nest: any) => {
-      (nest.body as Phaser.Physics.Arcade.Body).setVelocityX(0);
+    this.dragons?.getChildren().forEach((dragon: any) => {
+      (dragon.body as Phaser.Physics.Arcade.Body).setVelocityX(0);
     });
 
     this.gameStarted = false; // Ensure the game doesn't start immediately
