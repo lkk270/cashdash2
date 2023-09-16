@@ -54,9 +54,9 @@ export const LobbyAboutModal = () => {
           >
             {lobbyAboutModal.data?.gameName} {lobbyAboutModal.data?.lobby.name}
           </DialogTitle>
-          <DialogDescription className="flex items-center justify-center space-y-2 text-center">
-            <CountdownTimer data={countdownData} />
-          </DialogDescription>
+          {/* <DialogDescription className="flex items-center justify-center space-y-2 text-center"> */}
+          <CountdownTimer data={countdownData} />
+          {/* </DialogDescription> */}
         </DialogHeader>
         <Separator />
         {/* Prizes Section */}
