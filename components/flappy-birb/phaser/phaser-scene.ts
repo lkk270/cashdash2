@@ -17,6 +17,11 @@ export default class FlappyBirdScene extends Phaser.Scene {
   destructionTimers: Phaser.Time.TimerEvent[] = [];
   private restartButton: Phaser.GameObjects.Text | null = null;
   gameOver: boolean = false;
+  previousSpeedCheckScore: number;
+  speedChangeThreshold: number = 0;
+  nextSpeedChange: 'fast' | 'normal' = 'fast';
+  intendedDelay: number | null = null;
+  speedChanged: boolean = false;
 
   constructor(
     config: Phaser.Types.Scenes.SettingsConfig,
@@ -27,6 +32,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
     this.addTreePair = this.addTreePair.bind(this);
     this.onGameStart = onGameStart;
     this.onGameEnd = onGameEnd;
+    this.previousSpeedCheckScore = 0; // to track the last speed check score
   }
 
   resizeAssets() {
@@ -153,6 +159,20 @@ export default class FlappyBirdScene extends Phaser.Scene {
     this.destructionTimers.push(destructionTimer);
 
     this.previousGapPosition = randomGapPosition;
+
+    // After adding the tree pair, check for a delay change
+    if (this.intendedDelay !== null) {
+      if (this.timerEvent) {
+        this.timerEvent.remove(false);
+      }
+      this.timerEvent = this.time.addEvent({
+        delay: this.intendedDelay,
+        callback: this.addTreePair,
+        callbackScope: this,
+        loop: true,
+      });
+      this.intendedDelay = null; // Reset the intended delay
+    }
   }
 
   // Rest of the file remains the same...
@@ -197,6 +217,8 @@ export default class FlappyBirdScene extends Phaser.Scene {
 
     this.score = 0;
     this.treesPassed = 0;
+    this.nextSpeedChange = 'fast'; // Set the next speed change to 'fast'
+    this.speedChangeThreshold = Math.floor(Math.random() * 6) + 10; // Random value between 10 and 15 for the first speed change
 
     this.physics.world.gravity.y = 0; // This ensures that the world starts with no gravity each time the scene starts.
 
@@ -282,7 +304,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
     gameEvents.on('gameEnded', () => {
       this.showRestartButton();
     });
-
+    this.switchToNormalSpeed(); // Ensure you start with a normal speed timer.
     this.gameStarted = false; // Ensure the game starts from the beginning
   }
   showRestartButton() {
@@ -295,6 +317,32 @@ export default class FlappyBirdScene extends Phaser.Scene {
     this.events.emit('pulseDone');
   }
 
+  checkSpeedUpdate() {
+    if (this.score >= this.speedChangeThreshold && !this.speedChanged) {
+      if (this.nextSpeedChange === 'fast') {
+        this.switchToFastSpeed();
+        this.nextSpeedChange = 'normal'; // Indicate the next speed change
+      } else if (this.nextSpeedChange === 'normal') {
+        this.switchToNormalSpeed();
+        this.nextSpeedChange = 'fast'; // Indicate the next speed change
+      }
+      this.speedChanged = true;
+    } else if (this.score < this.speedChangeThreshold) {
+      this.speedChanged = false; // Reset flag once the score goes below threshold
+    }
+
+    this.previousSpeedCheckScore = this.score; // Update the score at which the last speed change might have happened
+  }
+
+  switchToFastSpeed() {
+    this.intendedDelay = 1450;
+    this.speedChangeThreshold = this.previousSpeedCheckScore + 8;
+  }
+
+  switchToNormalSpeed() {
+    this.intendedDelay = 1750;
+    this.speedChangeThreshold = this.previousSpeedCheckScore + (Math.floor(Math.random() * 6) + 10);
+  }
   update() {
     if (this.bird) {
       const bird = this.bird; // Define it here to reassure TypeScript that it's non-null
@@ -318,6 +366,8 @@ export default class FlappyBirdScene extends Phaser.Scene {
         (bird.body as Phaser.Physics.Arcade.Body).setVelocityY(50); // Pushing it down a bit if it goes beyond the top
       }
     }
+    // Adjust timerEvent delay based on the score
+    this.checkSpeedUpdate();
   }
 
   cleanUp() {
