@@ -34,7 +34,7 @@ export const Board = ({
         {grid.map((row, rowIndex) =>
           row.map((cell, colIndex) => (
             <Cell
-              // key={rowIndex.toString() + '-' + colIndex.toString()}
+              keyProp={rowIndex.toString() + colIndex.toString()}
               cell={cell}
               row={rowIndex}
               col={colIndex}

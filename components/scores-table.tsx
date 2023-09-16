@@ -141,9 +141,10 @@ export const ScoresTable = ({
                       <span className="text-sm">{adjustedScore}</span>
                       {scoreType === ScoreType.time && (
                         <CompletePopover
+                          keyProp={i.toString()}
                           title={'Exact Time'}
                           content={[
-                            { title: 'Milliseconds', content: score.score.toString() },
+                            { title: 'Milliseconds', content: score.score.toString()},
                             { title: 'Seconds', content: exactSeconds.toString() },
                           ]}
                         />

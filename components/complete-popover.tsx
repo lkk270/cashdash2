@@ -3,11 +3,12 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Info } from 'lucide-react';
 
 interface CompletePopoverProps {
+  keyProp: string;
   title: string;
   content: { title: string; content: string }[];
 }
 
-export const CompletePopover = ({ title, content }: CompletePopoverProps) => {
+export const CompletePopover = ({ keyProp, title, content }: CompletePopoverProps) => {
   return (
     <Popover>
       <div className="relative">
@@ -27,7 +28,7 @@ export const CompletePopover = ({ title, content }: CompletePopoverProps) => {
             <div className="grid gap-2">
               {content.map((value) => {
                 return (
-                  <div className="grid items-center grid-cols-3 gap-4">
+                  <div key={keyProp} className="grid items-center grid-cols-3 gap-4">
                     <Label>{value.title}</Label>
                     <p>{value.content}</p>
                   </div>
