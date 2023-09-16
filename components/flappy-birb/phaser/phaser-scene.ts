@@ -1,7 +1,8 @@
-import React from 'react';
-
+import { off } from 'process';
+import gameEvents from './event-emitter';
 export default class FlappyBirdScene extends Phaser.Scene {
   onGameStart: () => void;
+  onGameEnd: (score: number) => void;
   bird: Phaser.GameObjects.Sprite | null = null; // Create a bird property to hold our bird sprite
   flippedTree: Phaser.GameObjects.Sprite | null = null; // Create a bird property to hold our bird sprite
   gameStarted: boolean = false;
@@ -17,10 +18,15 @@ export default class FlappyBirdScene extends Phaser.Scene {
   private restartButton: Phaser.GameObjects.Text | null = null;
   gameOver: boolean = false;
 
-  constructor(config: Phaser.Types.Scenes.SettingsConfig, onGameStart: () => void) {
+  constructor(
+    config: Phaser.Types.Scenes.SettingsConfig,
+    onGameStart: () => void,
+    onGameEnd: (score: number) => void
+  ) {
     super({ key: 'FlappyBirdScene', ...config });
     this.addTreePair = this.addTreePair.bind(this);
     this.onGameStart = onGameStart;
+    this.onGameEnd = onGameEnd;
   }
 
   resizeAssets() {
@@ -241,8 +247,52 @@ export default class FlappyBirdScene extends Phaser.Scene {
       birdBody.setSize(250, 175, true);
       birdBody.offset.x = 175;
     }
+    const centerX = this.scale.width / 2;
+    const centerY = this.scale.height / 2;
+    this.restartButton = this.add
+      .text(centerX, centerY + 30, 'Restart', {
+        fontSize: '20px',
+        color: '#580d82',
+        backgroundColor: '#429add',
+        fontFamily: 'Arial Black',
+        padding: { left: 10, right: 10, top: 5, bottom: 5 },
+      })
+      .setOrigin(0.5, 0.5)
+      .setVisible(false)
+      .setInteractive();
+    this.restartButton.on('pointerdown', async () => {
+      this.scene.restart(); // Restarting the game scene
+    });
+
+    // Optionally, you can make the button slightly bigger when hovered
+    this.restartButton.on('pointerover', () => {
+      if (this.restartButton) {
+        this.restartButton.setScale(1.1);
+      }
+    });
+
+    this.restartButton.on('pointerout', () => {
+      if (this.restartButton) {
+        this.restartButton.setScale(1);
+      }
+    });
+
+    gameEvents.on('gameEnded', () => {
+      if (this.restartButton) {
+        this.restartButton.setVisible(true);
+      }
+    });
 
     this.gameStarted = false; // Ensure the game starts from the beginning
+  }
+  showRestartButton() {
+    if (this.restartButton) {
+      this.restartButton.setVisible(true);
+    }
+  }
+
+  pulseCompleted() {
+    this.events.emit('pulseDone');
   }
 
   update() {
@@ -281,6 +331,11 @@ export default class FlappyBirdScene extends Phaser.Scene {
   }
 
   endGame() {
+    if (this.gameOver === true) return;
+    if (this.score > 0) {
+      this.onGameEnd(this.score);
+    }
+
     this.gameOver = true;
     for (const timer of this.destructionTimers) {
       timer.destroy();
@@ -325,28 +380,5 @@ export default class FlappyBirdScene extends Phaser.Scene {
         ease: 'Power2',
       });
     }
-
-    let restartButton = this.add
-      .text(centerX, centerY + 30, 'Restart', {
-        fontSize: '20px',
-        color: '#580d82',
-        backgroundColor: '#429add',
-        fontFamily: 'Arial Black',
-        padding: { left: 10, right: 10, top: 5, bottom: 5 },
-      })
-      .setOrigin(0.5, 0.5)
-      .setInteractive();
-    restartButton.on('pointerdown', async () => {
-      this.scene.restart(); // Restarting the game scene
-    });
-
-    // Optionally, you can make the button slightly bigger when hovered
-    restartButton.on('pointerover', () => {
-      restartButton.setScale(1.1);
-    });
-
-    restartButton.on('pointerout', () => {
-      restartButton.setScale(1);
-    });
   }
 }

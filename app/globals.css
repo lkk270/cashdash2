@@ -114,3 +114,7 @@ body,
 canvas {
   margin-top: 0px !important;
 }
+
+.pulsing {
+  animation: pulse 1.5s infinite;
+}
