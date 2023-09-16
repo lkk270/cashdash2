@@ -118,7 +118,7 @@ export const UserCashModal = () => {
         <div className="flex justify-between">
           <p className="text-2xl font-medium">Total: ${userCashModal.userCash}</p>
           <Button onClick={onWithdraw} disabled={loading} variant="gradient2">
-            Cash out
+            {loading ? 'Loading...' : 'Cash out'}
           </Button>
         </div>
       </DialogContent>
