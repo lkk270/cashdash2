@@ -13,7 +13,7 @@ const Loader = () => {
       items-center 
     "
     >
-      <PacmanLoader size={25} color="yellow" />
+      <PacmanLoader size={25} color="#8d4fff" />
     </div>
   );
 };

@@ -49,14 +49,14 @@ export default class FlappyBirdScene extends Phaser.Scene {
       return; // Don't add trees unless the game has started
     }
 
-    const gapSize = 70; // Adjusted this to increase the gap slightly
+    const gapSize = window.innerWidth < 469 ? 90 : 70; // Adjusted this to increase the gap slightly
     let randomGapPosition;
 
     // Trunk Width
     const trunkWidth = 20;
 
     // Detect gap position logic based on previous gap and screen width
-    if (window.innerWidth < 368) {
+    if (window.innerWidth < 469) {
       if (this.previousGapPosition !== null) {
         const minGapPosition = Math.max(gapSize, this.previousGapPosition - 100);
         const maxGapPosition = Math.min(
@@ -206,7 +206,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
 
   create() {
     // this.physics.world.createDebugGraphic();
-    // this.cleanUp();
+    this.cleanUp();
     this.gameOver = false;
     this.scoreText = this.add.text(16, 16, 'Score: 0', {
       fontSize: '20px',
@@ -259,9 +259,9 @@ export default class FlappyBirdScene extends Phaser.Scene {
     }
 
     this.input.on('pointerdown', this.flap, this); // Add this if you want the bird to flap on a click/tap as well.
-    this.physics.add.overlap(this.bird, this.trees, this.endGame, undefined, this);
-    this.physics.add.overlap(this.bird, this.dragons, this.endGame, undefined, this);
-    this.physics.add.overlap(this.bird, this.leaves, this.endGame, undefined, this);
+    // this.physics.add.overlap(this.bird, this.trees, this.endGame, undefined, this);
+    // this.physics.add.overlap(this.bird, this.dragons, this.endGame, undefined, this);
+    // this.physics.add.overlap(this.bird, this.leaves, this.endGame, undefined, this);
 
     if (this.bird && this.bird.body) {
       const birdBody = this.bird.body as Phaser.Physics.Arcade.Body;
@@ -335,7 +335,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
   }
 
   switchToFastSpeed() {
-    this.intendedDelay = 1450;
+    this.intendedDelay = 1350;
     this.speedChangeThreshold = this.previousSpeedCheckScore + 8;
   }
 
@@ -377,6 +377,9 @@ export default class FlappyBirdScene extends Phaser.Scene {
     }
     if (this.scoreText) {
       this.scoreText.setPosition(16, 16); // Reset score text position
+    }
+    if (this.timerEvent) {
+      this.timerEvent.destroy();
     }
   }
 
@@ -434,5 +437,9 @@ export default class FlappyBirdScene extends Phaser.Scene {
         ease: 'Power2',
       });
     }
+    this.score = 0;
+    this.treesPassed = 0;
+    this.nextSpeedChange = 'fast'; // Set the next speed change to 'fast'
+    this.speedChangeThreshold = Math.floor(Math.random() * 6) + 10; // Random value between 10 and 15 for the first speed change
   }
 }
