@@ -17,5 +17,11 @@ export const useLobbyAboutModal = create<useLobbyAboutModalStore>((set) => ({
   isOpen: false,
   data: null,
   onOpen: (data) => set({ isOpen: true, data: data }),
-  onClose: () => set({ isOpen: false, data: null }),
+  onClose: () => {
+    set({ isOpen: false }); // Start the closing animation
+    // After the animation completes, nullify the data
+    setTimeout(() => {
+      set({ data: null });
+    }, 300); // This is a delay equal to the duration of your animation (change if needed)
+  },
 }));
