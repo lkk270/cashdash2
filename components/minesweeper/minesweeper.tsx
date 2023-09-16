@@ -280,7 +280,7 @@ export const Minesweeper = ({
         onReset={restartGame}
         loading={loading}
       />
-      {loading ? (
+      {loading && !gameOver ? (
         <Loader />
       ) : (
         <Board
