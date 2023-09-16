@@ -185,7 +185,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
   }
 
   create() {
-    this.physics.world.createDebugGraphic();
+    // this.physics.world.createDebugGraphic();
     // this.cleanUp();
     this.gameOver = false;
     this.scoreText = this.add.text(16, 16, 'Score: 0', {
@@ -228,9 +228,9 @@ export default class FlappyBirdScene extends Phaser.Scene {
     // Do not set gravity here, so the bird stays stationary
     // The gravity will be set in the flap() method when the game starts
 
-    this.scale.on('resize', (gameSize: any) => {
-      this.resizeAssets();
-    });
+    // this.scale.on('resize', (gameSize: any) => {
+    //   this.resizeAssets();
+    // });
 
     if (this.input && this.input.keyboard) {
       this.input.keyboard.on('keydown-SPACE', this.flap, this);
@@ -258,6 +258,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
         fontFamily: 'Arial Black',
         padding: { left: 10, right: 10, top: 5, bottom: 5 },
       })
+      .setDepth(100000)
       .setOrigin(0.5, 0.5)
       .setVisible(false)
       .setInteractive();

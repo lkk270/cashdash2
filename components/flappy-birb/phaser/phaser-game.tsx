@@ -9,7 +9,6 @@ import { generateResponseHash } from '@/lib/hash';
 import { ModifiedScoreType } from '@/app/types';
 import FlappyBirdScene from './phaser-scene';
 import gameEvents from './event-emitter';
-
 import { useToast } from '@/components/ui/use-toast';
 
 interface FlappyBirbProps {
@@ -25,9 +24,6 @@ interface FlappyBirbProps {
 }
 
 const PhaserGame = ({ props }: FlappyBirbProps) => {
-  const [loading, setLoading] = useState(false);
-  const [gameSessionId, setGameSessionId] = useState(null);
-  const [initiatedGameEndSuccess, setInitiatedGameEndSuccess] = useState(false);
   const [userBestScore, setUserBestScore] = useState<ModifiedScoreType | null>(
     props.userBestScoreParam
   );
@@ -57,12 +53,10 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
   };
 
   const onGameStart = () => {
-    setInitiatedGameEndSuccess(false);
     const updatedIds = { ...props.ids, at: '05' };
     axios
       .post('/api/game-session', updatedIds)
       .then((response) => {
-        setGameSessionId(response.data.gameSessionId);
         gameSessionIdRef.current = response.data.gameSessionId;
       })
       .catch((error) => {
@@ -74,9 +68,7 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
   };
 
   const onGameEnd = (score: number) => {
-    setLoading(true);
     setPulsing(true);
-    setInitiatedGameEndSuccess(true);
     axios
       .post('/api/game-session', { gameSessionId: gameSessionIdRef.current, at: '2' })
       .then((response) => {
@@ -121,10 +113,8 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
         });
       })
       .finally(() => {
-        setLoading(false);
         setPulsing(false);
         gameEvents.emit('gameEnded'); // Emit the gameEnded event
-
       });
   };
 
@@ -132,9 +122,11 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
     // onGameLoad();
     let gameWidth = 800;
     let gameHeight = 600;
+    let rescale = false;
     if (window.innerHeight / window.innerWidth > 1.5) {
       gameWidth = 600;
       gameHeight = 800;
+      rescale = true;
     }
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
@@ -153,7 +145,7 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
         },
       },
       scale: {
-        mode: Phaser.Scale.FIT,
+        mode: rescale ? Phaser.Scale.FIT : Phaser.Scale.NONE,
         autoCenter: Phaser.Scale.CENTER_BOTH,
         width: gameWidth, // The base width of your game
         height: gameHeight, // The base height of your game

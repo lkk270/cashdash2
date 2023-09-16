@@ -2,8 +2,9 @@
 
 import dynamic from 'next/dynamic';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { ModifiedScoreType } from '@/app/types';
+import Loader from '@/components/loader';
 
 interface FlappyBirbProps {
   props: {
@@ -19,12 +20,17 @@ interface FlappyBirbProps {
 
 const PhaserGame = dynamic(() => import('@/components/flappy-birb/phaser/phaser-game'), {
   ssr: false, // This will disable server-side rendering for this component
-  loading: () => <p>Loading...</p>, // Optional: Display a loading message/component
+  loading: () => (
+    <div className="flex items-center justify-center h-[75vh] w-[50vw]">
+      <Loader />
+    </div>
+  ),
 });
 
 export const FlappyBirb = ({ props }: FlappyBirbProps) => {
   return (
     <div className="game-container">
+      {/* <GameLoader /> */}
       <PhaserGame props={props} />
     </div>
   );

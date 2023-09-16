@@ -44,22 +44,12 @@ export const GameNavbar = ({ lobby, game, scores }: LobbyHeaderProps) => {
             <Button
               onClick={() => router.push(backPath)}
               size="icon"
-              variant="default"
-              className="hidden mr-2 sm:flex"
+              variant="ghost"
+              className="mr-2 sm:flex"
             >
               <ChevronLeft className="w-8 h-8" />
             </Button>
             <MobileScoresTable scores={scores} scoreType={game.scoreType} lobby={lobby} />
-            <div className="flex items-center sm:hidden">
-              <Button
-                title="Details"
-                onClick={() => lobbyAboutModal.onOpen({ gameName: game.name, lobby: lobby })}
-                size="icon"
-                variant="ghost"
-              >
-                <Info className="w-6 h-6" />
-              </Button>
-            </div>
             <div className="items-center hidden pl-3 lg:flex gap-x-3">
               <CountdownTimer data={countdownData} />
             </div>
@@ -84,8 +74,18 @@ export const GameNavbar = ({ lobby, game, scores }: LobbyHeaderProps) => {
           </div>
 
           {/* Right content */}
-          <div className="flex items-center justify-end gap-x-3">
-            <div className="items-center hidden sm:flex gap-x-2">
+          <div className="flex items-center justify-end">
+            {/* <div className="items-center hidden sm:flex gap-x-2">
+              <Button
+                title="Details"
+                onClick={() => lobbyAboutModal.onOpen({ gameName: game.name, lobby: lobby })}
+                size="icon"
+                variant="ghost"
+              >
+                <Info className="w-6 h-6" />
+              </Button>
+            </div> */}
+            <div className="flex items-center">
               <Button
                 title="Details"
                 onClick={() => lobbyAboutModal.onOpen({ gameName: game.name, lobby: lobby })}
@@ -96,10 +96,12 @@ export const GameNavbar = ({ lobby, game, scores }: LobbyHeaderProps) => {
               </Button>
             </div>
             {/* added justify-end to align items to the right */}
-            <div className="flex items-center sm:flex gap-x-3">
+            <div className="items-center hidden xxs:flex">
               <ModeToggle />
             </div>
-            <UserButton afterSignOutUrl="/" />
+            <div className="ml-2">
+              <UserButton afterSignOutUrl="/" />
+            </div>
           </div>
         </div>
       </div>

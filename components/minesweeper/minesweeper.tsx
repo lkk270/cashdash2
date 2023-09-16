@@ -5,6 +5,7 @@ import axios from 'axios';
 import { Board } from './board';
 import { Header } from './header';
 
+import Loader from '@/components/loader';
 import { ModifiedScoreType } from '@/app/types';
 import { useToast } from '@/components/ui/use-toast';
 import { initializeGrid } from '@/lib/minesweeper-utils';
@@ -40,8 +41,8 @@ export const Minesweeper = ({
   const [explodedCell, setExplodedCell] = useState<{ row: number; col: number } | null>(null);
   const [gameOver, setGameOver] = useState<boolean>(false);
   const [gameStarted, setGameStarted] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [createGameSessionSuccess, setCreateGameSessionSuccess] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
+  // const [createGameSessionSuccess, setCreateGameSessionSuccess] = useState<boolean>(false);
   const [initiatedGameEndSuccess, setInitiatedGameEndSuccess] = useState<boolean>(false);
   const [gameSessionId, setGameSessionId] = useState<string>('');
   const [startTime, setStartTime] = useState<number>(0);
@@ -119,6 +120,7 @@ export const Minesweeper = ({
   useEffect(() => {
     const newGrid = initializeGrid(rows, cols, numMines, min3bv);
     setGrid(newGrid);
+    setLoading(false); // Set loading to false after initializing the grid
   }, []);
 
   const onGameStart = () => {
@@ -278,15 +280,19 @@ export const Minesweeper = ({
         onReset={restartGame}
         loading={loading}
       />
-      <Board
-        cols={cols}
-        grid={grid}
-        gameOver={gameOver}
-        explodedCell={explodedCell}
-        onRevealCell={handleReveal}
-        onToggleFlag={toggleFlag}
-        loading={loading}
-      />
+      {loading ? (
+        <Loader />
+      ) : (
+        <Board
+          cols={cols}
+          grid={grid}
+          gameOver={gameOver}
+          explodedCell={explodedCell}
+          onRevealCell={handleReveal}
+          onToggleFlag={toggleFlag}
+          loading={loading}
+        />
+      )}
     </div>
   );
 };
