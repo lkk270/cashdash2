@@ -1,5 +1,12 @@
-import { off } from 'process';
 import gameEvents from './event-emitter';
+
+const SCREEN_SIZE = window.innerWidth;
+const MOBILE_SCREEN_WIDTH = 469;
+const IS_MOBILE = SCREEN_SIZE > MOBILE_SCREEN_WIDTH ? false : true;
+const JUMP_STRENGTH = IS_MOBILE ? -350 : -275;
+const GAP_SIZE = IS_MOBILE ? 85 : 70;
+const NORMAL_SPEED = IS_MOBILE ? 1950 : 1750;
+const FAST_SPEED = IS_MOBILE ? 1550 : 1350;
 export default class FlappyBirdScene extends Phaser.Scene {
   onGameStart: () => void;
   onGameEnd: (score: number) => void;
@@ -49,30 +56,31 @@ export default class FlappyBirdScene extends Phaser.Scene {
       return; // Don't add trees unless the game has started
     }
 
-    const gapSize = window.innerWidth < 469 ? 90 : 70; // Adjusted this to increase the gap slightly
+    // const gapSize = window.innerWidth < 469 ? 90 : 70; // Adjusted this to increase the gap slightly
     let randomGapPosition;
 
     // Trunk Width
     const trunkWidth = 20;
 
     // Detect gap position logic based on previous gap and screen width
-    if (window.innerWidth < 469) {
-      if (this.previousGapPosition !== null) {
-        const minGapPosition = Math.max(gapSize, this.previousGapPosition - 100);
-        const maxGapPosition = Math.min(
-          this.scale.height - gapSize * 2,
-          this.previousGapPosition + 100
-        );
-        randomGapPosition = Phaser.Math.Between(minGapPosition, maxGapPosition);
-      } else {
-        randomGapPosition = Phaser.Math.Between(gapSize * 2, this.scale.height - gapSize * 2);
-      }
-    } else {
-      randomGapPosition = Phaser.Math.Between(gapSize * 2, this.scale.height - gapSize * 2);
-    }
+    // if (window.innerWidth < MOBILE_SCREEN_WIDTH) {
+    //   if (this.previousGapPosition !== null) {
+    //     const minGapPosition = Math.max(GAP_SIZE, this.previousGapPosition - 100);
+    //     const maxGapPosition = Math.min(
+    //       this.scale.height - GAP_SIZE * 2,
+    //       this.previousGapPosition + 75
+    //     );
+    //     randomGapPosition = Phaser.Math.Between(minGapPosition, maxGapPosition);
+    //   } else {
+    //     randomGapPosition = Phaser.Math.Between(GAP_SIZE * 2, this.scale.height - GAP_SIZE * 2);
+    //   }
+    // } else {
+    //   randomGapPosition = Phaser.Math.Between(GAP_SIZE * 2, this.scale.height - GAP_SIZE * 2);
+    // }
+    randomGapPosition = Phaser.Math.Between(GAP_SIZE * 2, this.scale.height - GAP_SIZE * 2);
 
     // Top Tree
-    const topTreeHeight = randomGapPosition - gapSize / 2 - gapSize;
+    const topTreeHeight = randomGapPosition - GAP_SIZE / 2 - GAP_SIZE;
     const topTree = this.add.rectangle(
       820 - trunkWidth / 2,
       topTreeHeight / 2,
@@ -100,7 +108,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
       // Replace 'desiredOffset' with the desired vertical offset.
     }
     // Bottom Tree
-    const bottomTreeHeight = this.scale.height - (randomGapPosition + gapSize);
+    const bottomTreeHeight = this.scale.height - (randomGapPosition + GAP_SIZE);
     const bottomTree = this.add.rectangle(
       820 - trunkWidth / 2,
       this.scale.height - bottomTreeHeight / 2,
@@ -117,7 +125,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
       // Replace 'someValue' with the amount of pixels you want to reduce from the top.
     }
 
-    const bottomDragon = this.add.image(820 - 30, randomGapPosition + gapSize / 2 + 30, 'dragon');
+    const bottomDragon = this.add.image(820 - 30, randomGapPosition + GAP_SIZE / 2 + 30, 'dragon');
     bottomDragon.setScale(0.2);
     this.physics.add.existing(bottomDragon, false);
     if (bottomDragon.body instanceof Phaser.Physics.Arcade.Body) {
@@ -195,12 +203,12 @@ export default class FlappyBirdScene extends Phaser.Scene {
       }
     }
 
-    const isMobile = window.innerWidth < 568;
+    // const isMobile = window.innerWidth < 568;
     // alert(isMobile);
-    const jumpStrength = isMobile ? -350 : -275;
+    // const jumpStrength = isMobile ? -350 : -275;
 
     if (this.bird) {
-      (this.bird.body as Phaser.Physics.Arcade.Body).setVelocityY(jumpStrength);
+      (this.bird.body as Phaser.Physics.Arcade.Body).setVelocityY(JUMP_STRENGTH);
     }
   }
 
@@ -234,7 +242,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
     });
 
     this.timerEvent = this.time.addEvent({
-      delay: 1750,
+      delay: NORMAL_SPEED,
       callback: this.addTreePair,
       callbackScope: this,
       loop: true,
@@ -259,9 +267,9 @@ export default class FlappyBirdScene extends Phaser.Scene {
     }
 
     this.input.on('pointerdown', this.flap, this); // Add this if you want the bird to flap on a click/tap as well.
-    // this.physics.add.overlap(this.bird, this.trees, this.endGame, undefined, this);
-    // this.physics.add.overlap(this.bird, this.dragons, this.endGame, undefined, this);
-    // this.physics.add.overlap(this.bird, this.leaves, this.endGame, undefined, this);
+    this.physics.add.overlap(this.bird, this.trees, this.endGame, undefined, this);
+    this.physics.add.overlap(this.bird, this.dragons, this.endGame, undefined, this);
+    this.physics.add.overlap(this.bird, this.leaves, this.endGame, undefined, this);
 
     if (this.bird && this.bird.body) {
       const birdBody = this.bird.body as Phaser.Physics.Arcade.Body;
@@ -335,12 +343,12 @@ export default class FlappyBirdScene extends Phaser.Scene {
   }
 
   switchToFastSpeed() {
-    this.intendedDelay = 1350;
+    this.intendedDelay = FAST_SPEED;
     this.speedChangeThreshold = this.previousSpeedCheckScore + 8;
   }
 
   switchToNormalSpeed() {
-    this.intendedDelay = 1750;
+    this.intendedDelay = NORMAL_SPEED;
     this.speedChangeThreshold = this.previousSpeedCheckScore + (Math.floor(Math.random() * 6) + 10);
   }
   update() {
