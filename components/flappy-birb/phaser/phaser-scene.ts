@@ -20,6 +20,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
   timerEvent: Phaser.Time.TimerEvent | null = null; // Define this at the class level
   score: number = 0;
   scoreText: Phaser.GameObjects.Text | null = null;
+  private startText: Phaser.GameObjects.Text | null = null;
   treesPassed: number = 0;
   destructionTimers: Phaser.Time.TimerEvent[] = [];
   private restartButton: Phaser.GameObjects.Text | null = null;
@@ -193,6 +194,9 @@ export default class FlappyBirdScene extends Phaser.Scene {
   }
   flap() {
     if (this.gameOver) return;
+    if (this.startText) {
+      this.startText.setVisible(false);
+    }
     if (!this.gameStarted) {
       if (this.onGameStart) {
         this.onGameStart();
@@ -280,6 +284,15 @@ export default class FlappyBirdScene extends Phaser.Scene {
     }
     const centerX = this.scale.width / 2;
     const centerY = this.scale.height / 2;
+
+    this.startText = this.add
+      .text(centerX, centerY, 'Press spacebar to play', {
+        fontSize: '24px',
+        color: '#ffffff',
+        fontFamily: 'Arial Black',
+      })
+      .setOrigin(0.5, 0.5);
+
     this.restartButton = this.add
       .text(centerX, centerY + 30, 'Restart', {
         fontSize: '20px',
@@ -293,7 +306,11 @@ export default class FlappyBirdScene extends Phaser.Scene {
       .setVisible(false)
       .setInteractive();
     this.restartButton.on('pointerdown', async () => {
-      this.scene.restart(); // Restarting the game scene
+      // Restarting the game scene
+      this.scene.restart();
+      if (this.startText) {
+        this.startText.setVisible(true);
+      }
     });
 
     // Optionally, you can make the button slightly bigger when hovered
