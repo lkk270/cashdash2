@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { PuffLoader } from "react-spinners";
+import { PuffLoader, PacmanLoader } from 'react-spinners';
 
 const Loader = () => {
   return (
@@ -13,7 +13,7 @@ const Loader = () => {
       items-center 
     "
     >
-      <PuffLoader size={100} color="violet" />
+      <PacmanLoader size={25} color="#8d4fff" />
     </div>
   );
 };

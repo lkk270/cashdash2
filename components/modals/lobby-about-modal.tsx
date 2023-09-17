@@ -1,5 +1,3 @@
-// LobbyAboutModal.tsx
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -32,16 +30,12 @@ export const LobbyAboutModal = () => {
   };
   const numRewards = lobbyAboutModal.data?.lobby.numRewards || 0;
 
-  // Placeholder Data (same as before)
   const prizes = {
     first: `$${lobbyAboutModal.data?.lobby.firstPlacePrize}`,
     second: `$${lobbyAboutModal.data?.lobby.secondPlacePrice}`,
     third: `$${lobbyAboutModal.data?.lobby.thirdPlacePrize}`,
     other: `$${lobbyAboutModal.data?.lobby.unspecifiedPlacePrize}`,
   };
-  const userPlays = 10;
-  const totalPlays = 1000;
-  const topScores = [100, 90, 85, 80, 75];
 
   useEffect(() => {
     setIsMounted(true);
@@ -60,9 +54,9 @@ export const LobbyAboutModal = () => {
           >
             {lobbyAboutModal.data?.gameName} {lobbyAboutModal.data?.lobby.name}
           </DialogTitle>
-          <DialogDescription className="flex items-center justify-center space-y-2 text-center">
-            <CountdownTimer data={countdownData} />
-          </DialogDescription>
+          {/* <DialogDescription className="flex items-center justify-center space-y-2 text-center"> */}
+          <CountdownTimer data={countdownData} />
+          {/* </DialogDescription> */}
         </DialogHeader>
         <Separator />
         {/* Prizes Section */}
