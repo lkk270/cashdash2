@@ -58,22 +58,26 @@ export const GameNavbar = ({ lobby, game, scores }: LobbyHeaderProps) => {
             </div>
           </div>
           {/* Center content */}
+
           <div className="flex flex-col items-center justify-center text-xs xxs:text-xs sm:text-lg">
-            <Link href="/dashboard">
+            {/* <Link href="/dashboard">
               <div className="px-3">
                 <Logo />
               </div>
+            </Link> */}
+            <Link href="/dashboard">
+              <span
+                className={`${orbitronFont.className} font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent whitespace-nowrap`}
+              >
+                {game.name}
+              </span>
+              <span
+                className={`${orbitronFont.className} font-bold bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent whitespace-nowrap flex-grow`}
+              >
+                {' '}
+                {lobby.name}
+              </span>
             </Link>
-            <span
-              className={`${orbitronFont.className} font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent whitespace-nowrap`}
-            >
-              {game.name}
-            </span>
-            <span
-              className={`${orbitronFont.className} font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent whitespace-nowrap flex-grow`}
-            >
-              {lobby.name}
-            </span>
           </div>
 
           {/* Right content */}

@@ -4,7 +4,7 @@ const SCREEN_SIZE = window.innerWidth;
 const MOBILE_SCREEN_WIDTH = 469;
 const IS_MOBILE = SCREEN_SIZE > MOBILE_SCREEN_WIDTH ? false : true;
 const JUMP_STRENGTH = IS_MOBILE ? -350 : -275;
-const GAP_SIZE = IS_MOBILE ? 85 : 70;
+const GAP_SIZE = IS_MOBILE ? 85 : 75;
 const NORMAL_SPEED = IS_MOBILE ? 1950 : 1750;
 const FAST_SPEED = IS_MOBILE ? 1550 : 1350;
 export default class FlappyBirdScene extends Phaser.Scene {
@@ -223,6 +223,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
     this.scoreText = this.add.text(16, 16, 'Score: 0', {
       fontSize: '20px',
       color: '#580d82',
+      backgroundColor: '#5fa6f9',
       fontFamily: 'Arial Black',
     });
     this.scoreText.setDepth(1000);

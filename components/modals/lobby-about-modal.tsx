@@ -52,7 +52,12 @@ export const LobbyAboutModal = () => {
           <DialogTitle
             className={`${orbitronFont.className} font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent text-center`}
           >
-            {lobbyAboutModal.data?.gameName} {lobbyAboutModal.data?.lobby.name}
+            <span>{lobbyAboutModal.data?.gameName}</span>
+
+            <span className="flex-grow font-bold text-transparent bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text whitespace-nowrap">
+              {' '}
+              {lobbyAboutModal.data?.lobby.name}
+            </span>
           </DialogTitle>
           {/* <DialogDescription className="flex items-center justify-center space-y-2 text-center"> */}
           <CountdownTimer data={countdownData} />
