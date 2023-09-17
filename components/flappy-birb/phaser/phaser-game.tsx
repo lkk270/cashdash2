@@ -145,7 +145,8 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
         },
       },
       scale: {
-        mode: rescale ? Phaser.Scale.FIT : Phaser.Scale.NONE,
+        // mode: rescale ? Phaser.Scale.FIT : Phaser.Scale.NONE,
+        mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
         width: gameWidth, // The base width of your game
         height: gameHeight, // The base height of your game
