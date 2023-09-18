@@ -7,11 +7,11 @@ import axios from 'axios';
 
 import { generateResponseHash } from '@/lib/hash';
 import { ModifiedScoreType } from '@/app/types';
-import FlappyBirdScene from './phaser-scene';
+import BlackjackScene from './phaser-scene';
 import gameEvents from './event-emitter';
 import { useToast } from '@/components/ui/use-toast';
 
-interface FlappyBirbProps {
+interface BlackjackProps {
   props: {
     userBestScoreParam: ModifiedScoreType | null;
     setScores: (scores: ModifiedScoreType[]) => void;
@@ -23,7 +23,7 @@ interface FlappyBirbProps {
   };
 }
 
-const PhaserGame = ({ props }: FlappyBirbProps) => {
+const PhaserGame = ({ props }: BlackjackProps) => {
   const [userBestScore, setUserBestScore] = useState<ModifiedScoreType | null>(
     props.userBestScoreParam
   );
@@ -42,12 +42,12 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
         gameElement.classList.remove('pulsing');
 
         // Notify the scene that the pulsing is done.
-        if (gameRef.current) {
-          const scene = gameRef.current.scene.getScene('FlappyBirdScene');
-          if (scene && scene instanceof FlappyBirdScene) {
-            scene.pulseCompleted();
-          }
-        }
+        // if (gameRef.current) {
+        //   const scene = gameRef.current.scene.getScene('BlackjackScene');
+        //   if (scene && scene instanceof BlackjackScene) {
+        //     scene.pulseCompleted();
+        //   }
+        // }
       }
     }
   };
@@ -134,9 +134,9 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
       height: gameHeight,
       autoFocus: true,
       antialias: false,
-      scene: new FlappyBirdScene({ key: 'FlappyBirdScene' }, onGameStart, onGameEnd),
+      scene: new BlackjackScene({ key: 'BlackjackScene' }),
       parent: 'phaser-game',
-      // backgroundColor: '#5fa6f9',
+      backgroundColor: '#5fa6f9',
       physics: {
         default: 'arcade',
         arcade: {

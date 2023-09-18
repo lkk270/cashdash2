@@ -104,8 +104,9 @@ export default class FlappyBirdScene extends Phaser.Scene {
     topLeaves.setAngle(180);
     this.physics.add.existing(topLeaves, false);
     if (topLeaves.body instanceof Phaser.Physics.Arcade.Body) {
-      topLeaves.body.setSize(375, 300, true);
-      topLeaves.body.offset.x = 50;
+      // topLeaves.body.setSize(375, 300, true);
+      // topLeaves.body.offset.x = 50;
+      topLeaves.body.setCircle(165, 80, 110);
       // Replace 'desiredOffset' with the desired vertical offset.
     }
     // Bottom Tree
@@ -130,9 +131,10 @@ export default class FlappyBirdScene extends Phaser.Scene {
     bottomDragon.setScale(0.2);
     this.physics.add.existing(bottomDragon, false);
     if (bottomDragon.body instanceof Phaser.Physics.Arcade.Body) {
-      bottomDragon.body.setSize(300, 300, true);
-      bottomDragon.body.offset.y = 100;
-      bottomDragon.body.offset.x = 175;
+      // bottomDragon.body.setSize(300, 300, true);
+      // bottomDragon.body.offset.y = 100;
+      // bottomDragon.body.offset.x = 175;
+      bottomDragon.body.setCircle(175, 150, 100);
       // Replace 'desiredOffset' with the desired vertical offset.
     }
 
@@ -191,6 +193,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
     this.load.image('birddown', '/flappy-birb/birddown.png');
     this.load.image('leaves', '/flappy-birb/leaves3.png');
     this.load.image('dragon', '/flappy-birb/dragon.png');
+    this.load.image('sky', '/flappy-birb/sky1.png');
   }
   flap() {
     if (this.gameOver) return;
@@ -217,13 +220,15 @@ export default class FlappyBirdScene extends Phaser.Scene {
   }
 
   create() {
+    const centerX = this.scale.width / 2;
+    const centerY = this.scale.height / 2;
     // this.physics.world.createDebugGraphic();
     this.cleanUp();
     this.gameOver = false;
+    this.add.image(centerX, centerY, 'sky');
     this.scoreText = this.add.text(16, 16, 'Score: 0', {
       fontSize: '20px',
       color: '#580d82',
-      backgroundColor: '#5fa6f9',
       fontFamily: 'Arial Black',
     });
     this.scoreText.setDepth(1000);
@@ -280,14 +285,13 @@ export default class FlappyBirdScene extends Phaser.Scene {
       const birdBody = this.bird.body as Phaser.Physics.Arcade.Body;
       birdBody.setGravityY(0); // Start with no gravity
       birdBody.setVelocity(0); // Start with no velocity
-      birdBody.setSize(250, 175, true);
-      birdBody.offset.x = 175;
+      // birdBody.setSize(250, 175, true);
+      // birdBody.offset.x = 175;
+      birdBody.setCircle(125, 160, 125);
     }
-    const centerX = this.scale.width / 2;
-    const centerY = this.scale.height / 2;
 
     this.startText = this.add
-      .text(centerX, centerY, 'Press spacebar to play', {
+      .text(centerX, centerY, 'Press spacebar or tap to play', {
         fontSize: '24px',
         color: '#ffffff',
         fontFamily: 'Arial Black',
@@ -455,6 +459,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
     const centerY = this.scale.height / 2;
 
     if (this.scoreText) {
+      this.scoreText.setBackgroundColor('#5fa6f9');
       this.tweens.add({
         targets: this.scoreText,
         x: centerX - this.scoreText.width / 2,

@@ -157,11 +157,13 @@ export const ScoreChart = ({ scores, userGameAverageScores }: ScoreChartProps) =
           const timesPlayed = getTimesPlayedForGame(activeGameId);
           const totalWinnings = getTotalWinningsForGame(games[gameName]);
           const formattedAverageScore =
-            currentScoreType === 'time' ? convertMillisecondsToMinSec(averageScore) : averageScore;
+            currentScoreType === 'time'
+              ? convertMillisecondsToMinSec(averageScore)
+              : averageScore.toFixed(2);
           const formattedWeightedAverageScore =
             currentScoreType === 'time'
               ? convertMillisecondsToMinSec(weightedAverageScore)
-              : weightedAverageScore;
+              : weightedAverageScore.toFixed(2);
 
           return (
             <TabsContent

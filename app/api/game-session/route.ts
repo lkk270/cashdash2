@@ -329,7 +329,8 @@ export async function POST(req: Request) {
 
             displayScores = prepareScoresForDisplay(bestScoresArray, userId);
           }
-          const message = displayScores !== null ? 'New high score!' : 'Score saved!';
+          const message =
+            displayScores !== null ? 'New personal best score (for this session)!' : 'Score saved!';
           return new NextResponse(
             JSON.stringify({ message: message, displayScores: displayScores })
           );
