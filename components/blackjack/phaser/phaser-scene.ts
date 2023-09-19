@@ -49,7 +49,7 @@ const CHIP_OFFSETS = [0, -5, -10];
 class BlackjackScene extends Phaser.Scene {
   onGameStart: () => void;
   onGameEnd: (score: number) => void;
-  private balance: number = 100;
+  private balance: number = 99999;
   private balanceText: Phaser.GameObjects.Text | null = null;
   chipCounts: Map<number, number> = new Map();
   private chips: Phaser.GameObjects.Sprite[] = [];
@@ -174,7 +174,7 @@ class BlackjackScene extends Phaser.Scene {
     });
 
     if (this.selectedChipsTotalText) {
-      this.selectedChipsTotalText.setText(`$${total}`);
+      this.selectedChipsTotalText.setText(`$${this.formatBalance(total)}`);
     }
     if (this.selectedChipsTotalText?.text === '$0') {
       this.dealButton?.setVisible(false);
@@ -230,16 +230,16 @@ class BlackjackScene extends Phaser.Scene {
     tempChips.forEach((item, idx) => {
       const chipObj = item.chipObj;
       const clonedChip = item.clonedChip;
-      clonedChip.x = 400;
-      clonedChip.y = 350 + idx * 5; // Stacking chips
+      clonedChip.x = 350;
+      clonedChip.y = 375 + idx * 2.5; // Stacking chips
       (clonedChip as any).originalX = chipObj.originalX;
       (clonedChip as any).originalY = chipObj.originalY;
 
       this.selectedChips.push(clonedChip);
       this.tweens.add({
         targets: clonedChip,
-        x: 400,
-        y: 350 - idx * 5, // Adjust this to make them stack nicely in the center
+        x: 350,
+        y: 375, // Adjust this to make them stack nicely in the center
         duration: 300,
         ease: 'Sine.easeOut',
         delay: idx * 100, // Add a small delay to each to make it more realistic
@@ -338,42 +338,46 @@ class BlackjackScene extends Phaser.Scene {
   }
 
   createDealButton() {
+    const x = 625;
+    const y = 300;
+    const width = 175;
+    const height = 80;
     // Creating the dealButton background
     this.dealButton = this.add
       .graphics()
       .fillStyle(0x007700, 1) // Button color
-      .fillRect(250, 390, 175, 40) // Adjust dimensions as needed
-      .setInteractive(new Phaser.Geom.Rectangle(250, 390, 175, 40), Phaser.Geom.Rectangle.Contains)
+      .fillRoundedRect(x, y, width, height, 10) // Adjust dimensions as needed
+      .setInteractive(
+        new Phaser.Geom.Rectangle(x, y, width, height),
+        Phaser.Geom.Rectangle.Contains
+      )
       .setVisible(false);
     // Add interactive text over the dealButton
     const dealButtonText = this.add
-      .text(337.5, 410, 'DEAL', {
-        fontSize: '24px',
+      .text(x + width / 2, y + height / 2, 'DEAL', {
+        fontSize: '30px',
         padding: { left: 60, right: 60, top: 10, bottom: 10 },
       })
       .setOrigin(0.5, 0.5)
-      .setInteractive({
-        cursor: 'pointer',
-      })
       .setVisible(false);
 
     this.dealButtonText = dealButtonText; // Set the class property here
 
     this.dealButton.on('pointerover', () => {
       if (this.dealButton) {
-        this.dealButton.clear().fillStyle(0x009900, 1).fillRect(250, 390, 175, 40); // Change color on hover
+        this.dealButton.clear().fillStyle(0x009900, 1).fillRoundedRect(x, y, width, height); // Change color on hover
         this.game.canvas.style.cursor = 'pointer'; // <-- Add this line to change the cursor
       }
     });
 
     this.dealButton.on('pointerout', () => {
       if (this.dealButton) {
-        this.dealButton.clear().fillStyle(0x225577, 1).fillRect(250, 390, 175, 40); // Reset color
+        this.dealButton.clear().fillStyle(0x225577, 1).fillRoundedRect(x, y, width, height); // Reset color
         this.game.canvas.style.cursor = 'default'; // <-- Add this line to change the cursor
       }
     });
 
-    this.dealButtonText.on('pointerdown', () => {
+    this.dealButton.on('pointerdown', () => {
       this.onDealButtonClicked();
     });
   }
@@ -501,8 +505,8 @@ class BlackjackScene extends Phaser.Scene {
 
         const offset =
           CHIP_OFFSETS[centerChipCount] !== undefined ? CHIP_OFFSETS[centerChipCount] : -12;
-        const targetX = 400 - offset;
-        const targetY = 350;
+        const targetX = 350 - offset;
+        const targetY = 375;
 
         this.tweens.add({
           targets: clonedChip,
@@ -561,7 +565,7 @@ class BlackjackScene extends Phaser.Scene {
       })
       .setOrigin(0, 0.5);
 
-    this.selectedChipsTotalText = this.add.text(475, 320, '$0', {
+    this.selectedChipsTotalText = this.add.text(425, 350, '$0', {
       fontSize: '46px',
       fontStyle: 'bold',
     });
