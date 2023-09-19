@@ -51,18 +51,21 @@ class BlackjackScene extends Phaser.Scene {
   onGameEnd: (score: number) => void;
   private balance: number = 99999;
   private balanceText: Phaser.GameObjects.Text | null = null;
-  chipCounts: Map<number, number> = new Map();
+  private chipCounts: Map<number, number> = new Map();
   private chips: Phaser.GameObjects.Sprite[] = [];
   private selectedChips: Phaser.GameObjects.Sprite[] = [];
   private selectedChipsTotalText: Phaser.GameObjects.Text | null = null;
   private canSelectChip: boolean = true;
   private canDeselectChip: boolean = true;
-  mainContainer: Phaser.GameObjects.Container | null = null;
+  private mainContainer: Phaser.GameObjects.Container | null = null;
   private mainBackground: Phaser.GameObjects.Graphics | null = null;
   private allInButton: Phaser.GameObjects.Graphics | null = null;
   private allInButtonText: Phaser.GameObjects.Text | null = null;
   private dealButton: Phaser.GameObjects.Graphics | null = null;
   private dealButtonText: Phaser.GameObjects.Text | null = null;
+  private dealInProgress = false;
+  private cards: string[] = [];
+  private deck: string[] = [];
 
   constructor(
     config: Phaser.Types.Scenes.SettingsConfig,
@@ -100,7 +103,6 @@ class BlackjackScene extends Phaser.Scene {
   }
 
   // Function to update the visibility of the chips based on the balance
-  // Function to update the visibility of the chips based on the balance
   updateAvailableChips(chips: Phaser.GameObjects.Sprite[]) {
     chips.forEach((chip, index) => {
       if (CHIPS[index].value > this.balance) {
@@ -128,7 +130,9 @@ class BlackjackScene extends Phaser.Scene {
   }
 
   deselectChip(clonedChip: Phaser.GameObjects.Sprite) {
-    if (!this.canDeselectChip) return;
+    console.log('HELO');
+    console.log(this.dealInProgress);
+    if (!this.canDeselectChip || this.dealInProgress) return;
     this.canDeselectChip = false;
     setTimeout(() => {
       this.canDeselectChip = true;
@@ -161,10 +165,13 @@ class BlackjackScene extends Phaser.Scene {
         this.updateAvailableChips(this.chips);
       },
     });
+    console.log('INN 167');
+
     this.updateSelectedChipsTotal();
   }
 
   updateSelectedChipsTotal() {
+    console.log('INN 171');
     let total = 0;
     this.selectedChips.forEach((chip) => {
       const chipValue = CHIPS.find((chipObj) => chipObj.name === chip.frame.name)?.value;
@@ -221,6 +228,7 @@ class BlackjackScene extends Phaser.Scene {
           cursor: 'pointer',
         })
         .on('pointerdown', () => {
+          console.log('HELLO');
           this.deselectChip(clonedChip);
         });
       tempChips.push({ chipObj, clonedChip });
@@ -249,6 +257,8 @@ class BlackjackScene extends Phaser.Scene {
     if (this.balanceText) {
       this.balanceText.setText(`Bank: $${this.formatBalance(this.balance)}`);
     }
+    console.log('INN 259');
+
     this.updateSelectedChipsTotal();
     this.updateAvailableChips(this.chips);
   }
@@ -280,6 +290,7 @@ class BlackjackScene extends Phaser.Scene {
     if (this.balanceText) {
       this.balanceText.setText(`Bank: $${this.formatBalance(this.balance)}`);
     }
+    console.log('INN 292');
 
     this.updateSelectedChipsTotal();
     this.updateAvailableChips(this.chips);
@@ -378,6 +389,7 @@ class BlackjackScene extends Phaser.Scene {
     });
 
     this.dealButton.on('pointerdown', () => {
+      this.dealInProgress = true;
       this.onDealButtonClicked();
     });
   }
@@ -428,6 +440,7 @@ class BlackjackScene extends Phaser.Scene {
         },
       });
     }
+    this.dealCards();
   }
 
   createChips() {
@@ -452,6 +465,8 @@ class BlackjackScene extends Phaser.Scene {
         (clonedChip as any).originalY = chip.y;
 
         this.selectedChips.push(clonedChip);
+        console.log('INN 466');
+
         this.updateSelectedChipsTotal();
 
         // Event to handle deselection of the chip
@@ -462,7 +477,7 @@ class BlackjackScene extends Phaser.Scene {
           .on('pointerdown', () => {
             // Remove the chip from the array
 
-            if (!this.canDeselectChip) return; // If we can't deselect, exit early
+            if (!this.canDeselectChip || this.dealInProgress) return; // If we can't deselect, exit early
 
             this.canDeselectChip = false; // Set it to false to prevent subsequent deselections
             setTimeout(() => {
@@ -487,6 +502,8 @@ class BlackjackScene extends Phaser.Scene {
             }
 
             // Update the total for the selected chips
+            console.log('INN 503');
+
             this.updateSelectedChipsTotal();
 
             // Tween to animate the chip moving back to its designated pile
@@ -536,7 +553,43 @@ class BlackjackScene extends Phaser.Scene {
     });
   }
 
+  //cards
+
+  createDeck() {
+    const frames = this.textures.get('cards').getFrameNames();
+    let singleDeck = [];
+    for (let i = 0; i < frames.length; i++) {
+      const frameName = frames[i];
+      if (frameName !== 'back' && frameName !== 'joker') {
+        singleDeck.push(frameName);
+      }
+    }
+    this.cards = singleDeck.concat(singleDeck); // Combining two decks
+  }
+
+  shuffleDeck() {
+    for (let i = this.cards.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]];
+    }
+  }
+
+  dealCards() {
+    let playerCards = [this.cards.pop(), this.cards.pop()];
+    let dealerCards = ['back', this.cards.pop()];
+    this.displayCards(playerCards, 375, 600); // Coordinates for the player's cards
+    this.displayCards(dealerCards, 375, 150); // Coordinates for the dealer's cards
+  }
+
+  displayCards(cards: any[], startX: number, startY: number) {
+    for (let i = 0; i < cards.length; i++) {
+      this.add.sprite(startX + i * 150, startY, 'cards', cards[i]);
+    }
+  }
+
   create() {
+    this.createDeck();
+    this.shuffleDeck();
     this.chipCounts.clear();
 
     this.add.image(420, 375, 'bg');
