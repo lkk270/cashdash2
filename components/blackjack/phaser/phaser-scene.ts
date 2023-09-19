@@ -40,6 +40,7 @@ const CHIPS = [
   { name: 'c50', value: 50, originalX: 512, originalY: 541 },
   { name: 'c100', value: 100, originalX: 101, originalY: 678 },
   { name: 'c1000', value: 1000, originalX: 238, originalY: 678 },
+  { name: 'c2000', value: 2000, originalX: 375, originalY: 678 },
 ];
 
 const CHIP_OFFSETS = [0, -5, -10];
@@ -48,7 +49,7 @@ const CHIP_OFFSETS = [0, -5, -10];
 class BlackjackScene extends Phaser.Scene {
   onGameStart: () => void;
   onGameEnd: (score: number) => void;
-  private balance: number = 999;
+  private balance: number = 100;
   private balanceText: Phaser.GameObjects.Text | null = null;
   chipCounts: Map<number, number> = new Map();
   private chips: Phaser.GameObjects.Sprite[] = [];
@@ -56,6 +57,12 @@ class BlackjackScene extends Phaser.Scene {
   private selectedChipsTotalText: Phaser.GameObjects.Text | null = null;
   private canSelectChip: boolean = true;
   private canDeselectChip: boolean = true;
+  mainContainer: Phaser.GameObjects.Container | null = null;
+  private mainBackground: Phaser.GameObjects.Graphics | null = null;
+  private allInButton: Phaser.GameObjects.Graphics | null = null;
+  private allInButtonText: Phaser.GameObjects.Text | null = null;
+  private dealButton: Phaser.GameObjects.Graphics | null = null;
+  private dealButtonText: Phaser.GameObjects.Text | null = null;
 
   constructor(
     config: Phaser.Types.Scenes.SettingsConfig,
@@ -65,12 +72,31 @@ class BlackjackScene extends Phaser.Scene {
     super({ key: 'BlackjackScene', ...config });
     this.onGameStart = onGameStart;
     this.onGameEnd = onGameEnd;
+    this.allInButtonText = null;
+    this.dealButtonText = null;
+    // Add this line
+
+    // this.mainContainer = this.add.container();
   }
 
   preload() {
     this.load.image('bg', '/blackjack/casinotablebg.png');
     this.load.atlas('cards', '/blackjack/cards.png', '/blackjack/cards.json');
     this.load.atlas('chips', '/blackjack/chips3.png', '/blackjack/chips3.json');
+  }
+
+  formatBalance(balance: number): string {
+    if (balance <= 9999) {
+      return balance.toString();
+    } else if (balance >= 995_000 && balance < 1_000_000) {
+      return '1M';
+    } else if (balance < 1_000_000) {
+      return (Math.round(balance / 100) / 10 + 'K').toString();
+    } else if (balance < 1_000_000_000) {
+      return (Math.round(balance / 100_000) / 10 + 'M').toString();
+    } else {
+      return (Math.round(balance / 100_000_000) / 10 + 'B').toString();
+    }
   }
 
   // Function to update the visibility of the chips based on the balance
@@ -121,7 +147,7 @@ class BlackjackScene extends Phaser.Scene {
     }
 
     if (this.balanceText) {
-      this.balanceText.setText(`Bank: $${this.balance}`);
+      this.balanceText.setText(`Bank: $${this.formatBalance(this.balance)}`);
     }
 
     this.tweens.add({
@@ -149,6 +175,13 @@ class BlackjackScene extends Phaser.Scene {
 
     if (this.selectedChipsTotalText) {
       this.selectedChipsTotalText.setText(`$${total}`);
+    }
+    if (this.selectedChipsTotalText?.text === '$0') {
+      this.dealButton?.setVisible(false);
+      this.dealButtonText?.setVisible(false);
+    } else {
+      this.dealButton?.setVisible(true);
+      this.dealButtonText?.setVisible(true);
     }
   }
 
@@ -214,7 +247,7 @@ class BlackjackScene extends Phaser.Scene {
     });
 
     if (this.balanceText) {
-      this.balanceText.setText(`Bank: $${this.balance}`);
+      this.balanceText.setText(`Bank: $${this.formatBalance(this.balance)}`);
     }
     this.updateSelectedChipsTotal();
     this.updateAvailableChips(this.chips);
@@ -245,7 +278,7 @@ class BlackjackScene extends Phaser.Scene {
     this.selectedChips = []; // Clear the array
 
     if (this.balanceText) {
-      this.balanceText.setText(`Bank: $${this.balance}`);
+      this.balanceText.setText(`Bank: $${this.formatBalance(this.balance)}`);
     }
 
     this.updateSelectedChipsTotal();
@@ -264,55 +297,137 @@ class BlackjackScene extends Phaser.Scene {
     return graphics;
   }
 
-  create() {
-    this.chipCounts.clear();
-    let centerChipCount = 0;
-    this.add.image(420, 375, 'bg');
+  createAllInButton() {
+    if (this.balance < 100000) {
+      this.allInButton = this.add
+        .graphics()
+        .fillStyle(0x225577, 1) // Button color
+        .fillRect(30, 390, 175, 40) // Adjust dimensions as needed
+        .setInteractive(
+          new Phaser.Geom.Rectangle(30, 390, 175, 40),
+          Phaser.Geom.Rectangle.Contains
+        );
 
-    this.createRoundedBackground(this);
+      const allInButtonText = this.add
+        .text(117.5, 410, 'ALL IN', {
+          fontSize: '24px',
+          padding: { left: 45, right: 45, top: 10, bottom: 10 },
+        })
+        .setOrigin(0.5, 0.5);
 
-    // Balance
-    this.balanceText = this.add
-      .text(30, 370, `Bank: $${this.balance}`, { fontSize: '30px', fontStyle: 'bold' })
-      .setOrigin(0, 0.5);
+      this.allInButtonText = allInButtonText; // Set the class property here
 
-    // ALL IN Button
-    const allInButtonBackground = this.add
+      this.allInButton.on('pointerover', () => {
+        if (this.allInButton) {
+          this.allInButton.clear().fillStyle(0x336699, 1).fillRect(30, 390, 175, 40); // Change color on hover
+          this.game.canvas.style.cursor = 'pointer'; // <-- Add this line to change the cursor
+        }
+      });
+
+      this.allInButton.on('pointerout', () => {
+        if (this.allInButton) {
+          this.allInButton.clear().fillStyle(0x225577, 1).fillRect(30, 390, 175, 40); // Reset color
+          this.game.canvas.style.cursor = 'default'; // <-- Add this line to change the cursor
+        }
+      });
+
+      this.allInButton.on('pointerdown', () => {
+        this.allInButtonLogic(allInButtonText);
+      });
+    }
+  }
+
+  createDealButton() {
+    // Creating the dealButton background
+    this.dealButton = this.add
       .graphics()
-      .fillStyle(0x225577, 1) // Button color
-      .fillRect(30, 390, 175, 40); // Adjust dimensions as needed
-
-    this.add.existing(allInButtonBackground);
-
-    const allInButtonText = this.add
-      .text(117.5, 410, 'ALL IN', {
+      .fillStyle(0x007700, 1) // Button color
+      .fillRect(250, 390, 175, 40) // Adjust dimensions as needed
+      .setInteractive(new Phaser.Geom.Rectangle(250, 390, 175, 40), Phaser.Geom.Rectangle.Contains)
+      .setVisible(false);
+    // Add interactive text over the dealButton
+    const dealButtonText = this.add
+      .text(337.5, 410, 'DEAL', {
         fontSize: '24px',
-        padding: { left: 45, right: 45, top: 10, bottom: 10 },
-      }) // Use the calculated center X and Y positions
+        padding: { left: 60, right: 60, top: 10, bottom: 10 },
+      })
       .setOrigin(0.5, 0.5)
       .setInteractive({
         cursor: 'pointer',
+      })
+      .setVisible(false);
+
+    this.dealButtonText = dealButtonText; // Set the class property here
+
+    this.dealButton.on('pointerover', () => {
+      if (this.dealButton) {
+        this.dealButton.clear().fillStyle(0x009900, 1).fillRect(250, 390, 175, 40); // Change color on hover
+        this.game.canvas.style.cursor = 'pointer'; // <-- Add this line to change the cursor
+      }
+    });
+
+    this.dealButton.on('pointerout', () => {
+      if (this.dealButton) {
+        this.dealButton.clear().fillStyle(0x225577, 1).fillRect(250, 390, 175, 40); // Reset color
+        this.game.canvas.style.cursor = 'default'; // <-- Add this line to change the cursor
+      }
+    });
+
+    this.dealButtonText.on('pointerdown', () => {
+      this.onDealButtonClicked();
+    });
+  }
+
+  onDealButtonClicked() {
+    this.dealButton?.setVisible(false);
+    this.dealButtonText?.setVisible(false);
+    // Animate balanceText to the top-left
+    if (this.balanceText) {
+      this.tweens.add({
+        targets: this.balanceText,
+        x: 10,
+        y: 30,
+        duration: 500,
+        ease: 'Sine.easeInOut',
+        onStart: () => {
+          this.mainContainer?.setVisible(true);
+          this.allInButtonText?.setVisible(true);
+        },
+        onComplete: () => {
+          // This can be left empty or add further actions if necessary
+        },
       });
+    }
 
-    allInButtonText.on('pointerover', () => {
-      allInButtonBackground.clear().fillStyle(0x336699, 1).fillRect(30, 390, 175, 40); // Change color on hover
-    });
+    // Animate mainContainer moving downwards off the screen
+    if (this.mainContainer) {
+      this.tweens.add({
+        targets: this.mainContainer,
+        y: this.game.canvas.height + this.mainContainer.height, // moving it completely below the screen
+        duration: 500,
+        ease: 'Sine.easeInOut',
+        onComplete: () => {
+          this.mainContainer?.setVisible(false); // Hide the container after the animation
+        },
+      });
+    }
 
-    allInButtonText.on('pointerout', () => {
-      allInButtonBackground.clear().fillStyle(0x225577, 1).fillRect(30, 390, 175, 40); // Reset color
-    });
+    // Animate allInButtonText moving downwards off the screen
+    if (this.allInButtonText) {
+      this.tweens.add({
+        targets: this.allInButtonText,
+        y: this.game.canvas.height + this.allInButtonText.height, // moving it completely below the screen
+        duration: 500,
+        ease: 'Sine.easeInOut',
+        onComplete: () => {
+          this.allInButtonText?.setVisible(false); // Hide the text after the animation
+        },
+      });
+    }
+  }
 
-    allInButtonText.on('pointerdown', () => {
-      this.allInButtonLogic(allInButtonText);
-    });
-    this.selectedChipsTotalText = this.add.text(475, 320, '$0', {
-      fontSize: '46px',
-      fontStyle: 'bold',
-    });
-
-    // Add Balance
-    // const availableChips = CHIPS.filter((chipObj) => chipObj.value <= this.balance);
-
+  createChips() {
+    let centerChipCount = 0;
     this.chips = CHIPS.map((chipObj) => {
       const chip = this.add.sprite(0, 0, 'chips', chipObj.name).setScale(0.42);
       chip.setInteractive({
@@ -364,7 +479,7 @@ class BlackjackScene extends Phaser.Scene {
               this.chipCounts.set(chipValue, Math.max(0, currentCount - 1)); // ensure it's not less than 0
             }
             if (this.balanceText) {
-              this.balanceText.setText(`Bank: $${this.balance}`);
+              this.balanceText.setText(`Bank: $${this.formatBalance(this.balance)}`);
             }
 
             // Update the total for the selected chips
@@ -408,12 +523,47 @@ class BlackjackScene extends Phaser.Scene {
         // Deduct the chip value from the balance
         this.balance -= chipObj.value;
         if (this.balanceText) {
-          this.balanceText.setText(`Bank: $${this.balance}`);
+          this.balanceText.setText(`Bank: $${this.formatBalance(this.balance)}`);
         }
         this.updateAvailableChips(this.chips);
       });
 
       return chip;
+    });
+  }
+
+  create() {
+    this.chipCounts.clear();
+
+    this.add.image(420, 375, 'bg');
+    this.mainContainer = this.add.container();
+
+    this.mainBackground = this.createRoundedBackground(this);
+    this.mainContainer.add(this.mainBackground);
+    // ALL IN Button
+    this.createAllInButton();
+    //add available chips
+    this.createChips();
+
+    if (this.allInButton) {
+      this.mainContainer.add(this.allInButton);
+    }
+    this.chips.forEach((chip) => {
+      if (this.mainContainer) {
+        this.mainContainer.add(chip);
+      }
+    });
+
+    this.balanceText = this.add
+      .text(30, 370, `Bank: $${this.formatBalance(this.balance)}`, {
+        fontSize: '24px',
+        fontStyle: 'bold',
+      })
+      .setOrigin(0, 0.5);
+
+    this.selectedChipsTotalText = this.add.text(475, 320, '$0', {
+      fontSize: '46px',
+      fontStyle: 'bold',
     });
 
     Phaser.Actions.GridAlign(this.chips, {
@@ -426,10 +576,7 @@ class BlackjackScene extends Phaser.Scene {
     });
 
     // Deal Button
-    const dealButton = this.add.text(700, 300, 'DEAL', { fontSize: '24px' }).setOrigin(0.5);
-    dealButton.setInteractive({
-      cursor: 'pointer',
-    });
+    this.createDealButton();
     // Attach an event to this button if needed
   }
 }
