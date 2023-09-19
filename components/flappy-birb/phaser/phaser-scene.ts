@@ -312,7 +312,9 @@ export default class FlappyBirdScene extends Phaser.Scene {
       .setDepth(100000)
       .setOrigin(0.5, 0.5)
       .setVisible(false)
-      .setInteractive();
+      .setInteractive({
+        cursor: 'pointer',
+      });
     this.restartButton.on('pointerdown', async () => {
       // Restarting the game scene
       this.scene.restart();

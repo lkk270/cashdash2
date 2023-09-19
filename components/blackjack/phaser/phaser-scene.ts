@@ -56,7 +56,6 @@ class BlackjackScene extends Phaser.Scene {
   private selectedChipsTotalText: Phaser.GameObjects.Text | null = null;
   private canSelectChip: boolean = true;
   private canDeselectChip: boolean = true;
-  private clearBetButton: Phaser.GameObjects.Text | null = null;
 
   constructor(
     config: Phaser.Types.Scenes.SettingsConfig,
@@ -122,7 +121,7 @@ class BlackjackScene extends Phaser.Scene {
     }
 
     if (this.balanceText) {
-      this.balanceText.setText(`Balance: $${this.balance}`);
+      this.balanceText.setText(`Bank: $${this.balance}`);
     }
 
     this.tweens.add({
@@ -136,6 +135,7 @@ class BlackjackScene extends Phaser.Scene {
         this.updateAvailableChips(this.chips);
       },
     });
+    this.updateSelectedChipsTotal();
   }
 
   updateSelectedChipsTotal() {
@@ -183,9 +183,13 @@ class BlackjackScene extends Phaser.Scene {
         .sprite(chipObj.originalX, chipObj.originalY, 'chips', chipObj.name)
         .setScale(0.42);
 
-      clonedChip.setInteractive().on('pointerdown', () => {
-        this.deselectChip(clonedChip);
-      });
+      clonedChip
+        .setInteractive({
+          cursor: 'pointer',
+        })
+        .on('pointerdown', () => {
+          this.deselectChip(clonedChip);
+        });
       tempChips.push({ chipObj, clonedChip });
     }
 
@@ -210,7 +214,7 @@ class BlackjackScene extends Phaser.Scene {
     });
 
     if (this.balanceText) {
-      this.balanceText.setText(`Balance: $${this.balance}`);
+      this.balanceText.setText(`Bank: $${this.balance}`);
     }
     this.updateSelectedChipsTotal();
     this.updateAvailableChips(this.chips);
@@ -241,11 +245,23 @@ class BlackjackScene extends Phaser.Scene {
     this.selectedChips = []; // Clear the array
 
     if (this.balanceText) {
-      this.balanceText.setText(`Balance: $${this.balance}`);
+      this.balanceText.setText(`Bank: $${this.balance}`);
     }
 
     this.updateSelectedChipsTotal();
     this.updateAvailableChips(this.chips);
+  }
+
+  createRoundedBackground(scene: Phaser.Scene): Phaser.GameObjects.Graphics {
+    const graphics = scene.add.graphics();
+    // Define color
+    graphics.fillStyle(0x11354f, 1);
+    // Draw rounded rectangles
+    graphics.fillRoundedRect(20, 340, 575 / 2.75, 125, 10);
+    graphics.fillRoundedRect(20, 440, 575, 310, 10);
+
+    scene.add.existing(graphics);
+    return graphics;
   }
 
   create() {
@@ -253,16 +269,7 @@ class BlackjackScene extends Phaser.Scene {
     let centerChipCount = 0;
     this.add.image(420, 375, 'bg');
 
-    const chipBackground = this.add.graphics();
-    chipBackground.fillStyle(0x11354f, 1); // Blue color
-
-    // Main rectangle
-    chipBackground.fillRect(20, 440, 575, 310);
-
-    // Top segment, a quarter of the main rectangle's width
-    chipBackground.fillRect(20, 340, 575 / 2.25, 100);
-
-    this.add.existing(chipBackground);
+    this.createRoundedBackground(this);
 
     // Balance
     this.balanceText = this.add
@@ -270,15 +277,22 @@ class BlackjackScene extends Phaser.Scene {
       .setOrigin(0, 0.5);
 
     // ALL IN Button
-    const allInButtonBackground = this.add.graphics();
-    allInButtonBackground.fillStyle(0x225577, 1); // Button color
-    allInButtonBackground.fillRect(30, 390, 175, 40); // Adjust dimensions as needed
+    const allInButtonBackground = this.add
+      .graphics()
+      .fillStyle(0x225577, 1) // Button color
+      .fillRect(30, 390, 175, 40); // Adjust dimensions as needed
+
     this.add.existing(allInButtonBackground);
 
     const allInButtonText = this.add
-      .text(117.5, 410, 'ALL IN', { fontSize: '24px' }) // Use the calculated center X and Y positions
+      .text(117.5, 410, 'ALL IN', {
+        fontSize: '24px',
+        padding: { left: 45, right: 45, top: 10, bottom: 10 },
+      }) // Use the calculated center X and Y positions
       .setOrigin(0.5, 0.5)
-      .setInteractive();
+      .setInteractive({
+        cursor: 'pointer',
+      });
 
     allInButtonText.on('pointerover', () => {
       allInButtonBackground.clear().fillStyle(0x336699, 1).fillRect(30, 390, 175, 40); // Change color on hover
@@ -301,7 +315,9 @@ class BlackjackScene extends Phaser.Scene {
 
     this.chips = CHIPS.map((chipObj) => {
       const chip = this.add.sprite(0, 0, 'chips', chipObj.name).setScale(0.42);
-      chip.setInteractive();
+      chip.setInteractive({
+        cursor: 'pointer',
+      });
       chip.visible = chipObj.value <= this.balance; // Initialize visibility
 
       chip.on('pointerdown', () => {
@@ -320,49 +336,53 @@ class BlackjackScene extends Phaser.Scene {
         this.updateSelectedChipsTotal();
 
         // Event to handle deselection of the chip
-        clonedChip.setInteractive().on('pointerdown', () => {
-          // Remove the chip from the array
+        clonedChip
+          .setInteractive({
+            cursor: 'pointer',
+          })
+          .on('pointerdown', () => {
+            // Remove the chip from the array
 
-          if (!this.canDeselectChip) return; // If we can't deselect, exit early
+            if (!this.canDeselectChip) return; // If we can't deselect, exit early
 
-          this.canDeselectChip = false; // Set it to false to prevent subsequent deselections
-          setTimeout(() => {
-            this.canDeselectChip = true; // Allow deselections after a delay (in this case, 300ms)
-          }, 300);
+            this.canDeselectChip = false; // Set it to false to prevent subsequent deselections
+            setTimeout(() => {
+              this.canDeselectChip = true; // Allow deselections after a delay (in this case, 300ms)
+            }, 300);
 
-          const chipIndex = this.selectedChips.indexOf(clonedChip);
-          if (chipIndex !== -1) {
-            this.selectedChips.splice(chipIndex, 1);
-          }
-          // Deselect and adjust the balance
-          const chipValue = CHIPS.find(
-            (chipData) => chipData.name === clonedChip.frame.name
-          )?.value;
-          if (chipValue) {
-            this.balance += chipValue;
-            const currentCount = this.chipCounts.get(chipValue) || 0;
-            this.chipCounts.set(chipValue, Math.max(0, currentCount - 1)); // ensure it's not less than 0
-          }
-          if (this.balanceText) {
-            this.balanceText.setText(`Balance: $${this.balance}`);
-          }
+            const chipIndex = this.selectedChips.indexOf(clonedChip);
+            if (chipIndex !== -1) {
+              this.selectedChips.splice(chipIndex, 1);
+            }
+            // Deselect and adjust the balance
+            const chipValue = CHIPS.find(
+              (chipData) => chipData.name === clonedChip.frame.name
+            )?.value;
+            if (chipValue) {
+              this.balance += chipValue;
+              const currentCount = this.chipCounts.get(chipValue) || 0;
+              this.chipCounts.set(chipValue, Math.max(0, currentCount - 1)); // ensure it's not less than 0
+            }
+            if (this.balanceText) {
+              this.balanceText.setText(`Bank: $${this.balance}`);
+            }
 
-          // Update the total for the selected chips
-          this.updateSelectedChipsTotal();
+            // Update the total for the selected chips
+            this.updateSelectedChipsTotal();
 
-          // Tween to animate the chip moving back to its designated pile
-          this.tweens.add({
-            targets: clonedChip,
-            x: chip.x,
-            y: chip.y,
-            duration: 300, // Duration in milliseconds
-            ease: 'Sine.easeOut', // The easing function to use
-            onComplete: () => {
-              clonedChip.destroy();
-              this.updateAvailableChips(this.chips);
-            },
+            // Tween to animate the chip moving back to its designated pile
+            this.tweens.add({
+              targets: clonedChip,
+              x: chip.x,
+              y: chip.y,
+              duration: 300, // Duration in milliseconds
+              ease: 'Sine.easeOut', // The easing function to use
+              onComplete: () => {
+                clonedChip.destroy();
+                this.updateAvailableChips(this.chips);
+              },
+            });
           });
-        });
 
         const offset =
           CHIP_OFFSETS[centerChipCount] !== undefined ? CHIP_OFFSETS[centerChipCount] : -12;
@@ -388,7 +408,7 @@ class BlackjackScene extends Phaser.Scene {
         // Deduct the chip value from the balance
         this.balance -= chipObj.value;
         if (this.balanceText) {
-          this.balanceText.setText(`Balance: $${this.balance}`);
+          this.balanceText.setText(`Bank: $${this.balance}`);
         }
         this.updateAvailableChips(this.chips);
       });
@@ -407,7 +427,9 @@ class BlackjackScene extends Phaser.Scene {
 
     // Deal Button
     const dealButton = this.add.text(700, 300, 'DEAL', { fontSize: '24px' }).setOrigin(0.5);
-    dealButton.setInteractive();
+    dealButton.setInteractive({
+      cursor: 'pointer',
+    });
     // Attach an event to this button if needed
   }
 }
