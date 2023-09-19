@@ -9,7 +9,7 @@ export const DashboardLayout = async ({
   userValues: {
     isPro?: boolean;
     userCash?: string;
-    userStripeAccount?: UserStripeAccount
+    userStripeAccount?: UserStripeAccount;
   };
   children: React.ReactNode;
 }) => {

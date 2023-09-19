@@ -222,6 +222,9 @@ export default class FlappyBirdScene extends Phaser.Scene {
   create() {
     const centerX = this.scale.width / 2;
     const centerY = this.scale.height / 2;
+    // const scaleFactor = 1; // adjust as needed
+    // this.cameras.main.setZoom(1 / scaleFactor);
+
     // this.physics.world.createDebugGraphic();
     this.cleanUp();
     this.gameOver = false;

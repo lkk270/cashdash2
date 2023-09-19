@@ -7,7 +7,7 @@ import axios from 'axios';
 
 import { generateResponseHash } from '@/lib/hash';
 import { ModifiedScoreType } from '@/app/types';
-import BlackjackScene from './phaser-scene';
+import { BlackjackScene, HomeScene } from './phaser-scene';
 import gameEvents from './event-emitter';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -120,8 +120,8 @@ const PhaserGame = ({ props }: BlackjackProps) => {
 
   useEffect(() => {
     // onGameLoad();
-    let gameWidth = 800;
-    let gameHeight = 600;
+    let gameWidth = 850;
+    let gameHeight = 650;
     let rescale = false;
     if (window.innerHeight / window.innerWidth > 1.5) {
       gameWidth = 600;
@@ -134,7 +134,10 @@ const PhaserGame = ({ props }: BlackjackProps) => {
       height: gameHeight,
       autoFocus: true,
       antialias: false,
-      scene: new BlackjackScene({ key: 'BlackjackScene' }),
+      scene: [
+        new HomeScene({ key: 'HomeScene' }, onGameStart),
+        new BlackjackScene({ key: 'BlackjackScene' }, onGameStart, onGameEnd),
+      ],
       parent: 'phaser-game',
       backgroundColor: '#5fa6f9',
       physics: {
@@ -145,8 +148,8 @@ const PhaserGame = ({ props }: BlackjackProps) => {
         },
       },
       scale: {
-        // mode: rescale ? Phaser.Scale.FIT : Phaser.Scale.NONE,
         mode: Phaser.Scale.FIT,
+        // mode: Phaser.Scale.MAX_ZOOM,
         autoCenter: Phaser.Scale.CENTER_BOTH,
         width: gameWidth, // The base width of your game
         height: gameHeight, // The base height of your game
