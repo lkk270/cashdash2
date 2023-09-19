@@ -41,6 +41,9 @@ class BlackjackScene extends Phaser.Scene {
   chipCounts: Map<number, number> = new Map();
   private chips: Phaser.GameObjects.Sprite[] = [];
   private selectedChips: Phaser.GameObjects.Sprite[] = [];
+  private selectedChipsTotalText: Phaser.GameObjects.Text | null = null;
+  private canSelectChip: boolean = true;
+  private canDeselectChip: boolean = true;
 
   constructor(
     config: Phaser.Types.Scenes.SettingsConfig,
@@ -107,17 +110,35 @@ class BlackjackScene extends Phaser.Scene {
 
       // Destroy the chip from the scene
       lastChip.destroy();
+      this.updateSelectedChipsTotal();
 
       // Update the available chips
       this.updateAvailableChips(this.chips); // Make sure `chips` is accessible in this function's scope
     }
   }
 
+  updateSelectedChipsTotal() {
+    let total = 0;
+    this.selectedChips.forEach((chip) => {
+      const chipValue = CHIPS.find((chipObj) => chipObj.name === chip.frame.name)?.value;
+      if (chipValue) {
+        total += chipValue;
+      }
+    });
+
+    if (this.selectedChipsTotalText) {
+      this.selectedChipsTotalText.setText(`$${total}`);
+    }
+  }
+
   create() {
     this.chipCounts.clear();
-
     let centerChipCount = 0;
     this.add.image(420, 325, 'bg');
+
+    this.selectedChipsTotalText = this.add.text(250, 300, '$0', {
+      fontSize: '30px',
+    });
 
     // Add Balance
     this.balanceText = this.add.text(10, 10, `Balance: $${this.balance}`, { fontSize: '20px' });
@@ -129,14 +150,28 @@ class BlackjackScene extends Phaser.Scene {
       chip.visible = chipObj.value <= this.balance; // Initialize visibility
 
       chip.on('pointerdown', () => {
+        if (!this.canSelectChip) return; // If we can't select, exit early
+        this.canSelectChip = false; // Set it to false to prevent subsequent selections
+        setTimeout(() => {
+          this.canSelectChip = true; // Allow selections after a delay (in this case, 300ms)
+        }, 600);
         // Create a clone of the clicked chip
         const clonedChip = this.add.sprite(chip.x, chip.y, 'chips', chipObj.name).setScale(0.42);
         // Add the cloned chip to the selected chips array
         this.selectedChips.push(clonedChip);
+        this.updateSelectedChipsTotal();
 
         // Event to handle deselection of the chip
         clonedChip.setInteractive().on('pointerdown', () => {
           // Remove the chip from the array
+
+          if (!this.canDeselectChip) return; // If we can't deselect, exit early
+
+          this.canDeselectChip = false; // Set it to false to prevent subsequent deselections
+          setTimeout(() => {
+            this.canDeselectChip = true; // Allow deselections after a delay (in this case, 300ms)
+          }, 300);
+
           const chipIndex = this.selectedChips.indexOf(clonedChip);
           if (chipIndex !== -1) {
             this.selectedChips.splice(chipIndex, 1);
@@ -153,6 +188,9 @@ class BlackjackScene extends Phaser.Scene {
           if (this.balanceText) {
             this.balanceText.setText(`Balance: $${this.balance}`);
           }
+
+          // Update the total for the selected chips
+          this.updateSelectedChipsTotal();
 
           // Tween to animate the chip moving back to its designated pile
           this.tweens.add({
