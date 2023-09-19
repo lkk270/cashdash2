@@ -7,7 +7,8 @@ import axios from 'axios';
 
 import { generateResponseHash } from '@/lib/hash';
 import { ModifiedScoreType } from '@/app/types';
-import { BlackjackScene, HomeScene } from './phaser-scene';
+//import { BlackjackScene, HomeScene } from './phaser-scene';
+import { BlackjackScene } from './phaser-scene';
 import gameEvents from './event-emitter';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -121,24 +122,28 @@ const PhaserGame = ({ props }: BlackjackProps) => {
 
   useEffect(() => {
     // onGameLoad();
-    let gameWidth = 850;
-    let gameHeight = 650;
+    let gameWidth = 900;
+    let gameHeight = 750;
     let rescale = false;
     if (window.innerHeight / window.innerWidth > 1.5) {
       gameWidth = 600;
       gameHeight = 800;
       rescale = true;
     }
+    //  scene: [
+    //     new HomeScene({ key: 'HomeScene' }, onGameStart),
+    //     new BlackjackScene({ key: 'BlackjackScene' }, onGameStart, onGameEnd),
+    //   ],
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
       width: gameWidth,
       height: gameHeight,
       autoFocus: true,
-      antialias: false,
-      scene: [
-        new HomeScene({ key: 'HomeScene' }, onGameStart),
-        new BlackjackScene({ key: 'BlackjackScene' }, onGameStart, onGameEnd),
-      ],
+      antialias: true,
+      render: {
+        antialias: true,
+      },
+      scene: [new BlackjackScene({ key: 'BlackjackScene' }, onGameStart, onGameEnd)],
       parent: 'phaser-game',
       backgroundColor: '#5fa6f9',
       physics: {

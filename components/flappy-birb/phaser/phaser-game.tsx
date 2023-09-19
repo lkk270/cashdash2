@@ -135,6 +135,9 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
       height: gameHeight,
       autoFocus: true,
       antialias: true,
+      render: {
+        antialias: true,
+      },
       scene: new FlappyBirdScene({ key: 'FlappyBirdScene' }, onGameStart, onGameEnd),
       parent: 'phaser-game',
       // backgroundColor: '#5fa6f9',
