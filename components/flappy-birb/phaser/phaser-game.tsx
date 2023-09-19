@@ -99,7 +99,8 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
       .catch((error) => {
         const backPath = pathname.split('/').slice(0, -1).join('/');
         if (error.response.data && error.response.status === 302) {
-          router.push(backPath);
+          // router.push(backPath);
+          router.refresh();
           toast({
             description: error.response.data,
             variant: 'warning',

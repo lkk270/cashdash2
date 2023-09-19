@@ -107,8 +107,11 @@ export async function POST(req: Request) {
         });
 
       if (!gameSession || !gameSession.lobbySession) {
-        return new NextResponse('Score not submitted due to session inactivity. Start a new game', {
-          status: 401,
+        // return new NextResponse('Score not submitted due to session inactivity. Start a new game', {
+        //   status: 401,
+        // });
+        return new NextResponse('Attempting refresh', {
+          status: 302,
         });
       }
 
