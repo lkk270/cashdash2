@@ -34,12 +34,12 @@ import gameEvents from './event-emitter';
 // }
 
 const CHIPS = [
-  { name: 'c1', value: 1 },
-  { name: 'c5', value: 5 },
-  { name: 'c25', value: 25 },
-  { name: 'c50', value: 50 },
-  { name: 'c100', value: 100 },
-  { name: 'c1000', value: 1000 },
+  { name: 'c1', value: 1, originalX: 101, originalY: 541 },
+  { name: 'c5', value: 5, originalX: 238, originalY: 541 },
+  { name: 'c25', value: 25, originalX: 375, originalY: 541 },
+  { name: 'c50', value: 50, originalX: 512, originalY: 541 },
+  { name: 'c100', value: 100, originalX: 101, originalY: 678 },
+  { name: 'c1000', value: 1000, originalX: 238, originalY: 678 },
 ];
 
 const CHIP_OFFSETS = [0, -5, -10];
@@ -104,7 +104,6 @@ class BlackjackScene extends Phaser.Scene {
 
   deselectChip(clonedChip: Phaser.GameObjects.Sprite) {
     if (!this.canDeselectChip) return;
-
     this.canDeselectChip = false;
     setTimeout(() => {
       this.canDeselectChip = true;
@@ -179,26 +178,25 @@ class BlackjackScene extends Phaser.Scene {
       if (!chipObj) {
         break;
       }
-
       this.balance -= chipObj.value;
-      const clonedChip = this.add.sprite(0, 0, 'chips', chipObj.name).setScale(0.42);
+      const clonedChip = this.add
+        .sprite(chipObj.originalX, chipObj.originalY, 'chips', chipObj.name)
+        .setScale(0.42);
+
       clonedChip.setInteractive().on('pointerdown', () => {
         this.deselectChip(clonedChip);
       });
       tempChips.push({ chipObj, clonedChip });
     }
 
-    // Determine their original positions
-    tempChips.forEach((item, idx) => {
-      item.clonedChip.x = 400;
-      item.clonedChip.y = 350 + idx * 5; // Stacking chips
-    });
-
     // Animate them to the center individually
     tempChips.forEach((item, idx) => {
+      const chipObj = item.chipObj;
       const clonedChip = item.clonedChip;
-      (clonedChip as any).originalX = 0; // Original position not needed for chips from 'all in'
-      (clonedChip as any).originalY = 0;
+      clonedChip.x = 400;
+      clonedChip.y = 350 + idx * 5; // Stacking chips
+      (clonedChip as any).originalX = chipObj.originalX;
+      (clonedChip as any).originalY = chipObj.originalY;
 
       this.selectedChips.push(clonedChip);
       this.tweens.add({
@@ -221,13 +219,16 @@ class BlackjackScene extends Phaser.Scene {
   clearAllBets() {
     // Refund balance based on selected chips and animate them back to their positions
     this.selectedChips.forEach((chip) => {
-      const chipValue = CHIPS.find((chipObj) => chipObj.name === chip.frame.name)?.value;
+      const chipObj = CHIPS.find((chipObj) => chipObj.name === chip.frame.name);
+      const chipValue = chipObj?.value;
+      const originalX = chipObj?.originalX;
+      const originalY = chipObj?.originalY;
       if (chipValue) {
         this.balance += chipValue;
         this.tweens.add({
           targets: chip,
-          x: 250,
-          y: 600,
+          x: originalX,
+          y: originalY,
           duration: 300,
           ease: 'Sine.easeOut',
           onComplete: () => {
