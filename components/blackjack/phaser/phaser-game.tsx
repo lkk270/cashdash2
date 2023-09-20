@@ -125,11 +125,11 @@ const PhaserGame = ({ props }: BlackjackProps) => {
     let gameWidth = 900;
     let gameHeight = 750;
     let rescale = false;
-    if (window.innerHeight / window.innerWidth > 1.5) {
-      gameWidth = 600;
-      gameHeight = 800;
-      rescale = true;
-    }
+    // if (window.innerHeight / window.innerWidth > 1.5) {
+    //   gameWidth = 600;
+    //   gameHeight = 800;
+    //   rescale = true;
+    // }
     //  scene: [
     //     new HomeScene({ key: 'HomeScene' }, onGameStart),
     //     new BlackjackScene({ key: 'BlackjackScene' }, onGameStart, onGameEnd),
@@ -146,13 +146,6 @@ const PhaserGame = ({ props }: BlackjackProps) => {
       scene: [new BlackjackScene({ key: 'BlackjackScene' }, onGameStart, onGameEnd)],
       parent: 'phaser-game',
       backgroundColor: '#5fa6f9',
-      physics: {
-        default: 'arcade',
-        arcade: {
-          gravity: { y: 0 },
-          debug: false,
-        },
-      },
       scale: {
         mode: Phaser.Scale.FIT,
         // mode: Phaser.Scale.MAX_ZOOM,

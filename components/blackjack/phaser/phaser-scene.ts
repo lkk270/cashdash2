@@ -583,7 +583,7 @@ class BlackjackScene extends Phaser.Scene {
 
   displayCards(cards: any[], startX: number, startY: number) {
     for (let i = 0; i < cards.length; i++) {
-      this.add.sprite(startX + i * 150, startY, 'cards', cards[i]);
+      this.add.sprite(startX + i * 100, startY, 'cards', cards[i]);
     }
   }
 
