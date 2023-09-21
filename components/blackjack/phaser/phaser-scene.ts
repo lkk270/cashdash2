@@ -46,6 +46,10 @@ const CHIPS = [
 ];
 
 const PLACED_CHIP_X = 405;
+const CARD_INITIAL_X = 375;
+const CARD_X_SEPARATION = 50;
+const PLAYER_CARD_Y = 600;
+const DEAL_CARD_Y = 150;
 const CENTER_Y = 375;
 const PLACED_CHIP_X_MULTIPLIER = 2.5;
 
@@ -82,6 +86,10 @@ class BlackjackScene extends Phaser.Scene {
   private playerHands: (string | undefined)[][] = [[]];
   private playerHandsSprites: Phaser.GameObjects.Sprite[][] = [[]];
   private activePlayerHandIndex: number = 0;
+  private currentDealerHandValueText: Phaser.GameObjects.Text | null = null;
+  private currentDealerHandValueCircle: Phaser.GameObjects.Container | null = null;
+  private currentPlayerHandValueCircle: Phaser.GameObjects.Container | null = null;
+  private currentPlayerHandValueText: Phaser.GameObjects.Text | null = null;
 
   constructor(
     config: Phaser.Types.Scenes.SettingsConfig,
@@ -283,7 +291,6 @@ class BlackjackScene extends Phaser.Scene {
     if (this.balanceText) {
       this.balanceText.setText(`Bank: $${this.formatBalance(this.balance)}`);
     }
-    console.log('INN 292');
 
     this.updateSelectedChipsTotal();
     this.updateAvailableChips(this.chips);
@@ -408,6 +415,9 @@ class BlackjackScene extends Phaser.Scene {
     this.dealCards();
     this.playerHandsValues[0] = this.calculateHandValue(this.playerHands[0]);
     this.dealerHandValue = this.calculateHandValue(this.dealerHand);
+    const circleTextObj = this.createTextInCircle(600, 450, this.playerHandsValues[0].toString());
+    this.currentPlayerHandValueCircle = circleTextObj.container;
+    this.currentPlayerHandValueText = circleTextObj.text;
   }
 
   createChips() {
@@ -576,6 +586,32 @@ class BlackjackScene extends Phaser.Scene {
 
   //cards
 
+  createTextInCircle(x: number, y: number, textContent: string) {
+    // Create a graphics object
+    const graphics = this.add.graphics({ fillStyle: { color: 0x000000, alpha: 0.25 } }); // Black color with 50% opacity
+
+    const circleRadius = 30; // Change this to adjust the size of your circle
+    graphics.fillCircle(0, 0, circleRadius);
+
+    // Add the text
+    const text = this.add
+      .text(0, 0, textContent, {
+        color: '#ffffff', // White color for the text
+        fontSize: '30px',
+      })
+      .setOrigin(0.5, 0.5); // This will center the text
+
+    // Group them using a container
+    const container = this.add.container(x, y);
+    container.add(graphics);
+    container.add(text);
+
+    return {
+      container: container,
+      text: text,
+    };
+  }
+
   createHitButton() {
     this.hitButton = this.createButton(250, 370, 'Hit');
     this.hitButton.setVisible(false);
@@ -592,7 +628,7 @@ class BlackjackScene extends Phaser.Scene {
 
         for (let i = 0; i < numOtherCards; i++) {
           const card = this.playerHandsSprites[this.activePlayerHandIndex][i];
-          const newPosX = card.x - 92; // Calculate the new X position
+          const newPosX = card.x - CARD_X_SEPARATION - 4; // Calculate the new X position
 
           // Tween to animate the card's movement
           this.tweens.add({
@@ -607,7 +643,8 @@ class BlackjackScene extends Phaser.Scene {
       setTimeout(() => {
         this.displayCards(
           [newCard],
-          this.playerHandsSprites[this.activePlayerHandIndex][numOtherCards - 1].x + 100,
+          this.playerHandsSprites[this.activePlayerHandIndex][numOtherCards - 1].x +
+            CARD_X_SEPARATION,
           600,
           false
         );
@@ -621,6 +658,7 @@ class BlackjackScene extends Phaser.Scene {
           this.hitButton?.setVisible(false);
         }
       }
+      this.currentPlayerHandValueText?.setText(this.playerHandsValues[0].toString());
     });
   }
 
@@ -718,17 +756,48 @@ class BlackjackScene extends Phaser.Scene {
     //deals the first cards
     this.playerHands = [[this.cards.pop(), this.cards.pop()]];
     this.dealerHand = [this.cards.pop(), this.cards.pop()];
-    this.displayCards(this.playerHands[0], 375, 600, false, true);
-    this.displayCards(this.dealerHand, 375, 150, true, true);
+
+    // Display first player card
+    this.displayCards([this.playerHands[0][0]], CARD_INITIAL_X, PLAYER_CARD_Y, false, true);
+
+    // Delay for next card
+    this.time.delayedCall(300, () => {
+      // Display first dealer card
+      this.displayCards([this.dealerHand[0]], CARD_INITIAL_X, DEAL_CARD_Y, true, true);
+
+      // Delay for next card
+      this.time.delayedCall(300, () => {
+        // Display second player card
+        this.displayCards(
+          [this.playerHands[0][1]],
+          CARD_INITIAL_X + CARD_X_SEPARATION,
+          PLAYER_CARD_Y,
+          false,
+          false
+        );
+
+        // Delay for last card
+        this.time.delayedCall(300, () => {
+          // Display second dealer card
+          this.displayCards(
+            [this.dealerHand[1]],
+            CARD_INITIAL_X + CARD_X_SEPARATION,
+            DEAL_CARD_Y,
+            true,
+            false
+          );
+        });
+      });
+    });
   }
 
-  displayCards(cards: any[], startX: number, startY: number, dealer = false, initialize = false) {
+  displayCards(cards: any[], startX: number, startY: number, dealer = false, backCard = false) {
     const animationDuration = 300; // Duration of the animation in milliseconds
     const initialX = 0; // Initial position for the animation
     const initialY = 0; // Initial position for the animation
 
     for (let i = 0; i < cards.length; i++) {
-      const frameName = initialize && i === 0 && dealer ? 'back' : cards[i];
+      const frameName = backCard && dealer ? 'back' : cards[i];
 
       let sprite;
       if (dealer) {
