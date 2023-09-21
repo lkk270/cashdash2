@@ -664,6 +664,50 @@ class BlackjackScene extends Phaser.Scene {
     });
   }
 
+  handleDealersTurnHelper(numCards: number) {
+    let numOtherCards = numCards - 1;
+    console.log(numOtherCards);
+    let newCard = this.cards.pop();
+    this.dealerHand.push(newCard);
+    console.log(this.dealerHand);
+    if (numCards % 2 == 1) {
+      const animationDuration = 300; // Duration of the animation in milliseconds
+
+      for (let i = 0; i < numOtherCards; i++) {
+        const card = this.dealerHandSprites[i];
+        const newPosX = card.x - CARD_X_SEPARATION - 4; // Calculate the new X position
+
+        // Tween to animate the card's movement
+        this.tweens.add({
+          targets: card,
+          x: newPosX,
+          duration: animationDuration,
+          ease: 'Power2', // Change this if you need another easing function
+        });
+      }
+    }
+
+    setTimeout(() => {
+      this.displayCards(
+        [newCard],
+        this.dealerHandSprites[numOtherCards - 1].x + CARD_X_SEPARATION,
+        DEALER_CARD_Y,
+        true,
+        numCards
+      );
+    }, 300);
+    this.dealerHandValue = this.calculateHandValue(this.dealerHand);
+    this.currentDealerHandValueText?.setText(this.dealerHandValue.toString());
+    const dealersHandValue = this.dealerHandValue;
+    if (dealersHandValue > 20) {
+      if (dealersHandValue === 21) {
+        //blackjack
+      } else {
+        //over
+      }
+    }
+  }
+
   handleDealersTurn() {
     this.hitButton?.setVisible(false).disableInteractive();
     this.standButton?.setVisible(false).disableInteractive();
@@ -677,49 +721,19 @@ class BlackjackScene extends Phaser.Scene {
       this.dealerHandValue = this.calculateHandValue(this.dealerHand);
       this.currentDealerHandValueText?.setText(this.dealerHandValue.toString());
 
-      this.time.delayedCall(1250, () => {
-        let numCards = 3;
-        let numOtherCards = 2;
-        newCard = this.cards.pop();
-        this.dealerHand.push(newCard);
-        if (numCards % 2 == 1) {
-          const animationDuration = 300; // Duration of the animation in milliseconds
-
-          for (let i = 0; i < numOtherCards; i++) {
-            const card = this.dealerHandSprites[i];
-            const newPosX = card.x - CARD_X_SEPARATION - 4; // Calculate the new X position
-
-            // Tween to animate the card's movement
-            this.tweens.add({
-              targets: card,
-              x: newPosX,
-              duration: animationDuration,
-              ease: 'Power2', // Change this if you need another easing function
-            });
-          }
-        }
-
-        setTimeout(() => {
-          this.displayCards(
-            [newCard],
-            this.dealerHandSprites[numOtherCards - 1].x + CARD_X_SEPARATION,
-            DEALER_CARD_Y,
-            true,
-            numCards
-          );
-        }, 300);
-        this.dealerHandValue = this.calculateHandValue(this.dealerHand);
-        this.currentDealerHandValueText?.setText(this.dealerHandValue.toString());
-        const dealersHandValue = this.dealerHandValue;
-        if (dealersHandValue > 20) {
-          if (dealersHandValue === 21) {
-            //blackjack
-          } else {
-            //over
-          }
-        }
-      });
+      let numCards = 3;
+      this.playDealerTurn(numCards);
     });
+  }
+
+  playDealerTurn(numCards: number) {
+    if (this.dealerHandValue < 17) {
+      this.time.delayedCall(1250, () => {
+        this.handleDealersTurnHelper(numCards);
+        numCards++;
+        this.playDealerTurn(numCards); // Recursively call the function
+      });
+    }
   }
 
   moveBackCard() {
