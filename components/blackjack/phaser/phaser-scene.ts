@@ -77,8 +77,8 @@ class BlackjackScene extends Phaser.Scene {
   private splitButton: Phaser.GameObjects.Container | null = null;
   private dealerHand: (string | undefined)[] = [];
   private dealerHandSprites: Phaser.GameObjects.Sprite[] = [];
-  private dealerCardValue: number = 0;
-  private playerCardValue: number[] = [];
+  private dealerHandValue: number = 0;
+  private playerHandsValues: number[] = [0];
   private playerHands: (string | undefined)[][] = [[]];
   private playerHandsSprites: Phaser.GameObjects.Sprite[][] = [[]];
   private activePlayerHandIndex: number = 0;
@@ -406,6 +406,8 @@ class BlackjackScene extends Phaser.Scene {
       });
     }
     this.dealCards();
+    this.playerHandsValues[0] = this.calculateHandValue(this.playerHands[0]);
+    this.dealerHandValue = this.calculateHandValue(this.dealerHand);
   }
 
   createChips() {
@@ -579,10 +581,12 @@ class BlackjackScene extends Phaser.Scene {
     this.hitButton.setVisible(false);
     this.hitButton?.on('pointerdown', () => {
       this.splitButton?.setVisible(false);
+      this.doubleDownButton?.setVisible(false);
       const newCard = this.cards.pop();
       this.playerHands[this.activePlayerHandIndex].push(newCard);
       const numCards = this.playerHands[this.activePlayerHandIndex].length;
       const numOtherCards = numCards - 1;
+
       if (numCards % 2 == 1) {
         const animationDuration = 300; // Duration of the animation in milliseconds
 
@@ -608,6 +612,15 @@ class BlackjackScene extends Phaser.Scene {
           false
         );
       }, 300);
+      if (newCard) {
+        this.playerHandsValues[this.activePlayerHandIndex] = this.calculateHandValue(
+          this.playerHands[this.activePlayerHandIndex]
+        );
+        if (this.playerHandsValues[this.activePlayerHandIndex] > 20) {
+          this.hitButton?.disableInteractive();
+          this.hitButton?.setVisible(false);
+        }
+      }
     });
   }
 
@@ -643,26 +656,43 @@ class BlackjackScene extends Phaser.Scene {
     this.splitButton?.on('pointerdown', () => {});
   }
 
-  extractCardValue(frameName: string) {
-    // Extracting the number or value part from the card name
-    const valuePart = frameName.replace(/(clubs|diamonds|hearts|spades)/i, '');
+  calculateHandValue(frameNames: (string | undefined)[]) {
+    let total = 0;
+    let numAces = 0;
 
-    // Checking for number cards
-    if (!isNaN(Number(valuePart))) {
-      return [parseInt(valuePart)];
+    for (let frameName of frameNames) {
+      if (!frameName) {
+        continue;
+      }
+      frameName = frameName.toLowerCase();
+      // Extracting the number or value part from the card name
+      const valuePart = frameName.replace(/(clubs|diamonds|hearts|spades)/i, '');
+
+      // Checking for number cards
+      if (!isNaN(Number(valuePart))) {
+        total += parseInt(valuePart);
+      }
+
+      // Checking for face cards
+      if (valuePart === 'king' || valuePart === 'queen' || valuePart === 'jack') {
+        total += 10;
+      }
+
+      // Checking for aces
+      if (valuePart === 'ace') {
+        numAces += 1;
+      }
     }
 
-    // Checking for face cards and Ace
-    switch (valuePart) {
-      case 'king':
-      case 'queen':
-      case 'jack':
-        return [10];
-      case 'ace':
-        return [1, 11];
-      default:
-        return [];
+    // Handling the aces
+    for (let i = 0; i < numAces; i++) {
+      if (total + 11 <= 21) {
+        total += 11;
+      } else {
+        total += 1;
+      }
     }
+    return total;
   }
 
   createDeck() {
@@ -721,7 +751,25 @@ class BlackjackScene extends Phaser.Scene {
     }
   }
 
+  cleanUp() {
+    this.chipCounts.clear();
+    this.selectedChips = [];
+    this.lastSelectedChipXPosition = PLACED_CHIP_X;
+    this.selectedChipsTotalText = null;
+    this.canSelectChip = true;
+    this.canDeselectChip = true;
+    this.dealInProgress = false;
+    this.dealerHand = [];
+    this.dealerHandSprites = [];
+    this.dealerHandValue = 0;
+    this.playerHandsValues = [0];
+    this.playerHands = [[]];
+    this.playerHandsSprites = [[]];
+    this.activePlayerHandIndex = 0;
+  }
+
   create() {
+    this.cleanUp();
     this.createDeck();
     this.shuffleDeck();
     this.chipCounts.clear();
