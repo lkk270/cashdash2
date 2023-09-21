@@ -45,11 +45,11 @@ const CHIPS = [
   { name: 'c2000', value: 2000, originalX: 375, originalY: 678 },
 ];
 
-const PLACED_CHIP_X = 405;
+const PLACED_CHIP_X = 427.5;
 const CARD_INITIAL_X = 375;
 const CARD_X_SEPARATION = 50;
 const PLAYER_CARD_Y = 600;
-const DEAL_CARD_Y = 150;
+const DEALER_CARD_Y = 150;
 const CENTER_Y = 375;
 const PLACED_CHIP_X_MULTIPLIER = 2.5;
 
@@ -59,7 +59,7 @@ const CHIP_OFFSETS = [0, -5, -10];
 class BlackjackScene extends Phaser.Scene {
   onGameStart: () => void;
   onGameEnd: (score: number) => void;
-  private balance: number = 99999;
+  private balance: number = 100;
   private balanceText: Phaser.GameObjects.Text | null = null;
   private chipCounts: Map<number, number> = new Map();
   private chips: Phaser.GameObjects.Sprite[] = [];
@@ -111,7 +111,7 @@ class BlackjackScene extends Phaser.Scene {
   }
 
   formatBalance(balance: number): string {
-    if (balance <= 9999) {
+    if (balance <= 999) {
       return balance.toString();
     } else if (balance >= 995_000 && balance < 1_000_000) {
       return '1M';
@@ -203,9 +203,9 @@ class BlackjackScene extends Phaser.Scene {
       this.selectedChipsTotalText.setText(`$${this.formatBalance(total)}`);
     }
     if (this.selectedChipsTotalText?.text === '$0') {
-      this.dealButton?.setVisible(false);
+      this.dealButton?.setVisible(false).disableInteractive();
     } else {
-      this.dealButton?.setVisible(true);
+      this.dealButton?.setVisible(true).setInteractive();
     }
   }
 
@@ -318,8 +318,8 @@ class BlackjackScene extends Phaser.Scene {
       this.allInButton.setVisible(true);
       this.allInButton.on('pointerdown', () => {
         this.betAllIn();
-        this.allInButton?.setVisible(false);
-        this.clearBetButton?.setVisible(true);
+        this.allInButton?.setVisible(false).disableInteractive();
+        this.clearBetButton?.setVisible(true).setInteractive();
       });
     }
   }
@@ -334,8 +334,8 @@ class BlackjackScene extends Phaser.Scene {
       this.clearBetButton.setVisible(false);
       this.clearBetButton.on('pointerdown', () => {
         this.clearAllBets();
-        this.clearBetButton?.setVisible(false);
-        this.allInButton?.setVisible(true);
+        this.clearBetButton?.setVisible(false).disableInteractive();
+        this.allInButton?.setVisible(true).setInteractive();
       });
     }
   }
@@ -354,9 +354,9 @@ class BlackjackScene extends Phaser.Scene {
   }
 
   onDealButtonClicked() {
-    this.dealButton?.setVisible(false);
-    this.hitButton?.setVisible(true);
-    this.standButton?.setVisible(true);
+    this.dealButton?.setVisible(false).disableInteractive();
+    this.hitButton?.setVisible(true).setInteractive();
+    this.standButton?.setVisible(true).setInteractive();
     this.createDoubleDownButton();
 
     // Animate balanceText to the top-left
@@ -397,7 +397,7 @@ class BlackjackScene extends Phaser.Scene {
         duration: 500,
         ease: 'Sine.easeInOut',
         onComplete: () => {
-          this.allInButton?.setVisible(false); // Hide the text after the animation
+          this.allInButton?.setVisible(false).disableInteractive(); // Hide the text after the animation
         },
       });
     }
@@ -408,16 +408,11 @@ class BlackjackScene extends Phaser.Scene {
         duration: 500,
         ease: 'Sine.easeInOut',
         onComplete: () => {
-          this.clearBetButton?.setVisible(false); // Hide the text after the animation
+          this.clearBetButton?.setVisible(false).disableInteractive(); // Hide the text after the animation
         },
       });
     }
     this.dealCards();
-    this.playerHandsValues[0] = this.calculateHandValue(this.playerHands[0]);
-    this.dealerHandValue = this.calculateHandValue(this.dealerHand);
-    const circleTextObj = this.createTextInCircle(600, 450, this.playerHandsValues[0].toString());
-    this.currentPlayerHandValueCircle = circleTextObj.container;
-    this.currentPlayerHandValueText = circleTextObj.text;
   }
 
   createChips() {
@@ -588,7 +583,7 @@ class BlackjackScene extends Phaser.Scene {
 
   createTextInCircle(x: number, y: number, textContent: string) {
     // Create a graphics object
-    const graphics = this.add.graphics({ fillStyle: { color: 0x000000, alpha: 0.25 } }); // Black color with 50% opacity
+    const graphics = this.add.graphics({ fillStyle: { color: 0x000000, alpha: 0.125 } }); // Black color with 50% opacity
 
     const circleRadius = 30; // Change this to adjust the size of your circle
     graphics.fillCircle(0, 0, circleRadius);
@@ -613,11 +608,12 @@ class BlackjackScene extends Phaser.Scene {
   }
 
   createHitButton() {
-    this.hitButton = this.createButton(250, 370, 'Hit');
+    this.hitButton = this.createButton(250, 375, 'Hit');
     this.hitButton.setVisible(false);
     this.hitButton?.on('pointerdown', () => {
-      this.splitButton?.setVisible(false);
-      this.doubleDownButton?.setVisible(false);
+      this.selectedChips[this.selectedChips.length - 1].disableInteractive();
+      this.splitButton?.setVisible(false).disableInteractive();
+      this.doubleDownButton?.setVisible(false).disableInteractive();
       const newCard = this.cards.pop();
       this.playerHands[this.activePlayerHandIndex].push(newCard);
       const numCards = this.playerHands[this.activePlayerHandIndex].length;
@@ -645,27 +641,120 @@ class BlackjackScene extends Phaser.Scene {
           [newCard],
           this.playerHandsSprites[this.activePlayerHandIndex][numOtherCards - 1].x +
             CARD_X_SEPARATION,
-          600,
+          PLAYER_CARD_Y,
           false
         );
       }, 300);
-      if (newCard) {
-        this.playerHandsValues[this.activePlayerHandIndex] = this.calculateHandValue(
-          this.playerHands[this.activePlayerHandIndex]
-        );
-        if (this.playerHandsValues[this.activePlayerHandIndex] > 20) {
-          this.hitButton?.disableInteractive();
-          this.hitButton?.setVisible(false);
-        }
-      }
+
+      this.playerHandsValues[this.activePlayerHandIndex] = this.calculateHandValue(
+        this.playerHands[this.activePlayerHandIndex]
+      );
       this.currentPlayerHandValueText?.setText(this.playerHandsValues[0].toString());
+      const playersHandValue = this.playerHandsValues[this.activePlayerHandIndex];
+      if (playersHandValue > 20) {
+        if (playersHandValue === 21) {
+          //blackjack
+        } else {
+          //over
+        }
+        this.time.delayedCall(1250, () => {
+          this.handleDealersTurn();
+        });
+      }
+    });
+  }
+
+  handleDealersTurn() {
+    this.hitButton?.setVisible(false).disableInteractive();
+    this.standButton?.setVisible(false).disableInteractive();
+    //make back card a real card
+    let newCard = this.cards.pop();
+    this.dealerHand[0] = newCard;
+
+    this.moveBackCard();
+    this.time.delayedCall(500, () => {
+      this.displayDealersFirstCard(newCard);
+      this.dealerHandValue = this.calculateHandValue(this.dealerHand);
+      this.currentDealerHandValueText?.setText(this.dealerHandValue.toString());
+
+      this.time.delayedCall(1250, () => {
+        let numCards = 3;
+        let numOtherCards = 2;
+        newCard = this.cards.pop();
+        this.dealerHand.push(newCard);
+        if (numCards % 2 == 1) {
+          const animationDuration = 300; // Duration of the animation in milliseconds
+
+          for (let i = 0; i < numOtherCards; i++) {
+            const card = this.dealerHandSprites[i];
+            const newPosX = card.x - CARD_X_SEPARATION - 4; // Calculate the new X position
+
+            // Tween to animate the card's movement
+            this.tweens.add({
+              targets: card,
+              x: newPosX,
+              duration: animationDuration,
+              ease: 'Power2', // Change this if you need another easing function
+            });
+          }
+        }
+
+        setTimeout(() => {
+          this.displayCards(
+            [newCard],
+            this.dealerHandSprites[numOtherCards - 1].x + CARD_X_SEPARATION,
+            DEALER_CARD_Y,
+            true,
+            numCards
+          );
+        }, 300);
+        this.dealerHandValue = this.calculateHandValue(this.dealerHand);
+        this.currentDealerHandValueText?.setText(this.dealerHandValue.toString());
+        const dealersHandValue = this.dealerHandValue;
+        if (dealersHandValue > 20) {
+          if (dealersHandValue === 21) {
+            //blackjack
+          } else {
+            //over
+          }
+        }
+      });
+    });
+  }
+
+  moveBackCard() {
+    const backCard = this.dealerHandSprites[0];
+    this.tweens.add({
+      targets: backCard,
+      x: CARD_INITIAL_X + CARD_X_SEPARATION,
+      y: DEALER_CARD_Y,
+      duration: 300,
+      ease: 'Power2', // Change this if you need another easing function
+    });
+  }
+
+  displayDealersFirstCard(card: string | undefined) {
+    this.dealerHandSprites[1].setDepth(1);
+    const sprite = this.add
+      .sprite(CARD_INITIAL_X + CARD_X_SEPARATION, DEALER_CARD_Y, 'cards', card)
+      .setDepth(0);
+    this.dealerHandSprites[0].destroy();
+    this.dealerHandSprites[0] = sprite;
+    this.tweens.add({
+      targets: sprite,
+      x: CARD_INITIAL_X,
+      y: DEALER_CARD_Y,
+      duration: 1000,
+      ease: 'Power2', // Change this if you need another easing function
     });
   }
 
   createStandButton() {
-    this.standButton = this.createButton(650, 370, 'Stand');
-    this.standButton.setVisible(false);
-    this.standButton?.on('pointerdown', () => {});
+    this.standButton = this.createButton(650, 375, 'Stand');
+    this.standButton.setVisible(false).disableInteractive();
+    this.standButton?.on('pointerdown', () => {
+      this.handleDealersTurn();
+    });
   }
 
   createDoubleDownButton() {
@@ -683,14 +772,14 @@ class BlackjackScene extends Phaser.Scene {
     this.doubleDownButton.setVisible(true);
     this.doubleDownButton.setDepth(1000);
     this.doubleDownButton?.on('pointerdown', () => {
-      this.doubleDownButton?.setVisible(false);
-      this.splitButton?.setVisible(false);
+      this.doubleDownButton?.setVisible(false).disableInteractive();
+      this.splitButton?.setVisible(false).disableInteractive();
     });
   }
 
   createSplitButton() {
-    this.splitButton = this.createButton(650, 320, 'Split');
-    this.splitButton.setVisible(true);
+    this.splitButton = this.createButton(650, 325, 'Split');
+    this.splitButton.setVisible(false);
     this.splitButton?.on('pointerdown', () => {});
   }
 
@@ -755,15 +844,15 @@ class BlackjackScene extends Phaser.Scene {
   dealCards() {
     //deals the first cards
     this.playerHands = [[this.cards.pop(), this.cards.pop()]];
-    this.dealerHand = [this.cards.pop(), this.cards.pop()];
+    this.dealerHand = ['back', this.cards.pop()];
 
     // Display first player card
-    this.displayCards([this.playerHands[0][0]], CARD_INITIAL_X, PLAYER_CARD_Y, false, true);
+    this.displayCards([this.playerHands[0][0]], CARD_INITIAL_X, PLAYER_CARD_Y, false);
 
     // Delay for next card
     this.time.delayedCall(300, () => {
       // Display first dealer card
-      this.displayCards([this.dealerHand[0]], CARD_INITIAL_X, DEAL_CARD_Y, true, true);
+      this.displayCards([this.dealerHand[0]], CARD_INITIAL_X, DEALER_CARD_Y, true);
 
       // Delay for next card
       this.time.delayedCall(300, () => {
@@ -772,7 +861,6 @@ class BlackjackScene extends Phaser.Scene {
           [this.playerHands[0][1]],
           CARD_INITIAL_X + CARD_X_SEPARATION,
           PLAYER_CARD_Y,
-          false,
           false
         );
 
@@ -782,26 +870,49 @@ class BlackjackScene extends Phaser.Scene {
           this.displayCards(
             [this.dealerHand[1]],
             CARD_INITIAL_X + CARD_X_SEPARATION,
-            DEAL_CARD_Y,
-            true,
-            false
+            DEALER_CARD_Y,
+            true
           );
+
+          this.time.delayedCall(300, () => {
+            this.playerHandsValues[0] = this.calculateHandValue(this.playerHands[0]);
+            this.dealerHandValue = this.calculateHandValue(this.dealerHand);
+            const circleTextObjPlayer = this.createTextInCircle(
+              600,
+              470,
+              this.playerHandsValues[0].toString()
+            );
+            const circleTextObjDealer = this.createTextInCircle(
+              600,
+              270,
+              this.dealerHandValue.toString()
+            );
+            this.currentPlayerHandValueCircle = circleTextObjPlayer.container;
+            this.currentPlayerHandValueText = circleTextObjPlayer.text;
+            this.currentDealerHandValueCircle = circleTextObjDealer.container;
+            this.currentDealerHandValueText = circleTextObjDealer.text;
+          });
         });
       });
     });
   }
 
-  displayCards(cards: any[], startX: number, startY: number, dealer = false, backCard = false) {
+  displayCards(
+    cards: (string | undefined)[],
+    startX: number,
+    startY: number,
+    dealer = false,
+    depth = 1
+  ) {
     const animationDuration = 300; // Duration of the animation in milliseconds
     const initialX = 0; // Initial position for the animation
     const initialY = 0; // Initial position for the animation
 
     for (let i = 0; i < cards.length; i++) {
-      const frameName = backCard && dealer ? 'back' : cards[i];
-
+      const frameName = cards[i];
       let sprite;
       if (dealer) {
-        sprite = this.add.sprite(initialX, initialY, 'cards', frameName);
+        sprite = this.add.sprite(initialX, initialY, 'cards', frameName).setDepth(depth);
         this.dealerHandSprites.push(sprite);
       } else {
         sprite = this.add.sprite(initialX, initialY, 'cards', frameName);
@@ -873,9 +984,8 @@ class BlackjackScene extends Phaser.Scene {
       })
       .setOrigin(0, 0.5);
 
-    this.selectedChipsTotalText = this.add.text(475, 350, '$0', {
-      fontSize: '46px',
-      fontStyle: 'bold',
+    this.selectedChipsTotalText = this.add.text(485, 367.5, '$0', {
+      fontSize: '26px',
     });
 
     Phaser.Actions.GridAlign(this.chips, {
