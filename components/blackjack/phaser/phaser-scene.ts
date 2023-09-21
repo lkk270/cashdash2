@@ -1,4 +1,6 @@
+import { Elsie_Swash_Caps } from 'next/font/google';
 import gameEvents from './event-emitter';
+import { initialize } from 'next/dist/server/lib/render-server';
 // const CHIPS = [
 //   { name: 'c1', value: 1 },
 //   { name: 'c5', value: 5 },
@@ -73,8 +75,13 @@ class BlackjackScene extends Phaser.Scene {
   private standButton: Phaser.GameObjects.Container | null = null;
   private doubleDownButton: Phaser.GameObjects.Container | null = null;
   private splitButton: Phaser.GameObjects.Container | null = null;
+  private dealerHand: (string | undefined)[] = [];
+  private dealerHandSprites: Phaser.GameObjects.Sprite[] = [];
   private dealerCardValue: number = 0;
-  private playerCardValue: number = 0;
+  private playerCardValue: number[] = [];
+  private playerHands: (string | undefined)[][] = [[]];
+  private playerHandsSprites: Phaser.GameObjects.Sprite[][] = [[]];
+  private activePlayerHandIndex: number = 0;
 
   constructor(
     config: Phaser.Types.Scenes.SettingsConfig,
@@ -570,7 +577,38 @@ class BlackjackScene extends Phaser.Scene {
   createHitButton() {
     this.hitButton = this.createButton(250, 370, 'Hit');
     this.hitButton.setVisible(false);
-    this.hitButton?.on('pointerdown', () => {});
+    this.hitButton?.on('pointerdown', () => {
+      this.splitButton?.setVisible(false);
+      const newCard = this.cards.pop();
+      this.playerHands[this.activePlayerHandIndex].push(newCard);
+      const numCards = this.playerHands[this.activePlayerHandIndex].length;
+      const numOtherCards = numCards - 1;
+      if (numCards % 2 == 1) {
+        const animationDuration = 300; // Duration of the animation in milliseconds
+
+        for (let i = 0; i < numOtherCards; i++) {
+          const card = this.playerHandsSprites[this.activePlayerHandIndex][i];
+          const newPosX = card.x - 92; // Calculate the new X position
+
+          // Tween to animate the card's movement
+          this.tweens.add({
+            targets: card,
+            x: newPosX,
+            duration: animationDuration,
+            ease: 'Power2', // Change this if you need another easing function
+          });
+        }
+      }
+
+      setTimeout(() => {
+        this.displayCards(
+          [newCard],
+          this.playerHandsSprites[this.activePlayerHandIndex][numOtherCards - 1].x + 100,
+          600,
+          false
+        );
+      }, 300);
+    });
   }
 
   createStandButton() {
@@ -593,12 +631,15 @@ class BlackjackScene extends Phaser.Scene {
     );
     this.doubleDownButton.setVisible(true);
     this.doubleDownButton.setDepth(1000);
-    this.doubleDownButton?.on('pointerdown', () => {});
+    this.doubleDownButton?.on('pointerdown', () => {
+      this.doubleDownButton?.setVisible(false);
+      this.splitButton?.setVisible(false);
+    });
   }
 
   createSplitButton() {
-    this.splitButton = this.createButton(650, 370, 'Split');
-    this.splitButton.setVisible(false);
+    this.splitButton = this.createButton(650, 320, 'Split');
+    this.splitButton.setVisible(true);
     this.splitButton?.on('pointerdown', () => {});
   }
 
@@ -644,15 +685,39 @@ class BlackjackScene extends Phaser.Scene {
   }
 
   dealCards() {
-    let playerCards = [this.cards.pop(), this.cards.pop()];
-    let dealerCards = ['back', this.cards.pop()];
-    this.displayCards(playerCards, 375, 600); // Coordinates for the player's cards
-    this.displayCards(dealerCards, 375, 150); // Coordinates for the dealer's cards
+    //deals the first cards
+    this.playerHands = [[this.cards.pop(), this.cards.pop()]];
+    this.dealerHand = [this.cards.pop(), this.cards.pop()];
+    this.displayCards(this.playerHands[0], 375, 600, false, true);
+    this.displayCards(this.dealerHand, 375, 150, true, true);
   }
 
-  displayCards(cards: any[], startX: number, startY: number) {
+  displayCards(cards: any[], startX: number, startY: number, dealer = false, initialize = false) {
+    const animationDuration = 300; // Duration of the animation in milliseconds
+    const initialX = 0; // Initial position for the animation
+    const initialY = 0; // Initial position for the animation
+
     for (let i = 0; i < cards.length; i++) {
-      this.add.sprite(startX + i * 100, startY, 'cards', cards[i]);
+      const frameName = initialize && i === 0 && dealer ? 'back' : cards[i];
+
+      let sprite;
+      if (dealer) {
+        sprite = this.add.sprite(initialX, initialY, 'cards', frameName);
+        this.dealerHandSprites.push(sprite);
+      } else {
+        sprite = this.add.sprite(initialX, initialY, 'cards', frameName);
+        this.playerHandsSprites[this.activePlayerHandIndex].push(sprite);
+      }
+
+      // Tween to move the card to its position
+      this.tweens.add({
+        targets: sprite,
+        x: startX + i * 100,
+        y: startY,
+        duration: animationDuration,
+        ease: 'Power2', // Change this if you need another easing function
+        delay: i * 100, // This staggers the animation start time for each card
+      });
     }
   }
 
