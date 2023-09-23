@@ -95,6 +95,8 @@ class BlackjackScene extends Phaser.Scene {
   private currentPlayerHandValueCircle: Phaser.GameObjects.Container | null = null;
   private currentPlayerHandValueText: Phaser.GameObjects.Text | null = null;
   private winner: string | null = null;
+  private lastBetAmount: number | null = null;
+
   constructor(
     config: Phaser.Types.Scenes.SettingsConfig,
     onGameStart: () => void,
@@ -208,8 +210,10 @@ class BlackjackScene extends Phaser.Scene {
   }
 
   createWinningChips(): Phaser.GameObjects.Sprite[] {
+    const clonedChipX = CENTER_X - 200;
     let clonedChips: Phaser.GameObjects.Sprite[] = [];
-    for (let chip of this.selectedChips) {
+    for (let i = 0; i < this.selectedChips.length; i++) {
+      const chip = this.selectedChips[i];
       // Clone the sprite by creating a new sprite at the same position, with the same texture key
       let clonedChip = this.add
         .sprite(chip.x, chip.y, 'chips', chip.frame.name)
@@ -217,13 +221,14 @@ class BlackjackScene extends Phaser.Scene {
         // Copy any other properties you need from the original sprite
         .setScale(chip.scaleX, chip.scaleY)
         .setDepth(100);
-      clonedChip.x = CENTER_X - 200;
+      clonedChip.x = clonedChipX;
       clonedChip.y = -200;
       clonedChips.push(clonedChip);
 
       // Animation
       this.tweens.add({
         targets: clonedChip,
+        x: clonedChipX - PLACED_CHIP_X_MULTIPLIER * i,
         y: CENTER_Y,
         duration: 600,
         ease: 'Sine.easeOut',
@@ -284,6 +289,64 @@ class BlackjackScene extends Phaser.Scene {
     //set balance text
   }
 
+  createLastBetChips() {
+    let lastBetAmount = this.lastBetAmount || 0;
+    const tempChips: { chipObj: any; clonedChip: Phaser.GameObjects.Sprite }[] = [];
+
+    // Calculate all the chips we would be adding
+    while (lastBetAmount > 0) {
+      const chipObj = CHIPS.slice()
+        .reverse()
+        .find((chip) => chip.value <= lastBetAmount);
+      if (!chipObj) {
+        break;
+      }
+      lastBetAmount -= chipObj.value;
+      this.balance -= chipObj.value;
+      const clonedChip = this.add
+        .sprite(chipObj.originalX, chipObj.originalY, 'chips', chipObj.name)
+        .setScale(0.42);
+
+      clonedChip
+        .setInteractive({
+          cursor: 'pointer',
+        })
+        .on('pointerdown', () => {
+          this.deselectChip(clonedChip);
+        });
+      tempChips.push({ chipObj, clonedChip });
+    }
+    tempChips.forEach((item, idx) => {
+      const plusOneIdx = idx + 1;
+      const targetX =
+        plusOneIdx < 8
+          ? PLACED_CHIP_X - PLACED_CHIP_X_MULTIPLIER * plusOneIdx
+          : PLACED_CHIP_X - PLACED_CHIP_X_MULTIPLIER * 7;
+
+      const chipObj = item.chipObj;
+      const clonedChip = item.clonedChip;
+      clonedChip.x = chipObj.originalX;
+      clonedChip.y = chipObj.originalY;
+      (clonedChip as any).originalX = chipObj.originalX;
+      (clonedChip as any).originalY = chipObj.originalY;
+
+      this.selectedChips.push(clonedChip);
+      this.tweens.add({
+        targets: clonedChip,
+        x: targetX,
+        y: CENTER_Y, // Adjust this to make them stack nicely in the center
+        duration: 300,
+        ease: 'Sine.easeOut',
+        delay: idx * 100, // Add a small delay to each to make it more realistic
+      });
+    });
+    if (this.balanceText) {
+      this.balanceText.setText(`Bank: $${this.formatBalance(this.balance)}`);
+    }
+    this.updateSelectedChipsTotal();
+    this.updateAvailableChips();
+  }
+
   reset() {
     this.toggleChipsAfterRound();
     // this.destroySelectedChips();
@@ -308,9 +371,18 @@ class BlackjackScene extends Phaser.Scene {
       this.currentPlayerHandValueCircle?.setVisible(false);
 
       this.chipCounts.clear();
-      this.selectedChips = [];
-      this.selectedChipsTotal = 0;
-      this.selectedChipsTotalText?.setText('$0').setVisible(false);
+
+      if (this.lastBetAmount) {
+        this.selectedChips = [];
+        this.selectedChipsTotalText?.setText(`$${this.lastBetAmount}`).setVisible(false);
+        this.time.delayedCall(2000, () => {
+          this.createLastBetChips();
+        });
+      } else {
+        this.selectedChips = [];
+        this.selectedChipsTotal = 0;
+        this.selectedChipsTotalText?.setText('$0').setVisible(false);
+      }
 
       // this.lastSelectedChipXPosition = PLACED_CHIP_X;
       // this.canSelectChip = true
@@ -395,9 +467,9 @@ class BlackjackScene extends Phaser.Scene {
       onComplete: () => {
         clonedChip.destroy();
         this.updateAvailableChips();
+        this.updateSelectedChipsTotal();
       },
     });
-    this.updateSelectedChipsTotal();
   }
 
   updateSelectedChipsTotal() {
@@ -423,6 +495,7 @@ class BlackjackScene extends Phaser.Scene {
   }
 
   betAllIn() {
+    const centerChipCount = this.selectedChips.length;
     // Temp array to hold all the chips that would be added
     const tempChips: { chipObj: any; clonedChip: Phaser.GameObjects.Sprite }[] = [];
 
@@ -451,17 +524,21 @@ class BlackjackScene extends Phaser.Scene {
 
     // Animate them to the center individually
     tempChips.forEach((item, idx) => {
+      const plusOneIdx = centerChipCount + idx + 1;
+      const targetX =
+        plusOneIdx < 8
+          ? PLACED_CHIP_X - PLACED_CHIP_X_MULTIPLIER * plusOneIdx
+          : PLACED_CHIP_X - PLACED_CHIP_X_MULTIPLIER * 7;
+
       const chipObj = item.chipObj;
       const clonedChip = item.clonedChip;
-      clonedChip.x = this.lastSelectedChipXPosition;
-      clonedChip.y = CENTER_Y + idx * 2.5; // Stacking chips
       (clonedChip as any).originalX = chipObj.originalX;
       (clonedChip as any).originalY = chipObj.originalY;
 
       this.selectedChips.push(clonedChip);
       this.tweens.add({
         targets: clonedChip,
-        x: this.lastSelectedChipXPosition,
+        x: targetX,
         y: CENTER_Y, // Adjust this to make them stack nicely in the center
         duration: 300,
         ease: 'Sine.easeOut',
@@ -503,7 +580,7 @@ class BlackjackScene extends Phaser.Scene {
     if (this.balanceText) {
       this.balanceText.setText(`Bank: $${this.formatBalance(this.balance)}`);
     }
-
+    this.lastSelectedChipXPosition = PLACED_CHIP_X;
     this.updateSelectedChipsTotal();
     this.updateAvailableChips();
   }
@@ -561,6 +638,7 @@ class BlackjackScene extends Phaser.Scene {
     this.dealButton.setVisible(false);
     this.dealButton?.on('pointerdown', () => {
       this.dealInProgress = true;
+      this.lastBetAmount = this.selectedChipsTotal;
       this.onDealButtonClicked();
     });
   }
@@ -608,47 +686,7 @@ class BlackjackScene extends Phaser.Scene {
             cursor: 'pointer',
           })
           .on('pointerdown', () => {
-            // Remove the chip from the array
-
-            if (!this.canDeselectChip || this.dealInProgress) return; // If we can't deselect, exit early
-
-            this.canDeselectChip = false; // Set it to false to prevent subsequent deselections
-            setTimeout(() => {
-              this.canDeselectChip = true; // Allow deselections after a delay (in this case, 300ms)
-            }, 300);
-
-            const chipIndex = this.selectedChips.indexOf(clonedChip);
-            if (chipIndex !== -1) {
-              this.selectedChips.splice(chipIndex, 1);
-            }
-            // Deselect and adjust the balance
-            const chipValue = CHIPS.find(
-              (chipData) => chipData.name === clonedChip.frame.name
-            )?.value;
-            if (chipValue) {
-              this.balance += chipValue;
-              const currentCount = this.chipCounts.get(chipValue) || 0;
-              this.chipCounts.set(chipValue, Math.max(0, currentCount - 1)); // ensure it's not less than 0
-            }
-            if (this.balanceText) {
-              this.balanceText.setText(`Bank: $${this.formatBalance(this.balance)}`);
-            }
-
-            // Update the total for the selected chips
-            this.updateSelectedChipsTotal();
-
-            // Tween to animate the chip moving back to its designated pile
-            this.tweens.add({
-              targets: clonedChip,
-              x: chip.x,
-              y: chip.y,
-              duration: 300, // Duration in milliseconds
-              ease: 'Sine.easeOut', // The easing function to use
-              onComplete: () => {
-                clonedChip.destroy();
-                this.updateAvailableChips();
-              },
-            });
+            this.deselectChip(clonedChip);
           });
 
         // const offset =
