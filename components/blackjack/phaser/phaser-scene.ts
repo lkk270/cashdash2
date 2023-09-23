@@ -219,6 +219,10 @@ class BlackjackScene extends Phaser.Scene {
     // this.lastSelectedChipXPosition = PLACED_CHIP_X;
     // this.canSelectChip = true
     //this.canDeselectChip = true
+    if (this.cards.length < 52) {
+      this.createDeck();
+      this.shuffleDeck();
+    }
   }
 
   formatBalance(balance: number): string {
@@ -677,7 +681,7 @@ class BlackjackScene extends Phaser.Scene {
       this.selectedChips[this.selectedChips.length - 1].disableInteractive();
       this.splitButton?.setVisible(false).disableInteractive();
       this.doubleDownButton?.setVisible(false).disableInteractive();
-      const newCard = 'clubs3';
+      const newCard = this.cards.pop();
       this.playerHands[this.activePlayerHandIndex].push(newCard);
       const numCards = this.playerHands[this.activePlayerHandIndex].length;
       const numOtherCards = numCards - 1;
@@ -784,7 +788,7 @@ class BlackjackScene extends Phaser.Scene {
       this.dealerHandValue = this.calculateHandValue(this.dealerHand);
       this.currentDealerHandValueText?.setText(this.dealerHandValue.toString());
 
-      if (this.playerHandsValues[this.activePlayerHandIndex] !== 21) {
+      if (this.playerHandsValues[this.activePlayerHandIndex] <= 21) {
         let numCards = 3;
         this.playDealerTurn(numCards, () => {
           this.time.delayedCall(500, () => {

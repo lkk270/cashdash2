@@ -76,7 +76,7 @@ export const LobbyClient = ({ lobby, game, scoresParam, userBestScore }: LobbyCl
         />
       </div>
       <main className="flex-grow">
-        <div className="h-full p-4 space-y-2 ">
+        <div className="h-full p-2 space-y-2 ">
           <div className="flex justify-center h-full">
             {renderGameComponent(gameName, commonProps)}
           </div>
