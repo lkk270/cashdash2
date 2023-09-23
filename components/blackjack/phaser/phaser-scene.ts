@@ -999,7 +999,7 @@ class BlackjackScene extends Phaser.Scene {
           this.winner = 'dealer';
           this.displayBanner(null, 'dealerWins');
         }
-      } else if (dealerValue !== 21) {
+      } else {
         //push
         this.winner = 'push';
         this.displayBanner('push', 'push');
