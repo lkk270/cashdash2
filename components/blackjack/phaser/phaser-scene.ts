@@ -154,13 +154,6 @@ class BlackjackScene extends Phaser.Scene {
     }
   }
 
-  private destroySelectedChips() {
-    for (let sprite of this.selectedChips) {
-      sprite.destroy();
-    }
-    this.selectedChips = [];
-  }
-
   private destroyDealerHandSprites() {
     for (let sprite of this.dealerHandSprites) {
       sprite.destroy();
@@ -320,7 +313,9 @@ class BlackjackScene extends Phaser.Scene {
     tempChips.forEach((item, idx) => {
       const plusOneIdx = idx + 1;
       const targetX =
-        plusOneIdx < 8
+        plusOneIdx === 1
+          ? PLACED_CHIP_X
+          : plusOneIdx < 8
           ? PLACED_CHIP_X - PLACED_CHIP_X_MULTIPLIER * plusOneIdx
           : PLACED_CHIP_X - PLACED_CHIP_X_MULTIPLIER * 7;
 
@@ -340,25 +335,31 @@ class BlackjackScene extends Phaser.Scene {
         ease: 'Sine.easeOut',
         delay: idx * 100, // Add a small delay to each to make it more realistic
       });
+      if (idx + 1 === tempChips.length) {
+        this.lastSelectedChipXPosition = targetX;
+        this.time.delayedCall(tempChips.length * 100, () => {
+          this.canSelectChip = true;
+
+          this.clearBetButton?.setVisible(true).setInteractive();
+        });
+      }
     });
     if (this.balanceText) {
       this.balanceText.setText(`Bank: $${this.formatBalance(this.balance)}`);
     }
     this.updateSelectedChipsTotal();
     this.updateAvailableChips();
-    this.canSelectChip = true;
   }
 
   reset() {
-    this.toggleChipsAfterRound();
     this.canSelectChip = false;
+    this.toggleChipsAfterRound();
     // this.destroySelectedChips();
     this.time.delayedCall(1250, () => {
       this.destroyDealerHandSprites();
       this.destroyPlayerHandsSprites();
       this.toggleBalanceText();
       this.toggleMainContainer();
-      this.allInButton?.setVisible(true).setInteractive();
       this.hitButton?.setVisible(false).disableInteractive();
       this.standButton?.setVisible(false).disableInteractive();
       this.splitButton?.setVisible(false).disableInteractive();
@@ -381,6 +382,8 @@ class BlackjackScene extends Phaser.Scene {
           this.createLastBetChips();
         });
       } else {
+        this.allInButton?.setVisible(true).setInteractive();
+        this.canSelectChip = true;
         this.selectedChipsTotal = 0;
         this.selectedChipsTotalText?.setText('$0').setVisible(false);
       }
@@ -466,6 +469,9 @@ class BlackjackScene extends Phaser.Scene {
       duration: 300,
       ease: 'Sine.easeOut',
       onComplete: () => {
+        if (this.selectedChips.length > 0) {
+          this.lastSelectedChipXPosition = this.selectedChips[this.selectedChips.length - 1].x;
+        }
         clonedChip.destroy();
         this.updateAvailableChips();
         this.updateSelectedChipsTotal();
@@ -698,10 +704,11 @@ class BlackjackScene extends Phaser.Scene {
         //   CHIP_OFFSETS[centerChipCount] !== undefined ? CHIP_OFFSETS[centerChipCount] : -12;
         const centerChipCount = this.selectedChips.length;
         const targetX =
-          centerChipCount < 8
+          centerChipCount === 1
+            ? PLACED_CHIP_X
+            : centerChipCount < 8
             ? PLACED_CHIP_X - PLACED_CHIP_X_MULTIPLIER * centerChipCount
             : PLACED_CHIP_X - PLACED_CHIP_X_MULTIPLIER * 7;
-
         this.tweens.add({
           targets: clonedChip,
           x: targetX,
@@ -1110,7 +1117,7 @@ class BlackjackScene extends Phaser.Scene {
   createDoubleDownButton() {
     this.doubleDownButton = this.createButton(
       this.lastSelectedChipXPosition,
-      375,
+      CENTER_Y + 1,
       'Double',
       100,
       100,
@@ -1119,7 +1126,7 @@ class BlackjackScene extends Phaser.Scene {
       '20px',
       50
     );
-    this.doubleDownButton.setVisible(true);
+    this.doubleDownButton.setVisible(false);
     this.doubleDownButton.setDepth(1000);
     this.doubleDownButton?.on('pointerdown', () => {
       this.doubleDownButton?.setVisible(false).disableInteractive();
@@ -1257,7 +1264,10 @@ class BlackjackScene extends Phaser.Scene {
             this.currentDealerHandValueText = circleTextObjDealer.text;
             this.hitButton?.setVisible(true).setInteractive();
             this.standButton?.setVisible(true).setInteractive();
-            this.createDoubleDownButton();
+            this.doubleDownButton
+              ?.setX(this.lastSelectedChipXPosition - 1)
+              .setVisible(true)
+              .setInteractive();
             this.handlePlayerBlackjack();
           });
         });
@@ -1334,6 +1344,7 @@ class BlackjackScene extends Phaser.Scene {
     this.createHitButton();
     this.createStandButton();
     this.createSplitButton();
+    this.createDoubleDownButton();
     //add available chips
     this.createChips();
 
