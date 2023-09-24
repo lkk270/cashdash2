@@ -469,6 +469,10 @@ class BlackjackScene extends Phaser.Scene {
         clonedChip.destroy();
         this.updateAvailableChips();
         this.updateSelectedChipsTotal();
+        if (this.clearBetButton?.visible) {
+          this.clearBetButton?.setVisible(false).disableInteractive();
+          this.allInButton?.setVisible(true).setInteractive();
+        }
       },
     });
   }
