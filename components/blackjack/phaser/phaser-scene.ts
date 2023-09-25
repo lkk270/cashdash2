@@ -83,7 +83,8 @@ class BlackjackScene extends Phaser.Scene {
   private allInButton: Phaser.GameObjects.Container | null = null;
   private clearBetButton: Phaser.GameObjects.Container | null = null;
   private dealButton: Phaser.GameObjects.Container | null = null;
-  private dealInProgress = false;
+  private dealInProgress: boolean = false;
+  private splitInProgress: boolean = false;
   private cards: string[] = [];
   private hitButton: Phaser.GameObjects.Container | null = null;
   private standButton: Phaser.GameObjects.Container | null = null;
@@ -896,12 +897,17 @@ class BlackjackScene extends Phaser.Scene {
       this.playerHandsValues[this.activePlayerHandIndex].toString()
     );
     const playersHandValue = this.playerHandsValues[this.activePlayerHandIndex];
-    if (playersHandValue > 20) {
+    if (playersHandValue > 20 && this.activePlayerHandIndex + 1 === this.playerHandsValues.length) {
       this.hitButton?.setVisible(false).disableInteractive();
       this.standButton?.setVisible(false).disableInteractive();
       this.time.delayedCall(1250, () => {
         this.handleDealersTurn();
       });
+    } else if (playersHandValue > 20 && this.splitInProgress) {
+      this.doubleDownButton?.setVisible(false).disableInteractive();
+      this.hitButton?.setVisible(false).disableInteractive();
+      this.standButton?.setVisible(false).disableInteractive();
+      //swap splits
     }
   }
 
@@ -1149,8 +1155,15 @@ class BlackjackScene extends Phaser.Scene {
     this.standButton = this.createButton(650, CENTER_Y, 'Stand');
     this.standButton.setVisible(false).disableInteractive();
     this.standButton?.on('pointerdown', () => {
-      this.doubleDownButton?.setVisible(false).disableInteractive();
-      this.handleDealersTurn();
+      if (this.activePlayerHandIndex + 1 === this.playerHandsValues.length) {
+        this.doubleDownButton?.setVisible(false).disableInteractive();
+        this.handleDealersTurn();
+      } else if (this.splitInProgress) {
+        this.doubleDownButton?.setVisible(false).disableInteractive();
+        this.hitButton?.setVisible(false).disableInteractive();
+        this.standButton?.setVisible(false).disableInteractive();
+        //swap splits
+      }
     });
   }
 
@@ -1211,7 +1224,10 @@ class BlackjackScene extends Phaser.Scene {
       duration: duration,
       ease: 'Sine.easeInOut',
     });
-
+    const halfHandValue = this.calculateHandValue([this.playerHands[0][0]]);
+    this.playerHandsValues[0] = halfHandValue;
+    this.playerHandsValues.push(halfHandValue);
+    this.currentPlayerHandValueText?.setText(this.playerHandsValues[0].toString());
     this.playerHands.push([this.playerHands[0][0]]);
     this.playerHandsSprites.push([this.playerHandsSprites[0][1]]);
     this.playerHands[0] = [this.playerHands[0][0]];
@@ -1231,6 +1247,7 @@ class BlackjackScene extends Phaser.Scene {
     this.splitButton = this.createButton(650, 345, 'Split');
     this.splitButton.setVisible(false);
     this.splitButton?.on('pointerdown', () => {
+      this.splitInProgress = true;
       this.splitButton?.setVisible(false);
       this.standButton?.setY(CENTER_Y);
       this.handleSplit();
