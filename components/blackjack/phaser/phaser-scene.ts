@@ -286,7 +286,8 @@ class BlackjackScene extends Phaser.Scene {
     //set balance text
   }
 
-  createLastBetChips(forDoubleDown = false) {
+  createLastBetChips(forDoubleDown = false, forSplit = false) {
+    const forDoubleDownOrSplit = forDoubleDown || forSplit;
     let lastBetAmount = this.lastBetAmount || 0;
     const tempChips: { chipObj: any; clonedChip: Phaser.GameObjects.Sprite }[] = [];
 
@@ -299,7 +300,9 @@ class BlackjackScene extends Phaser.Scene {
         break;
       }
       lastBetAmount -= chipObj.value;
-      this.balance -= chipObj.value;
+      if (!forSplit) {
+        this.balance -= chipObj.value;
+      }
       const clonedChip = this.add
         .sprite(chipObj.originalX, chipObj.originalY, 'chips', chipObj.name)
         .setScale(0.42);
@@ -338,7 +341,7 @@ class BlackjackScene extends Phaser.Scene {
         ease: 'Sine.easeOut',
         delay: idx * 100, // Add a small delay to each to make it more realistic
       });
-      if (!forDoubleDown) {
+      if (!forDoubleDownOrSplit) {
         if (idx + 1 === tempChips.length) {
           this.lastSelectedChipXPosition = targetX;
           this.time.delayedCall(tempChips.length * 100 + 500, () => {
@@ -351,7 +354,7 @@ class BlackjackScene extends Phaser.Scene {
     if (this.balanceText) {
       this.balanceText.setText(`Bank: $${this.formatBalance(this.balance)}`);
     }
-    this.updateSelectedChipsTotal(forDoubleDown);
+    this.updateSelectedChipsTotal(forDoubleDownOrSplit);
     this.updateAvailableChips();
   }
 
@@ -488,7 +491,7 @@ class BlackjackScene extends Phaser.Scene {
     });
   }
 
-  updateSelectedChipsTotal(forDoubleDown = false) {
+  updateSelectedChipsTotal(forDoubleDownOrSplit = false) {
     let total = 0;
     this.selectedChips.forEach((chip) => {
       const chipValue = CHIPS.find((chipObj) => chipObj.name === chip.frame.name)?.value;
@@ -501,7 +504,7 @@ class BlackjackScene extends Phaser.Scene {
       this.selectedChipsTotal = total;
       this.selectedChipsTotalText.setText(`$${this.formatBalance(total)}`);
     }
-    if (!forDoubleDown) {
+    if (!forDoubleDownOrSplit) {
       if (this.selectedChipsTotalText?.text === '$0') {
         this.selectedChipsTotalText?.setVisible(false);
         this.dealButton?.setVisible(false).disableInteractive();
@@ -851,7 +854,7 @@ class BlackjackScene extends Phaser.Scene {
     }, 600);
     this.selectedChips[this.selectedChips.length - 1].disableInteractive();
     this.splitButton?.setVisible(false).disableInteractive();
-    if (!forSplit) {
+    if (!forSplit || (forSplit && this.lastBetAmount && this.balance < this.lastBetAmount)) {
       this.doubleDownButton?.setVisible(false).disableInteractive();
     }
     const newCard = 'spades2';
@@ -1170,12 +1173,12 @@ class BlackjackScene extends Phaser.Scene {
       this.splitButton?.setVisible(false).disableInteractive();
       this.standButton?.setVisible(false).disableInteractive();
       this.hitButton?.setVisible(false).disableInteractive();
-      this.createLastBetChips(true);
+      this.createLastBetChips(true, false);
 
       this.time.delayedCall(1250, () => {
         this.handlePlayerHit();
         this.time.delayedCall(1250, () => {
-          this.handleDealersTurn(true);
+          this.handleDealersTurn();
         });
       });
     });
@@ -1214,7 +1217,13 @@ class BlackjackScene extends Phaser.Scene {
     this.playerHands[0] = [this.playerHands[0][0]];
     this.playerHandsSprites[0] = [this.playerHandsSprites[0][0]];
     this.time.delayedCall(duration + 250, () => {
-      this.handlePlayerHit();
+      this.handlePlayerHit(true);
+      if (this.lastBetAmount) {
+        this.balance -= this.lastBetAmount;
+        this.balanceText?.setText(`Bank: $${this.formatBalance(this.balance)}`);
+      }
+
+      // this.createLastBetChips(false, true);
     });
   }
 
