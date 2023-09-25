@@ -904,10 +904,7 @@ class BlackjackScene extends Phaser.Scene {
         this.handleDealersTurn();
       });
     } else if (playersHandValue > 20 && this.splitInProgress) {
-      this.doubleDownButton?.setVisible(false).disableInteractive();
-      this.hitButton?.setVisible(false).disableInteractive();
-      this.standButton?.setVisible(false).disableInteractive();
-      //swap splits
+      this.swapSplits();
     }
   }
 
@@ -1159,10 +1156,7 @@ class BlackjackScene extends Phaser.Scene {
         this.doubleDownButton?.setVisible(false).disableInteractive();
         this.handleDealersTurn();
       } else if (this.splitInProgress) {
-        this.doubleDownButton?.setVisible(false).disableInteractive();
-        this.hitButton?.setVisible(false).disableInteractive();
-        this.standButton?.setVisible(false).disableInteractive();
-        //swap splits
+        this.swapSplits();
       }
     });
   }
@@ -1197,11 +1191,53 @@ class BlackjackScene extends Phaser.Scene {
     });
   }
 
-  dealCardForSplit() {}
+  scaleAndMoveCardSprites(corner: boolean, index: number): void {
+    const targetX = corner ? CORNER_X : CARD_INITIAL_X;
+    const targetY = corner ? CORNER_Y : PLAYER_CARD_Y;
+    const scale = corner ? 0.55 : 1.25;
+    const duration = 500;
+    for (let sprite of this.playerHandsSprites[index]) {
+      this.tweens.add({
+        targets: sprite.setScale(scale),
+        x: targetX,
+        y: targetY,
+        duration: duration,
+        ease: 'Sine.easeInOut',
+      });
+    }
+  }
+
+  swapSplits() {
+    this.hitButton?.setVisible(false).disableInteractive();
+    this.standButton?.setVisible(false).disableInteractive();
+    this.doubleDownButton?.setVisible(false).disableInteractive();
+    this.splitChip?.setVisible(false);
+    this.splitValueText?.setVisible(false);
+    this.scaleAndMoveCardSprites(true, 0);
+    this.scaleAndMoveCardSprites(false, 1);
+
+    this.time.delayedCall(1000, () => {
+      this.activePlayerHandIndex = 1;
+      this.handlePlayerHit(true);
+
+      //on complete
+      this.splitChip?.setVisible(true);
+      this.splitValueText
+        ?.setVisible(true)
+        .setText(`$${this.formatBalance(this.selectedChipsTotal)}`);
+      this.standButton?.setVisible(true).setInteractive();
+      this.doubleDownButton?.setVisible(true).setInteractive();
+      if (this.lastBetAmount && this.balance >= this.lastBetAmount) {
+        this.hitButton?.setVisible(true).setInteractive();
+      }
+    });
+  }
 
   handleSplit() {
     const duration = 500;
-    this.splitValueText?.setVisible(true).setText(`$${this.selectedChipsTotal.toString()}`);
+    this.splitValueText
+      ?.setVisible(true)
+      .setText(`$${this.formatBalance(this.selectedChipsTotal)}`);
     this.splitChip?.setVisible(true);
     this.tweens.add({
       targets: this.splitValueText,
