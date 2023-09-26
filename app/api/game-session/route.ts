@@ -178,7 +178,10 @@ export async function POST(req: Request) {
           if (game.scoreType === ScoreType.time && body.score < game.cheatScore) {
             return new NextResponse('Unauthorized2', { status: 401 });
           }
-          if (game.scoreType === ScoreType.points && body.score > game.cheatScore) {
+          if (
+            (game.scoreType === ScoreType.points || game.scoreType === ScoreType.balance) &&
+            body.score > game.cheatScore
+          ) {
             return new NextResponse('Unauthorized3', { status: 401 });
           }
           if (
@@ -301,6 +304,7 @@ export async function POST(req: Request) {
 
           if (
             !body.userBestScore.score ||
+            game.scoreType === ScoreType.balance ||
             (game.scoreType === ScoreType.points && body.score > body.userBestScore.score) ||
             (game.scoreType === ScoreType.time && body.score < body.userBestScore.score)
           ) {

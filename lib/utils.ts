@@ -47,7 +47,7 @@ export function isValidLobbyAccess(inputs: {
     if (
       (inputs.scoreType === ScoreType.time &&
         inputs.weightedAverageScore < inputs.scoreRestriction) ||
-      (inputs.scoreType === ScoreType.points &&
+      ((inputs.scoreType === ScoreType.points || inputs.scoreType === ScoreType.balance) &&
         inputs.weightedAverageScore > inputs.scoreRestriction)
     ) {
       errorMessages.push("You're too good of a player to access this tier!");
