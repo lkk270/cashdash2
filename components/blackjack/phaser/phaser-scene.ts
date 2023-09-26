@@ -377,19 +377,25 @@ class BlackjackScene extends Phaser.Scene {
             if (!this.dealInProgress) {
               this.canSelectChip = true;
               this.loading = false;
+              if (this.balanceText) {
+                this.balanceText.setText(`Bank: $${this.formatBalance(this.balance)}`);
+              }
+              this.updateSelectedChipsTotal(forDoubleDownOrSplit);
+              this.updateAvailableChips();
               this.clearBetButton?.setVisible(true).setInteractive();
             }
           });
         }
       } else {
+        console.log('IN HERE2');
         this.loading = false;
+        if (this.balanceText) {
+          this.balanceText.setText(`Bank: $${this.formatBalance(this.balance)}`);
+        }
+        this.updateSelectedChipsTotal(forDoubleDownOrSplit);
+        this.updateAvailableChips();
       }
     });
-    if (this.balanceText) {
-      this.balanceText.setText(`Bank: $${this.formatBalance(this.balance)}`);
-    }
-    this.updateSelectedChipsTotal(forDoubleDownOrSplit);
-    this.updateAvailableChips();
   }
 
   reset() {
@@ -900,7 +906,7 @@ class BlackjackScene extends Phaser.Scene {
     if (!forSplit || (forSplit && this.lastBetAmount && this.balance < this.lastBetAmount)) {
       this.doubleDownButton?.setVisible(false).disableInteractive();
     }
-    const newCard = 'hearts5';
+    const newCard = this.cards.pop();
     this.playerHands[this.activePlayerHandIndex].push(newCard);
     const numCards = this.playerHands[this.activePlayerHandIndex].length;
     const numOtherCards = numCards - 1;
@@ -989,7 +995,7 @@ class BlackjackScene extends Phaser.Scene {
 
   handleDealersTurnHelper(numCards: number) {
     let numOtherCards = numCards - 1;
-    let newCard = 'spades6';
+    let newCard = this.cards.pop();
     this.dealerHand.push(newCard);
     if (numCards % 2 == 1) {
       const animationDuration = 300; // Duration of the animation in milliseconds
@@ -1026,7 +1032,7 @@ class BlackjackScene extends Phaser.Scene {
     this.hitButton?.setVisible(false).disableInteractive();
     this.standButton?.setVisible(false).disableInteractive();
     //make back card a real card
-    let newCard = 'hearts6';
+    let newCard = this.cards.pop();
     this.dealerHand[0] = newCard;
 
     this.moveBackCard();
@@ -1601,8 +1607,8 @@ class BlackjackScene extends Phaser.Scene {
 
   dealCards() {
     //deals the first cards
-    this.playerHands = [['hearts10', 'spadesKing']];
-    this.dealerHand = ['back', 'spadesKing'];
+    this.playerHands = [[this.cards.pop(), this.cards.pop()]];
+    this.dealerHand = ['back', this.cards.pop()];
 
     // Display first player card
     this.displayCards([this.playerHands[0][0]], CARD_INITIAL_X, PLAYER_CARD_Y, false);
