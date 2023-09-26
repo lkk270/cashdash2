@@ -1584,7 +1584,7 @@ class BlackjackScene extends Phaser.Scene {
 
   dealCards() {
     //deals the first cards
-    this.playerHands = [['clubs10', 'hearts10']];
+    this.playerHands = [[this.cards.pop(), this.cards.pop()]];
     this.dealerHand = ['back', this.cards.pop()];
 
     // Display first player card
@@ -1634,24 +1634,25 @@ class BlackjackScene extends Phaser.Scene {
             this.currentDealerHandValueText = circleTextObjDealer.text;
             this.hitButton?.setVisible(true).setInteractive();
             this.standButton?.setVisible(true).setInteractive();
-            if (this.lastBetAmount && this.balance >= this.lastBetAmount) {
-              this.doubleDownButton
-                ?.setX(this.lastSelectedChipXPosition - 1)
-                .setVisible(true)
-                .setInteractive();
-              if (
-                this.calculateHandValue([this.playerHands[0][0]]) ===
-                this.calculateHandValue([this.playerHands[0][1]])
-              ) {
-                this.standButton?.setY(this.standButton?.y + 30);
-                this.splitButton?.setVisible(true).setInteractive();
-              }
-            }
+
             this.time.delayedCall(400, () => {
               const playersHandValue = this.playerHandsValues[this.activePlayerHandIndex];
               const playerHasBlackjack =
                 playersHandValue === 21 &&
                 this.playerHands[this.activePlayerHandIndex].length === 2;
+              if (this.lastBetAmount && this.balance >= this.lastBetAmount && !playerHasBlackjack) {
+                this.doubleDownButton
+                  ?.setX(this.lastSelectedChipXPosition - 1)
+                  .setVisible(true)
+                  .setInteractive();
+                if (
+                  this.calculateHandValue([this.playerHands[0][0]]) ===
+                  this.calculateHandValue([this.playerHands[0][1]])
+                ) {
+                  this.standButton?.setY(this.standButton?.y + 30);
+                  this.splitButton?.setVisible(true).setInteractive();
+                }
+              }
               if (playerHasBlackjack) {
                 this.handlePlayerBlackjack();
               }
