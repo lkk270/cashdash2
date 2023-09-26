@@ -28,6 +28,7 @@ const PhaserGame = ({ props }: BlackjackProps) => {
   const [userBestScore, setUserBestScore] = useState<ModifiedScoreType | null>(
     props.userBestScoreParam
   );
+  const queriedBalance = userBestScore ? userBestScore.score : 1200;
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
@@ -53,7 +54,12 @@ const PhaserGame = ({ props }: BlackjackProps) => {
     }
   };
 
-  const onGameStart = () => {
+  const onBalanceChange = (value: number) => {
+    //used for doubles, initiating a split, and the first split's hand being resolved
+    //value is the value by which the balance should be changed. It can be negative or positve.
+  };
+
+  const onGameStart = (value: number) => {
     const updatedIds = { ...props.ids, at: '05' };
     axios
       .post('/api/game-session', updatedIds)
@@ -68,7 +74,7 @@ const PhaserGame = ({ props }: BlackjackProps) => {
       });
   };
 
-  const onGameEnd = (score: number) => {
+  const onGameEnd = (value: number) => {
     setPulsing(true);
     axios
       .post('/api/game-session', { gameSessionId: gameSessionIdRef.current, at: '2' })
@@ -79,9 +85,9 @@ const PhaserGame = ({ props }: BlackjackProps) => {
           lobbySessionId: props.ids.lobbySessionId,
           userBestScore: userBestScore ? userBestScore : false,
           gameSessionId: gameSessionIdRef.current,
-          score: score,
+          score: value,
           cHash: hash,
-          rHash: generateResponseHash(hash, score),
+          rHash: generateResponseHash(hash, value),
           at: '3',
         });
       })
@@ -143,7 +149,15 @@ const PhaserGame = ({ props }: BlackjackProps) => {
       render: {
         antialias: true,
       },
-      scene: [new BlackjackScene({ key: 'BlackjackScene' }, onGameStart, onGameEnd)],
+      scene: [
+        new BlackjackScene(
+          { key: 'BlackjackScene' },
+          onGameStart,
+          onBalanceChange,
+          onGameEnd,
+          queriedBalance
+        ),
+      ],
       parent: 'phaser-game',
       backgroundColor: '#5fa6f9',
       scale: {
