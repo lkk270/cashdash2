@@ -900,7 +900,7 @@ class BlackjackScene extends Phaser.Scene {
     if (!forSplit || (forSplit && this.lastBetAmount && this.balance < this.lastBetAmount)) {
       this.doubleDownButton?.setVisible(false).disableInteractive();
     }
-    const newCard = this.cards.pop();
+    const newCard = 'hearts5';
     this.playerHands[this.activePlayerHandIndex].push(newCard);
     const numCards = this.playerHands[this.activePlayerHandIndex].length;
     const numOtherCards = numCards - 1;
@@ -961,6 +961,8 @@ class BlackjackScene extends Phaser.Scene {
         this.handleDealersTurn();
       });
     } else if (!forSplitForDoubleDown && playersHandValue > 20 && this.splitInProgress) {
+      this.hitButton?.setVisible(false).disableInteractive();
+      this.standButton?.setVisible(false).disableInteractive();
       this.time.delayedCall(this.handlePlayerHitDelay, () => {
         this.swapSplits();
       });
@@ -987,7 +989,7 @@ class BlackjackScene extends Phaser.Scene {
 
   handleDealersTurnHelper(numCards: number) {
     let numOtherCards = numCards - 1;
-    let newCard = this.cards.pop();
+    let newCard = 'spades6';
     this.dealerHand.push(newCard);
     if (numCards % 2 == 1) {
       const animationDuration = 300; // Duration of the animation in milliseconds
@@ -1024,7 +1026,7 @@ class BlackjackScene extends Phaser.Scene {
     this.hitButton?.setVisible(false).disableInteractive();
     this.standButton?.setVisible(false).disableInteractive();
     //make back card a real card
-    let newCard = this.cards.pop();
+    let newCard = 'hearts6';
     this.dealerHand[0] = newCard;
 
     this.moveBackCard();
@@ -1041,11 +1043,8 @@ class BlackjackScene extends Phaser.Scene {
 
         if (
           (!this.splitInProgress && this.playerHandsValues[0] <= 21 && !hand1HasBlackjack) ||
-          (this.splitInProgress &&
-            this.playerHandsValues[0] <= 21 &&
-            !hand1HasBlackjack &&
-            this.playerHandsValues[1] <= 21 &&
-            !hand2HasBlackjack)
+          (this.splitInProgress && this.playerHandsValues[0] <= 21 && !hand1HasBlackjack) ||
+          (this.playerHandsValues[1] <= 21 && !hand2HasBlackjack)
         ) {
           let numCards = 3;
           this.playDealerTurn(numCards, () => {
@@ -1602,8 +1601,8 @@ class BlackjackScene extends Phaser.Scene {
 
   dealCards() {
     //deals the first cards
-    this.playerHands = [[this.cards.pop(), this.cards.pop()]];
-    this.dealerHand = ['back', this.cards.pop()];
+    this.playerHands = [['hearts10', 'spadesKing']];
+    this.dealerHand = ['back', 'spadesKing'];
 
     // Display first player card
     this.displayCards([this.playerHands[0][0]], CARD_INITIAL_X, PLAYER_CARD_Y, false);
