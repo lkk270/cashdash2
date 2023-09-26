@@ -19,6 +19,7 @@ model Category {
 enum ScoreType {
   time
   points
+  balance
 }
 
 model Game {

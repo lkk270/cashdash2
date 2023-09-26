@@ -175,15 +175,15 @@ export async function POST(req: Request) {
           if (!game) {
             return new NextResponse('No game?', { status: 401 });
           }
-          if (game.scoreType === 'time' && body.score < game.cheatScore) {
+          if (game.scoreType === ScoreType.time && body.score < game.cheatScore) {
             return new NextResponse('Unauthorized2', { status: 401 });
           }
-          if (game.scoreType === 'points' && body.score > game.cheatScore) {
+          if (game.scoreType === ScoreType.points && body.score > game.cheatScore) {
             return new NextResponse('Unauthorized3', { status: 401 });
           }
           if (
             !gameSession.startedAt ||
-            (game.scoreType === 'time' &&
+            (game.scoreType === ScoreType.time &&
               currentMilliseconds - Number(gameSession.startedAt) > body.score + 5000)
           ) {
             return new NextResponse('Suspected of cheating', { status: 401 });

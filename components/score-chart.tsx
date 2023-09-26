@@ -13,7 +13,7 @@ import {
 } from 'recharts';
 import { ScoreRelationsType } from '@/app/types';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { GameAverageScore } from '@prisma/client';
+import { ScoreType, GameAverageScore } from '@prisma/client';
 import { cn, convertMillisecondsToMinSec } from '@/lib/utils';
 
 interface ScoreChartProps {
@@ -53,7 +53,8 @@ export const ScoreChart = ({ scores, userGameAverageScores }: ScoreChartProps) =
     if (active && payload && payload.length) {
       const score = payload[0].payload.score; // Extract score from payload
       const reward = payload[0].payload.reward; // Extract reward from payload
-      const formattedScore = scoreType === 'time' ? convertMillisecondsToMinSec(score) : score;
+      const formattedScore =
+        scoreType === ScoreType.time ? convertMillisecondsToMinSec(score) : score;
 
       return (
         <div className="border rounded shadow bg-primary/20">
@@ -157,11 +158,11 @@ export const ScoreChart = ({ scores, userGameAverageScores }: ScoreChartProps) =
           const timesPlayed = getTimesPlayedForGame(activeGameId);
           const totalWinnings = getTotalWinningsForGame(games[gameName]);
           const formattedAverageScore =
-            currentScoreType === 'time'
+            currentScoreType === ScoreType.time
               ? convertMillisecondsToMinSec(averageScore)
               : averageScore.toFixed(2);
           const formattedWeightedAverageScore =
-            currentScoreType === 'time'
+            currentScoreType === ScoreType.time
               ? convertMillisecondsToMinSec(weightedAverageScore)
               : weightedAverageScore.toFixed(2);
 
@@ -201,7 +202,9 @@ export const ScoreChart = ({ scores, userGameAverageScores }: ScoreChartProps) =
                       stroke="#4A4A4A"
                       padding={{ top: 10 }} // add this line
                       tickFormatter={(value) =>
-                        currentScoreType === 'time' ? convertMillisecondsToMinSec(value) : value
+                        currentScoreType === ScoreType.time
+                          ? convertMillisecondsToMinSec(value)
+                          : value
                       }
                     />
 

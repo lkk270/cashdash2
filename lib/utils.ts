@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { ScoreType } from '@prisma/client';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -44,8 +45,10 @@ export function isValidLobbyAccess(inputs: {
   if (inputs.userPlayedInSession === false && inputs.weightedAverageScore) {
     //if the there is at least one score for this lobby session then even if the user becomes too good for the session, they are still allowed to access it for the remainder of the lobby session.
     if (
-      (inputs.scoreType === 'time' && inputs.weightedAverageScore < inputs.scoreRestriction) ||
-      (inputs.scoreType === 'points' && inputs.weightedAverageScore > inputs.scoreRestriction)
+      (inputs.scoreType === ScoreType.time &&
+        inputs.weightedAverageScore < inputs.scoreRestriction) ||
+      (inputs.scoreType === ScoreType.points &&
+        inputs.weightedAverageScore > inputs.scoreRestriction)
     ) {
       errorMessages.push("You're too good of a player to access this tier!");
     }
