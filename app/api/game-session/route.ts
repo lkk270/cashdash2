@@ -8,7 +8,14 @@ import { generateChallengeHash, generateResponseHash } from '@/lib/hash';
 import prismadb from '@/lib/prismadb';
 import { ScoreType, GameSession } from '@prisma/client';
 
-const acceptedTypesObj: { [key: string]: number } = { '05': 3, '2': 2, '3': 7 };
+const acceptedTypesObj: { [key: string]: number } = {
+  '05': 3,
+  '05b': 4,
+  '1ub': 4,
+  '2eb': 4,
+  '2': 2,
+  '3': 7,
+};
 //oldTypes: { [key: string]: number } = { '0': 3, '1': 2};
 export async function POST(req: Request) {
   const currentDate = new Date();
@@ -32,7 +39,7 @@ export async function POST(req: Request) {
       return new NextResponse('Invalid body', { status: 400 });
     }
 
-    if (receivedType === '05') {
+    if (receivedType.includes('05')) {
       const expiresAt = currentDate;
       expiresAt.setSeconds(expiresAt.getSeconds() + 3599); // 59 minutes 59 seconds from now
 
@@ -46,9 +53,57 @@ export async function POST(req: Request) {
           startedAt: Date.now(),
         },
       });
+      if (receivedType === '05b') {
+        //for balance games like blackjack need to update the balance (score)
+        const currentScore = await prismadb.score.findFirst({
+          where: {
+            userId: userId,
+            gameId: gameSession.gameId,
+            lobbySessionId: body.lobbySessionId,
+          },
+        });
+        if (currentScore) {
+          await prismadb.score.update({
+            where: {
+              id: currentScore.id,
+            },
+            data: {
+              score: currentScore.score + body.balanceChange,
+            },
+          });
+        } else {
+          return new NextResponse('No balance Found!', { status: 401 });
+        }
+      }
 
       return new NextResponse(JSON.stringify({ gameSessionId: gameSession.id }));
+    } else if (receivedType === '1ub') {
+      const balanceChange = body.balanceChange;
+      if (balanceChange > -1) {
+        return new NextResponse('Unauthorized', { status: 401 });
+      }
+      const currentScore = await prismadb.score.findFirst({
+        where: {
+          userId: userId,
+          gameId: body.gameId,
+          lobbySessionId: body.lobbySessionId,
+        },
+      });
+      if (currentScore) {
+        await prismadb.score.update({
+          where: {
+            id: currentScore.id,
+          },
+          data: {
+            score: currentScore.score + body.balanceChange,
+          },
+        });
+      } else {
+        return new NextResponse('No balance Found!', { status: 401 });
+      }
+      return new NextResponse('', { status: 200 });
     }
+
     // else if (receivedType === '0') {
     //   const expiresAt = currentDate;
     //   expiresAt.setSeconds(expiresAt.getSeconds() + 3599); // 59 minutes 59 seconds from now

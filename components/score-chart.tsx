@@ -165,19 +165,20 @@ export const ScoreChart = ({ scores, userGameAverageScores }: ScoreChartProps) =
             currentScoreType === ScoreType.time
               ? convertMillisecondsToMinSec(weightedAverageScore)
               : weightedAverageScore.toFixed(2);
-
           return (
             <TabsContent
               key={gameName}
               value={gameName}
               className="flex flex-col mt-0 space-y-2 justify-left"
             >
-              <div className="justify-center pl-10 mb-3 text-sm text-gray-600 ">
-                <p>Average Score: {formattedAverageScore}</p>
-                <p>Weighted Average Score: {formattedWeightedAverageScore}</p>
-                <p>Times played i.e. recorded a score: {timesPlayed}</p>
-                <p>Total Winnings: ${totalWinnings}</p>
-              </div>
+              {averageScore > 0 && (
+                <div className="justify-center pl-10 mb-3 text-sm text-gray-600 ">
+                  <p>Average Score: {formattedAverageScore}</p>
+                  <p>Weighted Average Score: {formattedWeightedAverageScore}</p>
+                  <p>Times played i.e. recorded a score: {timesPlayed}</p>
+                  <p>Total Winnings: ${totalWinnings}</p>
+                </div>
+              )}
               <div className="relative pr-5 h-96">
                 <ResponsiveContainer>
                   <LineChart

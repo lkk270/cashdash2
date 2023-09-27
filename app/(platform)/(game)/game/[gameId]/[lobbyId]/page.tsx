@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { auth, redirectToSignIn } from '@clerk/nextjs';
+import { auth, currentUser, redirectToSignIn } from '@clerk/nextjs';
 
 import { ModifiedScoreType } from '@/app/types';
 import { ScoreType } from '@prisma/client';
@@ -19,7 +19,10 @@ interface LobbyIdPageProps {
 
 const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
   const { userId } = auth();
-  let userPlayedInSession = null;
+  const user = await currentUser();
+  let userHasScore = true;
+  let userHasGameSessionScore = true;
+  let userPlayedInSession = true;
   let game = null;
   let allScores: ModifiedScoreType[] = [];
   let bestScoresArray: ModifiedScoreType[] = [];
@@ -30,11 +33,11 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
     message: '',
   };
 
-  if (!userId) {
+  if (!userId || !user) {
     return redirectToSignIn;
   }
 
-  const userHasScore = async (lobbySessionId: string): Promise<boolean> => {
+  const checkUserHasGameSessionScore = async (lobbySessionId: string): Promise<boolean> => {
     const userScore = await prismadb.gameSession.findFirst({
       where: {
         userId: userId,
@@ -145,12 +148,32 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
   if (lobby && lobby.sessions && lobby.sessions[0]) {
     if (game) {
       allScores = lobby.sessions[0].scores;
-      userPlayedInSession = allScores.some((score) => score.userId === userId);
+      userHasScore = allScores.some((score) => score.userId === userId); //can be an initiated balance with no actual play too
 
-      if (!userPlayedInSession) {
-        userPlayedInSession = await userHasScore(lobby.sessions[0].id);
+      if (game.scoreType === ScoreType.balance) {
+        //add a "score" really a balance for this lobbySession. For now we will
+        //default to be 1000.
+        userHasGameSessionScore = await checkUserHasGameSessionScore(lobby.sessions[0].id);
+        if (!userHasScore && !userHasGameSessionScore) {
+          const score: ModifiedScoreType = {
+            userId: userId,
+            username: user.username || '',
+            score: 1000,
+          };
+          allScores.push(score);
+          await prismadb.score.create({
+            data: {
+              ...score,
+              gameId: gameId,
+              lobbySessionId: lobby.sessions[0].id,
+            },
+          });
+        }
       }
-
+      if (!userHasScore) {
+        userHasGameSessionScore = await checkUserHasGameSessionScore(lobby.sessions[0].id);
+      }
+      userPlayedInSession = userHasScore || userHasGameSessionScore;
       const lobbyWithScores = game.lobbies.find(
         (lobby) =>
           lobby.sessions &&

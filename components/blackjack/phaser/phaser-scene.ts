@@ -65,9 +65,9 @@ const CHIP_OFFSETS = [0, -5, -10];
 
 // Game Scene
 class BlackjackScene extends Phaser.Scene {
-  onGameStart: (value: number) => void;
-  onBalanceChange: (value: number) => void;
-  onGameEnd: (value: number) => void;
+  onGameStart: (balanceChange: number) => void;
+  onBalanceChange: (balanceChange: number) => void;
+  onGameEnd: (balanceChange: number) => void;
   queriedBalance: number;
   private balance: number;
   private balanceText: Phaser.GameObjects.Text | null = null;
@@ -111,11 +111,12 @@ class BlackjackScene extends Phaser.Scene {
   private createLastBetChipsDelay: number = 1000;
   private handlePlayerHitDelay: number = 500;
   private loading: boolean = false;
+  private gameStarted: boolean = false;
   constructor(
     config: Phaser.Types.Scenes.SettingsConfig,
-    onGameStart: (value: number) => void,
-    onBalanceChange: (value: number) => void,
-    onGameEnd: (value: number) => void,
+    onGameStart: (balanceChange: number) => void,
+    onBalanceChange: (balanceChange: number) => void,
+    onGameEnd: (balanceChange: number) => void,
     queriedBalance: number
   ) {
     super({ key: 'BlackjackScene', ...config });
@@ -431,6 +432,7 @@ class BlackjackScene extends Phaser.Scene {
       this.createLastBetChipsDelay = 1000;
       this.handlePlayerHitDelay = 500;
       this.loading = false;
+      this.gameStarted = false;
 
       if (this.lastBetAmount && this.lastBetAmount <= this.balance) {
         this.selectedChipsTotalText?.setText(`$${this.lastBetAmount}`).setVisible(false);
@@ -707,13 +709,21 @@ class BlackjackScene extends Phaser.Scene {
     this.dealButton = this.createButton(x, y, 'Deal', width, height);
     this.dealButton.setVisible(false);
     this.dealButton?.on('pointerdown', () => {
-      this.dealInProgress = true;
-      this.lastBetAmount = this.selectedChipsTotal[this.activePlayerHandIndex];
       this.onDealButtonClicked();
     });
   }
 
   onDealButtonClicked() {
+    this.dealInProgress = true;
+    this.lastBetAmount = this.selectedChipsTotal[this.activePlayerHandIndex];
+    if (this.lastBetAmount > 0) {
+      if (!this.gameStarted) {
+        if (this.onGameStart) {
+          this.onGameStart(this.lastBetAmount * -1);
+        }
+        this.gameStarted = true;
+      }
+    }
     this.dealButton?.setVisible(false).disableInteractive();
     this.allInButton?.setVisible(false).disableInteractive();
     this.clearBetButton?.setVisible(false).disableInteractive();
@@ -1087,6 +1097,8 @@ class BlackjackScene extends Phaser.Scene {
   }
 
   decideWinner() {
+    let playerBanner = null;
+    let dealerBanner = null;
     let value = this.selectedChipsTotal[this.activePlayerHandIndex];
     const playerValue = this.playerHandsValues[this.activePlayerHandIndex];
     const dealerValue = this.dealerHandValue;
@@ -1097,47 +1109,57 @@ class BlackjackScene extends Phaser.Scene {
     if (playerHasBlackjack && !dealerHasBlackjack) {
       value *= 2.5;
       this.winner = 'playerBlackjack';
-      this.displayBanner('youWin', null);
+      playerBanner = 'youWin';
     } else if (playerValue > 21) {
       //dealer wins, player bust
       value = 0;
       this.winner = 'dealer';
-      this.displayBanner('bust', 'dealerWins');
+      playerBanner = 'bust';
+      dealerBanner = 'dealerWins';
     } else if (dealerValue > 21) {
       //player wins, dealer busts
       value *= 2;
       this.winner = 'player';
-      this.displayBanner('youWin', 'bust');
+      playerBanner = 'youWin';
+      dealerBanner = 'bust';
     } else if (dealerValue < playerValue) {
       //player wins
       value *= 2;
       this.winner = 'player';
-      this.displayBanner('youWin', null);
+      playerBanner = 'youWin';
     } else if (playerValue < dealerValue) {
       //dealer wins
       value = 0;
       this.winner = 'dealer';
-      this.displayBanner(null, 'dealerWins');
+      dealerBanner = 'dealerWins';
     } else if (playerValue === dealerValue) {
       if (playerHasBlackjack && dealerHasBlackjack) {
         this.winner = 'push';
-        this.displayBanner('push', null);
+        playerBanner = 'push';
       } else if (playerHasBlackjack || dealerHasBlackjack) {
         if (playerHasBlackjack) {
           value *= 2.5;
           this.winner = 'playerBlackjack';
-          this.displayBanner('youWin', null);
+          playerBanner = 'youWin';
         } else if (dealerHasBlackjack) {
           value = 0;
           this.winner = 'dealer';
-          this.displayBanner(null, 'dealerWins');
+          dealerBanner = 'dealerWins';
         }
       } else {
         //push
         this.winner = 'push';
-        this.displayBanner('push', null);
+        playerBanner = 'push';
       }
     }
+    if (value > 0) {
+      if (this.gameStarted) {
+        if (this.onBalanceChange) {
+          this.onBalanceChange(value);
+        }
+      }
+    }
+    this.displayBanner(playerBanner, dealerBanner);
     this.balance = Math.ceil(this.balance + value);
     this.balanceText?.setText(`Bank: $${this.formatBalance(this.balance)}`);
     this.updateAvailableChips();
@@ -1276,31 +1298,37 @@ class BlackjackScene extends Phaser.Scene {
     this.doubleDownButton?.on('pointerdown', () => {
       if (this.loading) {
         return;
-      } else if (!this.splitClicked || (this.splitInProgress && this.activePlayerHandIndex === 1)) {
-        this.doubleDownButton?.setVisible(false).disableInteractive();
-        this.splitButton?.setVisible(false).disableInteractive();
-        this.standButton?.setVisible(false).disableInteractive();
-        this.hitButton?.setVisible(false).disableInteractive();
-        this.createLastBetChips(true, false);
-
-        this.time.delayedCall(this.createLastBetChipsDelay, () => {
-          this.handlePlayerHit(false, true);
-          this.time.delayedCall(this.handlePlayerHitDelay + this.createLastBetChipsDelay, () => {
-            this.handleDealersTurn();
-          });
-        });
-      } else if (this.splitClicked && this.splitInProgress && this.activePlayerHandIndex === 0) {
-        this.loading = true;
+      } else {
         this.doubleDownButton?.setVisible(false).disableInteractive();
         this.standButton?.setVisible(false).disableInteractive();
         this.hitButton?.setVisible(false).disableInteractive();
-        this.createLastBetChips(true, true);
-        this.time.delayedCall(this.createLastBetChipsDelay, () => {
-          this.handlePlayerHit(true, true);
-          this.time.delayedCall(this.handlePlayerHitDelay, () => {
-            this.swapSplits();
+        if (this.lastBetAmount && this.lastBetAmount > 0) {
+          if (this.gameStarted) {
+            console.log('INNN');
+            if (this.onBalanceChange) {
+              this.onBalanceChange(this.lastBetAmount * -1);
+            }
+          }
+        }
+        if (!this.splitClicked || (this.splitInProgress && this.activePlayerHandIndex === 1)) {
+          this.splitButton?.setVisible(false).disableInteractive();
+          this.createLastBetChips(true, false);
+          this.time.delayedCall(this.createLastBetChipsDelay, () => {
+            this.handlePlayerHit(false, true);
+            this.time.delayedCall(this.handlePlayerHitDelay + this.createLastBetChipsDelay, () => {
+              this.handleDealersTurn();
+            });
           });
-        });
+        } else if (this.splitClicked && this.splitInProgress && this.activePlayerHandIndex === 0) {
+          this.loading = true;
+          this.createLastBetChips(true, true);
+          this.time.delayedCall(this.createLastBetChipsDelay, () => {
+            this.handlePlayerHit(true, true);
+            this.time.delayedCall(this.handlePlayerHitDelay, () => {
+              this.swapSplits();
+            });
+          });
+        }
       }
     });
   }
@@ -1381,6 +1409,13 @@ class BlackjackScene extends Phaser.Scene {
   }
 
   handleSplit() {
+    if (this.lastBetAmount && this.lastBetAmount > 0) {
+      if (this.gameStarted) {
+        if (this.onBalanceChange) {
+          this.onBalanceChange(this.lastBetAmount * -1);
+        }
+      }
+    }
     this.loading = true;
     this.doubleDownButton?.setVisible(false).disableInteractive();
     const duration = 500;

@@ -28,7 +28,7 @@ const PhaserGame = ({ props }: BlackjackProps) => {
   const [userBestScore, setUserBestScore] = useState<ModifiedScoreType | null>(
     props.userBestScoreParam
   );
-  const queriedBalance = userBestScore ? userBestScore.score : 2000;
+  const queriedBalance = userBestScore ? userBestScore.score : 1000; //used as a safeguard in case server side fails
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
@@ -54,13 +54,15 @@ const PhaserGame = ({ props }: BlackjackProps) => {
     }
   };
 
-  const onBalanceChange = (value: number) => {
+  const onBalanceChange = (balanceChange: number) => {
     //used for doubles, initiating a split, and the first split's hand being resolved
     //value is the value by which the balance should be changed. It can be negative or positve.
-  };
 
-  const onGameStart = (value: number) => {
-    const updatedIds = { ...props.ids, at: '05' };
+    const updatedIds = {
+      ...props.ids,
+      at: '1ub',
+      balanceChange: balanceChange,
+    };
     axios
       .post('/api/game-session', updatedIds)
       .then((response) => {
@@ -74,7 +76,22 @@ const PhaserGame = ({ props }: BlackjackProps) => {
       });
   };
 
-  const onGameEnd = (value: number) => {
+  const onGameStart = (balanceChange: number) => {
+    const updatedIds = { ...props.ids, at: '05b', balanceChange: balanceChange };
+    axios
+      .post('/api/game-session', updatedIds)
+      .then((response) => {
+        gameSessionIdRef.current = response.data.gameSessionId;
+      })
+      .catch((error) => {
+        toast({
+          description: error.response.data,
+          variant: 'destructive',
+        });
+      });
+  };
+
+  const onGameEnd = (balanceChange: number) => {
     setPulsing(true);
     axios
       .post('/api/game-session', { gameSessionId: gameSessionIdRef.current, at: '2' })
@@ -85,9 +102,9 @@ const PhaserGame = ({ props }: BlackjackProps) => {
           lobbySessionId: props.ids.lobbySessionId,
           userBestScore: userBestScore ? userBestScore : false,
           gameSessionId: gameSessionIdRef.current,
-          score: value,
+          score: balanceChange,
           cHash: hash,
-          rHash: generateResponseHash(hash, value),
+          rHash: generateResponseHash(hash, balanceChange),
           at: '3',
         });
       })
