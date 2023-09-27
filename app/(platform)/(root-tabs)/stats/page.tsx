@@ -1,5 +1,6 @@
 import prismadb from '@/lib/prismadb';
 import { ScoreChart } from '@/components/score-chart';
+import { ScoreType } from '@prisma/client';
 import { ScoreRelationsType } from '@/app/types';
 import { auth, redirectToSignIn } from '@clerk/nextjs';
 import { EmptyState } from '@/components/empty-state';
@@ -59,9 +60,9 @@ const StatsPage = async () => {
     .map((scoresForSession: ScoreRelationsType[]) => {
       const scoreType = scoresForSession[0].lobbySession.lobby.game.scoreType;
 
-      if (scoreType === 'time') {
+      if (scoreType === ScoreType.time) {
         return scoresForSession.sort((a, b) => a.score - b.score)[0];
-      } else if (scoreType === 'points') {
+      } else if (scoreType === ScoreType.points || scoreType === ScoreType.balance) {
         return scoresForSession.sort((a, b) => b.score - a.score)[0];
       }
       return null;

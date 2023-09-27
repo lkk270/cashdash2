@@ -4,7 +4,7 @@ const SCREEN_SIZE = window.innerWidth;
 const MOBILE_SCREEN_WIDTH = 469;
 const IS_MOBILE = SCREEN_SIZE > MOBILE_SCREEN_WIDTH ? false : true;
 const JUMP_STRENGTH = IS_MOBILE ? -350 : -275;
-const GAP_SIZE = IS_MOBILE ? 85 : 70;
+const GAP_SIZE = IS_MOBILE ? 85 : 75;
 const NORMAL_SPEED = IS_MOBILE ? 1950 : 1750;
 const FAST_SPEED = IS_MOBILE ? 1550 : 1350;
 export default class FlappyBirdScene extends Phaser.Scene {
@@ -20,6 +20,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
   timerEvent: Phaser.Time.TimerEvent | null = null; // Define this at the class level
   score: number = 0;
   scoreText: Phaser.GameObjects.Text | null = null;
+  private startText: Phaser.GameObjects.Text | null = null;
   treesPassed: number = 0;
   destructionTimers: Phaser.Time.TimerEvent[] = [];
   private restartButton: Phaser.GameObjects.Text | null = null;
@@ -103,8 +104,9 @@ export default class FlappyBirdScene extends Phaser.Scene {
     topLeaves.setAngle(180);
     this.physics.add.existing(topLeaves, false);
     if (topLeaves.body instanceof Phaser.Physics.Arcade.Body) {
-      topLeaves.body.setSize(375, 300, true);
-      topLeaves.body.offset.x = 50;
+      // topLeaves.body.setSize(375, 300, true);
+      // topLeaves.body.offset.x = 50;
+      topLeaves.body.setCircle(165, 80, 110);
       // Replace 'desiredOffset' with the desired vertical offset.
     }
     // Bottom Tree
@@ -129,9 +131,10 @@ export default class FlappyBirdScene extends Phaser.Scene {
     bottomDragon.setScale(0.2);
     this.physics.add.existing(bottomDragon, false);
     if (bottomDragon.body instanceof Phaser.Physics.Arcade.Body) {
-      bottomDragon.body.setSize(300, 300, true);
-      bottomDragon.body.offset.y = 100;
-      bottomDragon.body.offset.x = 175;
+      // bottomDragon.body.setSize(300, 300, true);
+      // bottomDragon.body.offset.y = 100;
+      // bottomDragon.body.offset.x = 175;
+      bottomDragon.body.setCircle(175, 150, 100);
       // Replace 'desiredOffset' with the desired vertical offset.
     }
 
@@ -190,9 +193,13 @@ export default class FlappyBirdScene extends Phaser.Scene {
     this.load.image('birddown', '/flappy-birb/birddown.png');
     this.load.image('leaves', '/flappy-birb/leaves3.png');
     this.load.image('dragon', '/flappy-birb/dragon.png');
+    this.load.image('sky', '/flappy-birb/sky1.png');
   }
   flap() {
     if (this.gameOver) return;
+    if (this.startText) {
+      this.startText.setVisible(false);
+    }
     if (!this.gameStarted) {
       if (this.onGameStart) {
         this.onGameStart();
@@ -213,9 +220,15 @@ export default class FlappyBirdScene extends Phaser.Scene {
   }
 
   create() {
+    const centerX = this.scale.width / 2;
+    const centerY = this.scale.height / 2;
+    // const scaleFactor = 1; // adjust as needed
+    // this.cameras.main.setZoom(1 / scaleFactor);
+
     // this.physics.world.createDebugGraphic();
     this.cleanUp();
     this.gameOver = false;
+    this.add.image(centerX, centerY, 'sky');
     this.scoreText = this.add.text(16, 16, 'Score: 0', {
       fontSize: '20px',
       color: '#580d82',
@@ -275,11 +288,19 @@ export default class FlappyBirdScene extends Phaser.Scene {
       const birdBody = this.bird.body as Phaser.Physics.Arcade.Body;
       birdBody.setGravityY(0); // Start with no gravity
       birdBody.setVelocity(0); // Start with no velocity
-      birdBody.setSize(250, 175, true);
-      birdBody.offset.x = 175;
+      // birdBody.setSize(250, 175, true);
+      // birdBody.offset.x = 175;
+      birdBody.setCircle(125, 160, 125);
     }
-    const centerX = this.scale.width / 2;
-    const centerY = this.scale.height / 2;
+
+    this.startText = this.add
+      .text(centerX, centerY, 'Press spacebar or tap to play', {
+        fontSize: '24px',
+        color: '#ffffff',
+        fontFamily: 'Arial Black',
+      })
+      .setOrigin(0.5, 0.5);
+
     this.restartButton = this.add
       .text(centerX, centerY + 30, 'Restart', {
         fontSize: '20px',
@@ -291,9 +312,15 @@ export default class FlappyBirdScene extends Phaser.Scene {
       .setDepth(100000)
       .setOrigin(0.5, 0.5)
       .setVisible(false)
-      .setInteractive();
+      .setInteractive({
+        cursor: 'pointer',
+      });
     this.restartButton.on('pointerdown', async () => {
-      this.scene.restart(); // Restarting the game scene
+      // Restarting the game scene
+      this.scene.restart();
+      if (this.startText) {
+        this.startText.setVisible(true);
+      }
     });
 
     // Optionally, you can make the button slightly bigger when hovered
@@ -437,6 +464,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
     const centerY = this.scale.height / 2;
 
     if (this.scoreText) {
+      this.scoreText.setBackgroundColor('#5fa6f9');
       this.tweens.add({
         targets: this.scoreText,
         x: centerX - this.scoreText.width / 2,

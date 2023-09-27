@@ -19,6 +19,7 @@ model Category {
 enum ScoreType {
   time
   points
+  balance
 }
 
 model Game {
@@ -138,6 +139,7 @@ model GameSession {
   createdAt      DateTime     @default(now())
   expiresAt      DateTime
   startedAt      BigInt?
+  lastBet        Int? //used only for scoreType = balance
   lobbySession   LobbySession @relation(fields: [lobbySessionId], references: [id])
 
   @@index([lobbySessionId])

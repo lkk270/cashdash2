@@ -8,7 +8,14 @@ import { generateChallengeHash, generateResponseHash } from '@/lib/hash';
 import prismadb from '@/lib/prismadb';
 import { ScoreType, GameSession } from '@prisma/client';
 
-const acceptedTypesObj: { [key: string]: number } = { '05': 3, '2': 2, '3': 7 };
+const acceptedTypesObj: { [key: string]: number } = {
+  '05': 3,
+  '05b': 4,
+  '1ub': 4,
+  '2eb': 5,
+  '2': 2,
+  '3': 7,
+};
 //oldTypes: { [key: string]: number } = { '0': 3, '1': 2};
 export async function POST(req: Request) {
   const currentDate = new Date();
@@ -32,7 +39,7 @@ export async function POST(req: Request) {
       return new NextResponse('Invalid body', { status: 400 });
     }
 
-    if (receivedType === '05') {
+    if (receivedType.includes('05')) {
       const expiresAt = currentDate;
       expiresAt.setSeconds(expiresAt.getSeconds() + 3599); // 59 minutes 59 seconds from now
 
@@ -46,9 +53,124 @@ export async function POST(req: Request) {
           startedAt: Date.now(),
         },
       });
+      if (receivedType === '05b') {
+        //for balance games like blackjack need to update the balance (score)
+        const currentScore = await prismadb.score.findFirst({
+          where: {
+            userId: userId,
+            gameId: gameSession.gameId,
+            lobbySessionId: body.lobbySessionId,
+          },
+        });
+        if (currentScore) {
+          const newScore = currentScore.score + body.balanceChange;
 
-      return new NextResponse(JSON.stringify({ gameSessionId: gameSession.id }));
+          await prismadb.score.update({
+            where: {
+              id: currentScore.id,
+            },
+            data: {
+              score: newScore,
+            },
+          });
+          return new NextResponse(JSON.stringify({ gameSessionId: gameSession.id }));
+        } else {
+          return new NextResponse('No balance Found!', { status: 401 });
+        }
+      }
+    } else if (receivedType === '1ub') {
+      const balanceChange = body.balanceChange;
+
+      if (balanceChange > -1) {
+        return new NextResponse('Unauthorized', { status: 401 });
+      }
+      const currentScore = await prismadb.score.findFirst({
+        where: {
+          userId: userId,
+          gameId: body.gameId,
+          lobbySessionId: body.lobbySessionId,
+        },
+      });
+      if (currentScore) {
+        const newScore = currentScore.score + balanceChange;
+        await prismadb.score.update({
+          where: {
+            id: currentScore.id,
+          },
+          data: {
+            score: newScore,
+          },
+        });
+        return new NextResponse('', { status: 200 });
+      } else {
+        return new NextResponse('No balance Found!', { status: 401 });
+      }
+    } else if (receivedType === '2eb') {
+      let displayScores = null;
+      const balanceChange = body.balanceChange;
+      // if (balanceChange > Math.ceil(lastBet * 2.5)) {
+      //   return new NextResponse('Unauthorized', { status: 401 });
+      // }
+      const currentScore = await prismadb.score.findFirst({
+        where: {
+          userId: userId,
+          gameId: body.gameId,
+          lobbySessionId: body.lobbySessionId,
+        },
+      });
+      if (currentScore) {
+        const newScore = currentScore.score + balanceChange;
+        if (balanceChange !== 0) {
+          await prismadb.score.update({
+            where: {
+              id: currentScore.id,
+            },
+            data: {
+              score: currentScore.score + balanceChange,
+            },
+          });
+        }
+
+        if (body.lastHand) {
+          const orderDirection = 'desc';
+
+          //a better score was created so send a new best scores array to be use in the score-table
+          const allScores = await prismadb.score.findMany({
+            where: {
+              lobbySessionId: body.lobbySessionId,
+            },
+            select: {
+              userId: true,
+              username: true,
+              score: true,
+            },
+            orderBy: [
+              {
+                score: orderDirection,
+              },
+              {
+                createdAt: 'asc',
+              },
+            ],
+          });
+          const bestScoresArray = processBestScores({
+            allScores,
+            orderDirection,
+          });
+
+          displayScores = prepareScoresForDisplay(bestScoresArray, userId);
+          if (displayScores[0].userId !== userId || displayScores[0].score !== newScore) {
+            return new NextResponse('No balance Found!', { status: 401 });
+          }
+          return new NextResponse(JSON.stringify({ displayScores: displayScores }));
+        } else {
+          return new NextResponse('', { status: 200 });
+        }
+      } else {
+        return new NextResponse('No balance Found!', { status: 401 });
+      }
     }
+
     // else if (receivedType === '0') {
     //   const expiresAt = currentDate;
     //   expiresAt.setSeconds(expiresAt.getSeconds() + 3599); // 59 minutes 59 seconds from now
@@ -107,8 +229,11 @@ export async function POST(req: Request) {
         });
 
       if (!gameSession || !gameSession.lobbySession) {
-        return new NextResponse('Score not submitted due to session inactivity. Start a new game', {
-          status: 401,
+        // return new NextResponse('Score not submitted due to session inactivity. Start a new game', {
+        //   status: 401,
+        // });
+        return new NextResponse('Attempting refresh', {
+          status: 302,
         });
       }
 
@@ -172,15 +297,18 @@ export async function POST(req: Request) {
           if (!game) {
             return new NextResponse('No game?', { status: 401 });
           }
-          if (game.scoreType === 'time' && body.score < game.cheatScore) {
+          if (game.scoreType === ScoreType.time && body.score < game.cheatScore) {
             return new NextResponse('Unauthorized2', { status: 401 });
           }
-          if (game.scoreType === 'points' && body.score > game.cheatScore) {
+          if (
+            (game.scoreType === ScoreType.points || game.scoreType === ScoreType.balance) &&
+            body.score > game.cheatScore
+          ) {
             return new NextResponse('Unauthorized3', { status: 401 });
           }
           if (
             !gameSession.startedAt ||
-            (game.scoreType === 'time' &&
+            (game.scoreType === ScoreType.time &&
               currentMilliseconds - Number(gameSession.startedAt) > body.score + 5000)
           ) {
             return new NextResponse('Suspected of cheating', { status: 401 });
@@ -329,7 +457,8 @@ export async function POST(req: Request) {
 
             displayScores = prepareScoresForDisplay(bestScoresArray, userId);
           }
-          const message = displayScores !== null ? 'New high score!' : 'Score saved!';
+          const message =
+            displayScores !== null ? 'New personal best score (for this session)!' : 'Score saved!';
           return new NextResponse(
             JSON.stringify({ message: message, displayScores: displayScores })
           );

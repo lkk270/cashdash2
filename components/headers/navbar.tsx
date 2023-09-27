@@ -34,7 +34,7 @@ export const Navbar = ({ userValues }: NavbarProps) => {
   return (
     <div className="fixed z-50 flex items-center justify-between w-full h-16 px-4 py-2 border-b border-primary/10 bg-secondary">
       <div className="flex items-center">
-        <MobileSidebar />
+        <MobileSidebar hide={true} />
         <Link href="/dashboard">
           {/* <h1
             className={cn(

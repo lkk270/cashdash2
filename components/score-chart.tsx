@@ -13,7 +13,7 @@ import {
 } from 'recharts';
 import { ScoreRelationsType } from '@/app/types';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { GameAverageScore } from '@prisma/client';
+import { ScoreType, GameAverageScore } from '@prisma/client';
 import { cn, convertMillisecondsToMinSec } from '@/lib/utils';
 
 interface ScoreChartProps {
@@ -53,7 +53,8 @@ export const ScoreChart = ({ scores, userGameAverageScores }: ScoreChartProps) =
     if (active && payload && payload.length) {
       const score = payload[0].payload.score; // Extract score from payload
       const reward = payload[0].payload.reward; // Extract reward from payload
-      const formattedScore = scoreType === 'time' ? convertMillisecondsToMinSec(score) : score;
+      const formattedScore =
+        scoreType === ScoreType.time ? convertMillisecondsToMinSec(score) : score;
 
       return (
         <div className="border rounded shadow bg-primary/20">
@@ -157,24 +158,27 @@ export const ScoreChart = ({ scores, userGameAverageScores }: ScoreChartProps) =
           const timesPlayed = getTimesPlayedForGame(activeGameId);
           const totalWinnings = getTotalWinningsForGame(games[gameName]);
           const formattedAverageScore =
-            currentScoreType === 'time' ? convertMillisecondsToMinSec(averageScore) : averageScore;
+            currentScoreType === ScoreType.time
+              ? convertMillisecondsToMinSec(averageScore)
+              : averageScore.toFixed(2);
           const formattedWeightedAverageScore =
-            currentScoreType === 'time'
+            currentScoreType === ScoreType.time
               ? convertMillisecondsToMinSec(weightedAverageScore)
-              : weightedAverageScore;
-
+              : weightedAverageScore.toFixed(2);
           return (
             <TabsContent
               key={gameName}
               value={gameName}
               className="flex flex-col mt-0 space-y-2 justify-left"
             >
-              <div className="justify-center pl-10 mb-3 text-sm text-gray-600 ">
-                <p>Average Score: {formattedAverageScore}</p>
-                <p>Weighted Average Score: {formattedWeightedAverageScore}</p>
-                <p>Times played i.e. recorded a score: {timesPlayed}</p>
-                <p>Total Winnings: ${totalWinnings}</p>
-              </div>
+              {averageScore > 0 && (
+                <div className="justify-center pl-10 mb-3 text-sm text-gray-600 ">
+                  <p>Average Score: {formattedAverageScore}</p>
+                  <p>Weighted Average Score: {formattedWeightedAverageScore}</p>
+                  <p>Times played i.e. recorded a score: {timesPlayed}</p>
+                  <p>Total Winnings: ${totalWinnings}</p>
+                </div>
+              )}
               <div className="relative pr-5 h-96">
                 <ResponsiveContainer>
                   <LineChart
@@ -199,7 +203,9 @@ export const ScoreChart = ({ scores, userGameAverageScores }: ScoreChartProps) =
                       stroke="#4A4A4A"
                       padding={{ top: 10 }} // add this line
                       tickFormatter={(value) =>
-                        currentScoreType === 'time' ? convertMillisecondsToMinSec(value) : value
+                        currentScoreType === ScoreType.time
+                          ? convertMillisecondsToMinSec(value)
+                          : value
                       }
                     />
 

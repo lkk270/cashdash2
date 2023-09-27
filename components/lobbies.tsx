@@ -73,7 +73,6 @@ export const Lobbies = ({ data }: LobbiesProps) => {
     setAccessResults(results);
   }, [data.lobbies]);
 
-  // const beatTitle = scoreType === 'time' ? 'Time' : 'Score';
   if (!accessResults) {
     return (
       <div className="flex justify-center">

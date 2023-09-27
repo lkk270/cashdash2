@@ -11,6 +11,8 @@ import { useLobbyAboutModal } from '@/hooks/use-lobby-about-modal';
 import Logo from '@/components/logo';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
+import { MobileSidebar } from '@/components/headers/mobile-sidebar';
+
 import { MobileScoresTable } from '@/components/mobile-scores-table';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { ModifiedScoreType } from '@/app/types';
@@ -45,32 +47,37 @@ export const GameNavbar = ({ lobby, game, scores }: LobbyHeaderProps) => {
               onClick={() => router.push(backPath)}
               size="icon"
               variant="ghost"
-              className="mr-2 sm:flex"
+              className="hidden mr-1 xxs:flex"
             >
               <ChevronLeft className="w-8 h-8" />
             </Button>
+            <MobileSidebar hide={false} />
             <MobileScoresTable scores={scores} scoreType={game.scoreType} lobby={lobby} />
             <div className="items-center hidden pl-3 lg:flex gap-x-3">
               <CountdownTimer data={countdownData} />
             </div>
           </div>
           {/* Center content */}
-          <div className="flex flex-col items-center justify-center text-xs xxs:text-sm sm:text-lg">
-            <Link href="/dashboard">
+
+          <div className="flex flex-col items-center justify-center text-xs xxs:text-xs sm:text-lg">
+            {/* <Link href="/dashboard">
               <div className="px-3">
                 <Logo />
               </div>
+            </Link> */}
+            <Link href="/dashboard">
+              <span
+                className={`${orbitronFont.className} font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent whitespace-nowrap`}
+              >
+                {game.name}
+              </span>
+              <span
+                className={`${orbitronFont.className} font-bold bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent whitespace-nowrap flex-grow`}
+              >
+                {' '}
+                {lobby.name}
+              </span>
             </Link>
-            <span
-              className={`${orbitronFont.className} font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent whitespace-nowrap`}
-            >
-              {game.name}
-            </span>
-            <span
-              className={`${orbitronFont.className} font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent whitespace-nowrap flex-grow`}
-            >
-              {lobby.name}
-            </span>
           </div>
 
           {/* Right content */}
@@ -92,14 +99,14 @@ export const GameNavbar = ({ lobby, game, scores }: LobbyHeaderProps) => {
                 size="icon"
                 variant="ghost"
               >
-                <Info className="w-6 h-6" />
+                <Info className="w-6 h-6 ml-3" />
               </Button>
             </div>
             {/* added justify-end to align items to the right */}
             <div className="items-center hidden xxs:flex">
               <ModeToggle />
             </div>
-            <div className="ml-2">
+            <div className="ml-1">
               <UserButton afterSignOutUrl="/" />
             </div>
           </div>

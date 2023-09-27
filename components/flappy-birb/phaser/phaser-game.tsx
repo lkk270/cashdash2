@@ -97,20 +97,21 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
         });
       })
       .catch((error) => {
-        const backPath = pathname.split('/').slice(0, -1).join('/');
+        // const backPath = pathname.split('/').slice(0, -1).join('/');
         if (error.response.data && error.response.status === 302) {
-          router.push(backPath);
+          // router.push(backPath);
+          router.refresh();
           toast({
             description: error.response.data,
             variant: 'warning',
             duration: 7500,
           });
+        } else {
+          toast({
+            description: error.response ? error.response.data : 'Network Error',
+            variant: 'destructive',
+          });
         }
-
-        toast({
-          description: error.response ? error.response.data : 'Network Error',
-          variant: 'destructive',
-        });
       })
       .finally(() => {
         setPulsing(false);
@@ -134,9 +135,12 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
       height: gameHeight,
       autoFocus: true,
       antialias: true,
+      render: {
+        antialias: true,
+      },
       scene: new FlappyBirdScene({ key: 'FlappyBirdScene' }, onGameStart, onGameEnd),
       parent: 'phaser-game',
-      backgroundColor: '#5fa6f9',
+      // backgroundColor: '#5fa6f9',
       physics: {
         default: 'arcade',
         arcade: {
@@ -145,7 +149,8 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
         },
       },
       scale: {
-        mode: rescale ? Phaser.Scale.FIT : Phaser.Scale.NONE,
+        // mode: rescale ? Phaser.Scale.FIT : Phaser.Scale.NONE,
+        mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
         width: gameWidth, // The base width of your game
         height: gameHeight, // The base height of your game

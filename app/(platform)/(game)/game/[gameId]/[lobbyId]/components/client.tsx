@@ -6,6 +6,8 @@ import { GameNavbar } from '@/components/headers/game-navbar';
 import { ScoresTable } from '@/components/scores-table';
 import { Minesweeper } from '@/components/minesweeper/minesweeper';
 import { FlappyBirb } from '@/components/flappy-birb/flappy-birb';
+import { Blackjack } from '@/components/blackjack/blackjack';
+
 import { useState } from 'react';
 
 interface LobbyClientProps {
@@ -37,6 +39,8 @@ const renderGameComponent = (gameName: string, commonProps: CommonPropsType) => 
       return <Minesweeper {...commonProps} rows={16} cols={30} numMines={99} min3bv={135} />;
     case 'flappy birb':
       return <FlappyBirb props={{ ...commonProps }} />;
+    case 'blackjack':
+      return <Blackjack props={{ ...commonProps }} />;
     default:
       return <div></div>;
   }
@@ -72,7 +76,7 @@ export const LobbyClient = ({ lobby, game, scoresParam, userBestScore }: LobbyCl
         />
       </div>
       <main className="flex-grow">
-        <div className="h-full p-4 space-y-2 ">
+        <div className="h-full p-2 space-y-2 ">
           <div className="flex justify-center h-full">
             {renderGameComponent(gameName, commonProps)}
           </div>
