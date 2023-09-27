@@ -28,7 +28,7 @@ const PhaserGame = ({ props }: BlackjackProps) => {
   const [userBestScore, setUserBestScore] = useState<ModifiedScoreType | null>(
     props.userBestScoreParam
   );
-  const queriedBalance = userBestScore ? userBestScore.score : 1200;
+  const queriedBalance = userBestScore ? userBestScore.score : 2000;
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();

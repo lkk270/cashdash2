@@ -368,6 +368,10 @@ class BlackjackScene extends Phaser.Scene {
         duration: 300,
         ease: 'Sine.easeOut',
         delay: idx * 100, // Add a small delay to each to make it more realistic
+        onComplete: () => {
+          this.updateSelectedChipsTotal(forDoubleDownOrSplit);
+          this.updateAvailableChips();
+        },
       });
       this.createLastBetChipsDelay = tempChips.length * 100 + 500;
       if (!forDoubleDownOrSplit) {
@@ -380,20 +384,19 @@ class BlackjackScene extends Phaser.Scene {
               if (this.balanceText) {
                 this.balanceText.setText(`Bank: $${this.formatBalance(this.balance)}`);
               }
-              this.updateSelectedChipsTotal(forDoubleDownOrSplit);
-              this.updateAvailableChips();
+              // this.updateSelectedChipsTotal(forDoubleDownOrSplit);
+              // this.updateAvailableChips();
               this.clearBetButton?.setVisible(true).setInteractive();
             }
           });
         }
       } else {
-        console.log('IN HERE2');
         this.loading = false;
         if (this.balanceText) {
           this.balanceText.setText(`Bank: $${this.formatBalance(this.balance)}`);
         }
-        this.updateSelectedChipsTotal(forDoubleDownOrSplit);
-        this.updateAvailableChips();
+        // this.updateSelectedChipsTotal(forDoubleDownOrSplit);
+        // this.updateAvailableChips();
       }
     });
   }
@@ -611,14 +614,15 @@ class BlackjackScene extends Phaser.Scene {
         duration: 300,
         ease: 'Sine.easeOut',
         delay: idx * 100, // Add a small delay to each to make it more realistic
+        onComplete: () => {
+          if (this.balanceText) {
+            this.balanceText.setText(`Bank: $${this.formatBalance(this.balance)}`);
+          }
+          this.updateSelectedChipsTotal();
+          this.updateAvailableChips();
+        },
       });
     });
-
-    if (this.balanceText) {
-      this.balanceText.setText(`Bank: $${this.formatBalance(this.balance)}`);
-    }
-    this.updateSelectedChipsTotal();
-    this.updateAvailableChips();
   }
 
   clearAllBets() {
@@ -638,19 +642,17 @@ class BlackjackScene extends Phaser.Scene {
           ease: 'Sine.easeOut',
           onComplete: () => {
             chip.destroy();
+            if (this.balanceText) {
+              this.balanceText.setText(`Bank: $${this.formatBalance(this.balance)}`);
+            }
+            this.lastSelectedChipXPosition = PLACED_CHIP_X;
+            this.updateSelectedChipsTotal();
+            this.updateAvailableChips();
           },
         });
       }
     });
-
     this.selectedChips = [[], []]; // Clear the array
-
-    if (this.balanceText) {
-      this.balanceText.setText(`Bank: $${this.formatBalance(this.balance)}`);
-    }
-    this.lastSelectedChipXPosition = PLACED_CHIP_X;
-    this.updateSelectedChipsTotal();
-    this.updateAvailableChips();
   }
 
   createRoundedBackground(scene: Phaser.Scene): Phaser.GameObjects.Graphics {
