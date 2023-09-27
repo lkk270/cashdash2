@@ -97,7 +97,7 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
         });
       })
       .catch((error) => {
-        const backPath = pathname.split('/').slice(0, -1).join('/');
+        // const backPath = pathname.split('/').slice(0, -1).join('/');
         if (error.response.data && error.response.status === 302) {
           // router.push(backPath);
           router.refresh();
@@ -106,12 +106,12 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
             variant: 'warning',
             duration: 7500,
           });
+        } else {
+          toast({
+            description: error.response ? error.response.data : 'Network Error',
+            variant: 'destructive',
+          });
         }
-
-        toast({
-          description: error.response ? error.response.data : 'Network Error',
-          variant: 'destructive',
-        });
       })
       .finally(() => {
         setPulsing(false);

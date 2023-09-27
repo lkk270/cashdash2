@@ -65,9 +65,9 @@ const PhaserGame = ({ props }: BlackjackProps) => {
     };
     axios
       .post('/api/game-session', updatedIds)
-      .then((response) => {
-        gameSessionIdRef.current = response.data.gameSessionId;
-      })
+      // .then((response) => {
+      //   gameSessionIdRef.current = response.data.gameSessionId;
+      // })
       .catch((error) => {
         toast({
           description: error.response.data,
@@ -91,55 +91,49 @@ const PhaserGame = ({ props }: BlackjackProps) => {
       });
   };
 
-  const onGameEnd = (balanceChange: number) => {
-    setPulsing(true);
+  const onHandEnd = (balanceChange: number, lastHand: boolean): Promise<number> | void => {
+    let returnedScore: number;
+    if (lastHand) {
+      setPulsing(true);
+    }
+    const updatedIds = {
+      ...props.ids,
+      at: '2eb',
+      lastHand: lastHand,
+      balanceChange: balanceChange,
+    };
     axios
-      .post('/api/game-session', { gameSessionId: gameSessionIdRef.current, at: '2' })
-      .then((response) => {
-        const hash = response.data.hash;
-        // Send another POST request with response.data.hash and at: '3'
-        return axios.post('/api/game-session', {
-          lobbySessionId: props.ids.lobbySessionId,
-          userBestScore: userBestScore ? userBestScore : false,
-          gameSessionId: gameSessionIdRef.current,
-          score: balanceChange,
-          cHash: hash,
-          rHash: generateResponseHash(hash, balanceChange),
-          at: '3',
-        });
-      })
+      .post('/api/game-session', updatedIds)
       .then((response) => {
         const displayScore = response.data.displayScores;
-        if (displayScore) {
+        returnedScore = response.data.returnedScore;
+        if (displayScore && lastHand) {
           props.setScores(displayScore);
           setUserBestScore(displayScore[0]);
           props.setTriggerAnimation(true);
         }
-        // Handle the response of the second POST request
-        toast({
-          description: response.data.message,
-        });
       })
       .catch((error) => {
-        const backPath = pathname.split('/').slice(0, -1).join('/');
         if (error.response.data && error.response.status === 302) {
-          // router.push(backPath);
           router.refresh();
           toast({
             description: error.response.data,
             variant: 'warning',
             duration: 7500,
           });
+        } else {
+          toast({
+            description: error.response ? error.response.data : 'Network Error',
+            variant: 'destructive',
+          });
         }
-
-        toast({
-          description: error.response ? error.response.data : 'Network Error',
-          variant: 'destructive',
-        });
       })
       .finally(() => {
-        setPulsing(false);
-        gameEvents.emit('gameEnded'); // Emit the gameEnded event
+        if (lastHand) {
+          setPulsing(false);
+          gameEvents.emit('gameEnded'); // Emit the gameEnded event
+          return returnedScore;
+        }
       });
   };
 
@@ -171,7 +165,7 @@ const PhaserGame = ({ props }: BlackjackProps) => {
           { key: 'BlackjackScene' },
           onGameStart,
           onBalanceChange,
-          onGameEnd,
+          onHandEnd,
           queriedBalance
         ),
       ],
