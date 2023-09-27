@@ -1652,7 +1652,7 @@ class BlackjackScene extends Phaser.Scene {
 
   dealCards() {
     //deals the first cards
-    this.playerHands = [['spades5', 'hearts5']];
+    this.playerHands = [[this.cards.pop(), this.cards.pop()]];
     this.dealerHand = ['back', this.cards.pop()];
 
     // Display first player card
