@@ -34,7 +34,7 @@ export async function POST(req: Request) {
     }
     if (
       bodyLength === 0 ||
-      bodyLength > 7 ||
+      bodyLength > 5 ||
       !validType ||
       acceptedTypesObj[receivedType] != bodyLength
     ) {

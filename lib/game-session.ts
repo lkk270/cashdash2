@@ -1,5 +1,5 @@
-import { TierBoundary, Score, Prisma } from '@prisma/client';
-import { ModifiedScoreType } from '@/app/types';
+import { GameSession, Score, Prisma } from '@prisma/client';
+import { ModifiedScoreType, ModifiedGameType } from '@/app/types';
 import prismadb from '@/lib/prismadb';
 import { all } from 'axios';
 
@@ -68,4 +68,81 @@ export const getAllScores = async (
   });
 
   return allScores;
+};
+
+export const getGameSession = async (
+  gameSessionId: string,
+  currentDate: Date
+): Promise<(GameSession & { lobbySession?: { id: string } }) | null> => {
+  const gameSession: (GameSession & { lobbySession?: { id: string } }) | null =
+    await prismadb.gameSession.findFirst({
+      where: {
+        id: gameSessionId,
+        isValid: true,
+        expiresAt: {
+          gt: currentDate,
+        },
+        lobbySession: {
+          isActive: true,
+          expiredDateTime: {
+            gt: currentDate,
+          },
+          startDateTime: {
+            lt: currentDate,
+          },
+        },
+      },
+      include: {
+        // Include only the id from the lobbySession, to check if it exists
+        lobbySession: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+  return gameSession;
+};
+
+export const getGame = async (userId: string, gameId: string): Promise<ModifiedGameType | null> => {
+  const game = await prismadb.game.findUnique({
+    where: {
+      id: gameId,
+    },
+    select: {
+      scoreType: true,
+      cheatScore: true,
+      tierBoundaries: true,
+      lobbies: {
+        select: {
+          id: true,
+          name: true,
+          scoreRestriction: true,
+          numScoresToAccess: true,
+          sessions: {
+            where: {
+              isActive: true,
+            },
+            select: {
+              id: true,
+              expiredDateTime: true,
+              startDateTime: true,
+              scores: {
+                where: {
+                  userId: userId,
+                },
+                take: 1,
+                select: {
+                  id: true, // Only select the ID
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return game;
 };

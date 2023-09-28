@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 
 import { calculateSingleWeightedScore } from '@/lib/average-score';
 import { isValidLobbyAccess } from '@/lib/utils';
+import { createGameSession, getGameSession, getAllScores, getGame } from '@/lib/game-session';
 import { processBestScores, prepareScoresForDisplay } from '@/lib/scores';
 import { generateChallengeHash, generateResponseHash } from '@/lib/hash';
 import prismadb from '@/lib/prismadb';
@@ -15,16 +16,18 @@ const acceptedTypesObj: { [key: string]: number } = {
 };
 //oldTypes: { [key: string]: number } = { '0': 3, '1': 2};
 export async function POST(req: Request) {
-  const currentDate = new Date();
-  const body = await req.json();
-  const bodyLength = Object.keys(body).length;
   try {
+    const body = await req.json();
+    const bodyLength = Object.keys(body).length;
+    const allValuesDefined = Object.values(body).every(
+      (value) => value !== undefined && value !== null
+    );
     const receivedType: string = body.at;
     const validType = acceptedTypesObj[receivedType];
     const { userId } = auth();
     const user = await currentUser();
 
-    if (!userId || !user) {
+    if (!userId || !user || !allValuesDefined) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
     if (
@@ -37,21 +40,8 @@ export async function POST(req: Request) {
     }
 
     if (receivedType === '05') {
-      const expiresAt = currentDate;
-      expiresAt.setSeconds(expiresAt.getSeconds() + 3599); // 59 minutes 59 seconds from now
-
-      const gameSession = await prismadb.gameSession.create({
-        data: {
-          userId: userId,
-          gameId: body.gameId,
-          lobbySessionId: body.lobbySessionId,
-          isValid: true,
-          expiresAt: expiresAt,
-          startedAt: Date.now(),
-        },
-      });
-
-      return new NextResponse(JSON.stringify({ gameSessionId: gameSession.id }));
+      const gameSessionId = await createGameSession(userId, body.gameId, body.lobbySessionId);
+      return new NextResponse(JSON.stringify({ gameSessionId: gameSessionId }));
     }
 
     // else if (receivedType === '0') {
@@ -83,38 +73,11 @@ export async function POST(req: Request) {
     //   return new NextResponse();
     // }
     else if (receivedType === '2' || receivedType === '3') {
-      const gameSession: (GameSession & { lobbySession?: { id: string } }) | null =
-        await prismadb.gameSession.findFirst({
-          where: {
-            id: body.gameSessionId,
-            isValid: true,
-            expiresAt: {
-              gt: currentDate,
-            },
-            lobbySession: {
-              isActive: true,
-              expiredDateTime: {
-                gt: currentDate,
-              },
-              startDateTime: {
-                lt: currentDate,
-              },
-            },
-          },
-          include: {
-            // Include only the id from the lobbySession, to check if it exists
-            lobbySession: {
-              select: {
-                id: true,
-              },
-            },
-          },
-        });
+      const currentDate = new Date();
+
+      const gameSession = await getGameSession(body.gameSessionId, currentDate);
 
       if (!gameSession || !gameSession.lobbySession) {
-        // return new NextResponse('Score not submitted due to session inactivity. Start a new game', {
-        //   status: 401,
-        // });
         return new NextResponse('Attempting refresh', {
           status: 302,
         });
@@ -135,47 +98,7 @@ export async function POST(req: Request) {
           return new NextResponse('Unauthorized1', { status: 401 });
         } else {
           const currentMilliseconds = currentDate.getTime();
-          // console.log(currentMilliseconds);
-          // console.log(gameSession.startedAt);
-          // console.log(currentMilliseconds - Number(gameSession.startedAt));
-          // console.log(body.score);
-          const game = await prismadb.game.findUnique({
-            where: {
-              id: gameSession.gameId,
-            },
-            select: {
-              scoreType: true,
-              cheatScore: true,
-              tierBoundaries: true,
-              lobbies: {
-                select: {
-                  id: true,
-                  name: true,
-                  scoreRestriction: true,
-                  numScoresToAccess: true,
-                  sessions: {
-                    where: {
-                      isActive: true,
-                    },
-                    select: {
-                      id: true,
-                      expiredDateTime: true,
-                      startDateTime: true,
-                      scores: {
-                        where: {
-                          userId: userId,
-                        },
-                        take: 1,
-                        select: {
-                          id: true, // Only select the ID
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          });
+          const game = await getGame(userId, gameSession.gameId);
 
           if (!game) {
             return new NextResponse('No game?', { status: 401 });
@@ -314,25 +237,9 @@ export async function POST(req: Request) {
           ) {
             const orderDirection = game.scoreType === ScoreType.time ? 'asc' : 'desc';
 
+            const allScores = await getAllScores(gameSession.lobbySessionId, orderDirection);
+
             //a better score was created so send a new best scores array to be use in the score-table
-            const allScores = await prismadb.score.findMany({
-              where: {
-                lobbySessionId: gameSession.lobbySessionId,
-              },
-              select: {
-                userId: true,
-                username: true,
-                score: true,
-              },
-              orderBy: [
-                {
-                  score: orderDirection,
-                },
-                {
-                  createdAt: 'asc',
-                },
-              ],
-            });
             const bestScoresArray = processBestScores({
               allScores,
               orderDirection,
