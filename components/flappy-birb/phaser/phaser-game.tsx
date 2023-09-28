@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Phaser from 'phaser';
 import axios from 'axios';
 
@@ -28,7 +28,6 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
     props.userBestScoreParam
   );
   const router = useRouter();
-  const pathname = usePathname();
   const { toast } = useToast();
   const gameSessionIdRef = useRef();
   const gameRef = useRef<Phaser.Game | null>(null);

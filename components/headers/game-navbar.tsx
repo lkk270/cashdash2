@@ -8,11 +8,11 @@ import { ChevronLeft, Info } from 'lucide-react';
 import { Orbitron } from 'next/font/google';
 
 import { useLobbyAboutModal } from '@/hooks/use-lobby-about-modal';
-import Logo from '@/components/logo';
+// import Logo from '@/components/logo';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
 import { MobileSidebar } from '@/components/headers/mobile-sidebar';
-
+import { SocketIndicator } from '@/components/socket-indicator';
 import { MobileScoresTable } from '@/components/mobile-scores-table';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { ModifiedScoreType } from '@/app/types';
@@ -31,7 +31,7 @@ export const GameNavbar = ({ lobby, game, scores }: LobbyHeaderProps) => {
   const lobbyAboutModal = useLobbyAboutModal();
   const router = useRouter();
   const pathname = usePathname();
-  const backPath = pathname.split('/').slice(0, -1).join('/');
+  const backPath = pathname ? pathname.split('/').slice(0, -1).join('/') : '/dashboard';
   const countdownData = {
     textSize: 'text-sm',
     expiredDateTime: lobby.sessions[0].expiredDateTime,
@@ -92,6 +92,9 @@ export const GameNavbar = ({ lobby, game, scores }: LobbyHeaderProps) => {
                 <Info className="w-6 h-6" />
               </Button>
             </div> */}
+            <div>
+              <SocketIndicator />
+            </div>
             <div className="flex items-center">
               <Button
                 title="Details"

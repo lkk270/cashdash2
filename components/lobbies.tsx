@@ -125,7 +125,13 @@ export const Lobbies = ({ data }: LobbiesProps) => {
                       }}
                     >
                       <Link
-                        href={disableCard ? pathname : `${pathname}/${item.id}`}
+                        href={
+                          !pathname
+                            ? '/dashboard'
+                            : disableCard
+                            ? pathname
+                            : `${pathname}/${item.id}`
+                        }
                         onClick={disableCard ? (event) => event.preventDefault() : undefined}
                         className={`${disableCard ? 'cursor-not-allowed' : ''}`}
                       >

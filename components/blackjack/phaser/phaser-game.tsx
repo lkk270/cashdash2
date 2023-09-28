@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Phaser from 'phaser';
 import axios from 'axios';
 
@@ -30,7 +30,6 @@ const PhaserGame = ({ props }: BlackjackProps) => {
   );
   const queriedBalance = userBestScore ? userBestScore.score : 1000; //used as a safeguard in case server side fails
   const router = useRouter();
-  const pathname = usePathname();
   const { toast } = useToast();
   const gameSessionIdRef = useRef();
   const gameRef = useRef<Phaser.Game | null>(null);

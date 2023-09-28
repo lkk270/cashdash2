@@ -7,6 +7,7 @@ import { ScoresTable } from '@/components/scores-table';
 import { Minesweeper } from '@/components/minesweeper/minesweeper';
 import { FlappyBirb } from '@/components/flappy-birb/flappy-birb';
 import { Blackjack } from '@/components/blackjack/blackjack';
+import { SocketProvider } from '@/components/providers/socket-provider';
 
 import { useState } from 'react';
 
@@ -64,24 +65,26 @@ export const LobbyClient = ({ lobby, game, scoresParam, userBestScore }: LobbyCl
 
   return (
     // <TimerProvider>
-    <div className="flex flex-col">
-      <GameNavbar scores={scores} game={game} lobby={lobby} />
-      <div className="fixed inset-y-0 flex-col hidden mt-20 w-72 xl:flex">
-        <ScoresTable
-          setTriggerAnimation={setTriggerAnimationBase}
-          triggerAnimation={triggerAnimation}
-          scoreType={game.scoreType}
-          scores={scores}
-          lobby={lobby}
-        />
-      </div>
-      <main className="flex-grow">
-        <div className="h-full p-2 space-y-2 ">
-          <div className="flex justify-center h-full">
-            {renderGameComponent(gameName, commonProps)}
-          </div>
+    <SocketProvider>
+      <div className="flex flex-col">
+        <GameNavbar scores={scores} game={game} lobby={lobby} />
+        <div className="fixed inset-y-0 flex-col hidden mt-20 w-72 xl:flex">
+          <ScoresTable
+            setTriggerAnimation={setTriggerAnimationBase}
+            triggerAnimation={triggerAnimation}
+            scoreType={game.scoreType}
+            scores={scores}
+            lobby={lobby}
+          />
         </div>
-      </main>
-    </div>
+        <main className="flex-grow">
+          <div className="h-full p-2 space-y-2 ">
+            <div className="flex justify-center h-full">
+              {renderGameComponent(gameName, commonProps)}
+            </div>
+          </div>
+        </main>
+      </div>
+    </SocketProvider>
   );
 };
