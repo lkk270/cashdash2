@@ -1,14 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['res.cloudinary.com', 'utfs.io'],
+    domains: ['res.cloudinary.com'],
   },
 
   webpack: (config) => {
-    config.externals.push({
-      'utf-8-validate': 'commonjs utf-8-validate',
-      bufferutil: 'commonjs bufferutil',
-    });
     config.resolve.alias['phaser3spectorjs'] = false;
     return config;
   },

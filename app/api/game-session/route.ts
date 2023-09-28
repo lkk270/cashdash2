@@ -10,9 +10,6 @@ import { ScoreType, GameSession } from '@prisma/client';
 
 const acceptedTypesObj: { [key: string]: number } = {
   '05': 3,
-  '05b': 4,
-  '1ub': 4,
-  '2eb': 5,
   '2': 2,
   '3': 7,
 };

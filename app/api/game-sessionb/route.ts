@@ -1,8 +1,5 @@
-import { NextApiRequest } from 'next';
-
-import { NextApiResponseServerIo } from '@/types';
-import { getAuth } from '@clerk/nextjs/server';
-import { clerkClient } from '@clerk/nextjs';
+import { auth, currentUser } from '@clerk/nextjs';
+import { NextResponse } from 'next/server';
 
 import { calculateSingleWeightedScore } from '@/lib/average-score';
 import { isValidLobbyAccess } from '@/lib/utils';
@@ -18,26 +15,22 @@ const acceptedTypesObj: { [key: string]: number } = {
   '2eb': 5,
 };
 
-export default async function handler(req: NextApiRequest, res: NextApiResponseServerIo) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
+export async function POST(req: Request) {
   try {
-    const body = req.body;
+    const body = await req.json();
+    const bodyLength = Object.keys(body).length;
+
     const allValuesDefined = Object.values(body).every(
       (value) => value !== undefined && value !== null
     );
 
-    const bodyLength = Object.keys(body).length;
-
     const receivedType: string = body.at;
     const validType = acceptedTypesObj[receivedType];
-    const { userId } = getAuth(req);
-    const user = userId ? await clerkClient.users.getUser(userId) : null;
+    const { userId } = auth();
+    const user = await currentUser();
 
     if (!userId || !user || !allValuesDefined) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      return new NextResponse('Unauthorized', { status: 401 });
     }
     if (
       bodyLength === 0 ||
@@ -45,7 +38,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
       !validType ||
       acceptedTypesObj[receivedType] != bodyLength
     ) {
-      return res.status(401).json({ error: 'Invalid body' });
+      return new NextResponse('Invalid body', { status: 400 });
     }
 
     if (receivedType === '05b') {
@@ -63,15 +56,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
             score: newScore,
           },
         });
-        return res.status(200).json({ gameSessionId: gameSessionId });
+        return new NextResponse(JSON.stringify({ gameSessionId: gameSessionId }));
       } else {
-        return res.status(401).json({ error: 'No balance found' });
+        return new NextResponse('No balance found', { status: 401 });
       }
     } else if (receivedType === '1ub') {
       const balanceChange = body.balanceChange;
 
       if (balanceChange > -1) {
-        return res.status(401).json({ error: 'Unauthorized' });
+        return new NextResponse('Unauthorized', { status: 401 });
       }
       const currentScore = await findScore(userId, body.gameId, body.lobbySessionId);
 
@@ -85,9 +78,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
             score: newScore,
           },
         });
-        return res.status(200);
+        return new NextResponse('', { status: 200 });
       } else {
-        return res.status(401).json({ error: 'No balance found' });
+        return new NextResponse('No balance found', { status: 401 });
       }
     } else if (receivedType === '2eb') {
       let displayScores = null;
@@ -120,19 +113,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
           });
           displayScores = prepareScoresForDisplay(bestScoresArray, userId);
           if (displayScores[0].userId !== userId || displayScores[0].score !== newScore) {
-            return res.status(401).json({ error: 'No balance found' });
+            return new NextResponse('No balance found', { status: 401 });
           }
 
-          return res.status(200).json({ displayScores: displayScores });
+          return new NextResponse(JSON.stringify({ displayScores: displayScores }));
         } else {
-          return res.status(200);
+          return new NextResponse('', { status: 200 });
         }
       } else {
-        return res.status(401).json({ error: 'No balance found' });
+        return new NextResponse('No balance found', { status: 401 });
       }
     }
   } catch (error) {
     console.log('[MESSAGES_POST]', error);
-    return res.status(500).json({ message: 'Internal Error' });
+    return new NextResponse('Internal Error', { status: 500 });
   }
 }

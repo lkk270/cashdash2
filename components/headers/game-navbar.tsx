@@ -12,7 +12,6 @@ import { useLobbyAboutModal } from '@/hooks/use-lobby-about-modal';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
 import { MobileSidebar } from '@/components/headers/mobile-sidebar';
-import { SocketIndicator } from '@/components/socket-indicator';
 import { MobileScoresTable } from '@/components/mobile-scores-table';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { ModifiedScoreType } from '@/app/types';
@@ -92,9 +91,6 @@ export const GameNavbar = ({ lobby, game, scores }: LobbyHeaderProps) => {
                 <Info className="w-6 h-6" />
               </Button>
             </div> */}
-            <div>
-              <SocketIndicator />
-            </div>
             <div className="flex items-center">
               <Button
                 title="Details"

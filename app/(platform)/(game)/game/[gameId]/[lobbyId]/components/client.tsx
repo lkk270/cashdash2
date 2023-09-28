@@ -7,7 +7,6 @@ import { ScoresTable } from '@/components/scores-table';
 import { Minesweeper } from '@/components/minesweeper/minesweeper';
 import { FlappyBirb } from '@/components/flappy-birb/flappy-birb';
 import { Blackjack } from '@/components/blackjack/blackjack';
-import { SocketProvider } from '@/components/providers/socket-provider';
 
 import { useState } from 'react';
 
@@ -65,7 +64,6 @@ export const LobbyClient = ({ lobby, game, scoresParam, userBestScore }: LobbyCl
 
   return (
     // <TimerProvider>
-    <SocketProvider>
       <div className="flex flex-col">
         <GameNavbar scores={scores} game={game} lobby={lobby} />
         <div className="fixed inset-y-0 flex-col hidden mt-20 w-72 xl:flex">
@@ -85,6 +83,5 @@ export const LobbyClient = ({ lobby, game, scoresParam, userBestScore }: LobbyCl
           </div>
         </main>
       </div>
-    </SocketProvider>
   );
 };

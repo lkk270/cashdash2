@@ -121,13 +121,14 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
   useEffect(() => {
     // onGameLoad();
     let gameWidth = 800;
-    let gameHeight = 600;
+    let gameHeight = 700;
     let rescale = false;
     if (window.innerHeight / window.innerWidth > 1.5) {
       gameWidth = 600;
       gameHeight = 800;
       rescale = true;
     }
+    console.log(gameHeight);
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
       width: gameWidth,
