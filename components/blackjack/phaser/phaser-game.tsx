@@ -63,13 +63,13 @@ const PhaserGame = ({ props }: BlackjackProps) => {
       balanceChange: balanceChange,
     };
     axios
-      .post('/api/game-session', updatedIds)
+      .post('/api/socket/game-sessionb', updatedIds)
       // .then((response) => {
       //   gameSessionIdRef.current = response.data.gameSessionId;
       // })
       .catch((error) => {
         toast({
-          description: error.response.data,
+          description: error.response ? error.response.data.error : 'Network Error',
           variant: 'destructive',
         });
       });
@@ -78,13 +78,13 @@ const PhaserGame = ({ props }: BlackjackProps) => {
   const onGameStart = (balanceChange: number) => {
     const updatedIds = { ...props.ids, at: '05b', balanceChange: balanceChange };
     axios
-      .post('/api/game-session', updatedIds)
+      .post('/api/socket/game-sessionb', updatedIds)
       .then((response) => {
         gameSessionIdRef.current = response.data.gameSessionId;
       })
       .catch((error) => {
         toast({
-          description: error.response.data,
+          description: error.response ? error.response.data.error : 'Network Error',
           variant: 'destructive',
         });
       });
@@ -102,7 +102,7 @@ const PhaserGame = ({ props }: BlackjackProps) => {
       balanceChange: balanceChange,
     };
     axios
-      .post('/api/game-session', updatedIds)
+      .post('/api/socket/game-sessionb', updatedIds)
       .then((response) => {
         const displayScore = response.data.displayScores;
         returnedScore = response.data.returnedScore;
@@ -113,16 +113,18 @@ const PhaserGame = ({ props }: BlackjackProps) => {
         }
       })
       .catch((error) => {
+        const message = error.response ? error.response.data.error : 'Network Error';
+
         if (error.response.data && error.response.status === 302) {
           router.refresh();
           toast({
-            description: error.response.data,
+            description: message,
             variant: 'warning',
             duration: 7500,
           });
         } else {
           toast({
-            description: error.response ? error.response.data : 'Network Error',
+            description: message,
             variant: 'destructive',
           });
         }
