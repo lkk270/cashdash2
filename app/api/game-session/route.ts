@@ -3,7 +3,13 @@ import { NextResponse } from 'next/server';
 
 import { calculateSingleWeightedScore } from '@/lib/average-score';
 import { isValidLobbyAccess } from '@/lib/utils';
-import { createGameSession, getGameSession, getAllScores, getGame } from '@/lib/game-session';
+import {
+  createGameSession,
+  getGameSession,
+  getAllScores,
+  getGame,
+  findScore,
+} from '@/lib/game-session';
 import { processBestScores, prepareScoresForDisplay } from '@/lib/scores';
 import { generateChallengeHash, generateResponseHash } from '@/lib/hash';
 import prismadb from '@/lib/prismadb';
@@ -120,20 +126,20 @@ export async function POST(req: Request) {
             return new NextResponse('Suspected of cheating', { status: 401 });
           }
 
-          const lobbyWithScores = game.lobbies.find(
-            (lobby) =>
-              lobby.sessions &&
-              lobby.sessions.some((session) => session.scores && session.scores.length > 0)
-          );
+          // const lobbyWithScores = game.lobbies.find(
+          //   (lobby) =>
+          //     lobby.sessions &&
+          //     lobby.sessions.some((session) => session.scores && session.scores.length > 0)
+          // );
 
-          const currentLobby = game.lobbies.find(
-            (lobby) =>
-              lobby.sessions && lobby.sessions.some((session) => session.id === body.lobbySessionId)
-          );
+          // const currentLobby = game.lobbies.find(
+          //   (lobby) =>
+          //     lobby.sessions && lobby.sessions.some((session) => session.id === body.lobbySessionId)
+          // );
 
-          if (!currentLobby) {
-            return new NextResponse('Lobby not found', { status: 404 });
-          }
+          // if (!currentLobby) {
+          //   return new NextResponse('Lobby not found', { status: 404 });
+          // }
 
           const currentGameAverageScore = await prismadb.gameAverageScore.findFirst({
             where: {
@@ -142,23 +148,23 @@ export async function POST(req: Request) {
             },
           });
 
-          const userPlayedInSession = currentLobby.sessions[0].scores?.length > 0 ? true : false;
-          let accessResult = isValidLobbyAccess({
-            lobbyId: currentLobby.id,
-            lobbyWithScoresName: lobbyWithScores?.name,
-            lobbyWithScoresId: lobbyWithScores?.id,
-            userPlayedInSession: userPlayedInSession,
-            scoreType: game.scoreType,
-            weightedAverageScore: currentGameAverageScore?.averageScore,
-            timesPlayed: currentGameAverageScore?.timesPlayed || 0,
-            numScoresToAccess: currentLobby.numScoresToAccess,
-            scoreRestriction: currentLobby.scoreRestriction,
-            expiredDateTime: currentLobby.sessions[0].expiredDateTime,
-            startDateTime: currentLobby.sessions[0].startDateTime,
-          });
-          if (!accessResult.isValid) {
-            return new NextResponse('INVALID! ' + accessResult.message, { status: 302 });
-          }
+          // const userPlayedInSession = currentLobby.sessions[0].scores?.length > 0 ? true : false;
+          // let accessResult = isValidLobbyAccess({
+          //   lobbyId: currentLobby.id,
+          //   lobbyWithScoresName: lobbyWithScores?.name,
+          //   lobbyWithScoresId: lobbyWithScores?.id,
+          //   userPlayedInSession: userPlayedInSession,
+          //   scoreType: game.scoreType,
+          //   weightedAverageScore: currentGameAverageScore?.averageScore,
+          //   timesPlayed: currentGameAverageScore?.timesPlayed || 0,
+          //   numScoresToAccess: currentLobby.numScoresToAccess,
+          //   scoreRestriction: currentLobby.scoreRestriction,
+          //   expiredDateTime: currentLobby.sessions[0].expiredDateTime,
+          //   startDateTime: currentLobby.sessions[0].startDateTime,
+          // });
+          // if (!accessResult.isValid) {
+          //   return new NextResponse('INVALID! ' + accessResult.message, { status: 302 });
+          // }
 
           const weightedScoreObj = await calculateSingleWeightedScore(
             { score: body.score, createdAt: new Date() },
@@ -168,6 +174,8 @@ export async function POST(req: Request) {
           let transaction; //make use of transaction - all updates/creates have to succeed for them to all succeed
 
           if (currentGameAverageScore) {
+            console.log('IN HERE');
+
             const newTimesPlayed = currentGameAverageScore.timesPlayed + 1;
             newAverageScore =
               (currentGameAverageScore.averageScore * currentGameAverageScore.timesPlayed +
@@ -182,8 +190,51 @@ export async function POST(req: Request) {
                 weightedScoreObj.weightedScore) /
               newWeightedTimesPlayed;
 
-            transaction = prismadb.$transaction([
-              prismadb.gameAverageScore.updateMany({
+            game.scoreType === ScoreType.time && body.score < body.userBestScore.score;
+
+            if (
+              (game.scoreType === ScoreType.time &&
+                newAverageScore < currentGameAverageScore.averageScore) ||
+              (game.scoreType === ScoreType.points &&
+                newAverageScore > currentGameAverageScore.averageScore)
+            ) {
+              console.log('in 201');
+
+              //means score is better and the current score should be updated
+              const currentScore = await findScore(
+                userId,
+                gameSession.gameId,
+                gameSession.lobbySessionId
+              );
+              if (currentScore) {
+                transaction = prismadb.$transaction([
+                  prismadb.gameAverageScore.updateMany({
+                    where: {
+                      userId: userId,
+                      gameId: gameSession.gameId,
+                    },
+                    data: {
+                      timesPlayed: newTimesPlayed,
+                      averageScore: newAverageScore,
+                      weightedTimesPlayed: newWeightedTimesPlayed,
+                      weightedAverageScore: newWeightedAverageScore,
+                    },
+                  }),
+                  prismadb.score.update({
+                    where: {
+                      id: currentScore.id,
+                    },
+                    data: {
+                      score: body.score,
+                    },
+                  }),
+                ]);
+              }
+              await transaction;
+            } else {
+              console.log('in 233');
+
+              await prismadb.gameAverageScore.updateMany({
                 where: {
                   userId: userId,
                   gameId: gameSession.gameId,
@@ -194,18 +245,10 @@ export async function POST(req: Request) {
                   weightedTimesPlayed: newWeightedTimesPlayed,
                   weightedAverageScore: newWeightedAverageScore,
                 },
-              }),
-              prismadb.score.create({
-                data: {
-                  userId: userId,
-                  gameId: gameSession.gameId,
-                  username: user.username || '',
-                  lobbySessionId: gameSession.lobbySessionId,
-                  score: body.score,
-                },
-              }),
-            ]);
+              });
+            }
           } else {
+            console.log('in 221');
             transaction = prismadb.$transaction([
               prismadb.gameAverageScore.create({
                 data: {
@@ -235,6 +278,7 @@ export async function POST(req: Request) {
             (game.scoreType === ScoreType.points && body.score > body.userBestScore.score) ||
             (game.scoreType === ScoreType.time && body.score < body.userBestScore.score)
           ) {
+            console.log(body);
             const orderDirection = game.scoreType === ScoreType.time ? 'asc' : 'desc';
 
             const allScores = await getAllScores(gameSession.lobbySessionId, orderDirection);
@@ -247,11 +291,16 @@ export async function POST(req: Request) {
 
             displayScores = prepareScoresForDisplay(bestScoresArray, userId);
           }
-          const message =
-            displayScores !== null ? 'New personal best score (for this session)!' : 'Score saved!';
-          return new NextResponse(
-            JSON.stringify({ message: message, displayScores: displayScores })
-          );
+          const message = 'New personal best score (for this session)!';
+          if (displayScores) {
+            return new NextResponse(
+              JSON.stringify({ message: message, displayScores: displayScores })
+            );
+          } else {
+            return NextResponse.json({
+              status: 400,
+            });
+          }
         }
       } else {
         return new NextResponse('Internal Error', { status: 500 });

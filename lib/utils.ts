@@ -45,10 +45,11 @@ export function isValidLobbyAccess(inputs: {
   if (inputs.userPlayedInSession === false && inputs.weightedAverageScore) {
     //if the there is at least one score for this lobby session then even if the user becomes too good for the session, they are still allowed to access it for the remainder of the lobby session.
     if (
-      (inputs.scoreType === ScoreType.time &&
+      inputs.scoreRestriction !== -1 &&
+      ((inputs.scoreType === ScoreType.time &&
         inputs.weightedAverageScore < inputs.scoreRestriction) ||
-      ((inputs.scoreType === ScoreType.points || inputs.scoreType === ScoreType.balance) &&
-        inputs.weightedAverageScore > inputs.scoreRestriction)
+        ((inputs.scoreType === ScoreType.points || inputs.scoreType === ScoreType.balance) &&
+          inputs.weightedAverageScore > inputs.scoreRestriction))
     ) {
       errorMessages.push("You're too good of a player to access this tier!");
     }

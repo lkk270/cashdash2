@@ -30,6 +30,7 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
   const router = useRouter();
   const { toast } = useToast();
   const gameSessionIdRef = useRef();
+  const userBestScoreRef = useRef(userBestScore);
   const gameRef = useRef<Phaser.Game | null>(null);
 
   const setPulsing = (shouldPulse: boolean) => {
@@ -75,7 +76,7 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
         // Send another POST request with response.data.hash and at: '3'
         return axios.post('/api/game-session', {
           lobbySessionId: props.ids.lobbySessionId,
-          userBestScore: userBestScore ? userBestScore : false,
+          userBestScore: userBestScoreRef.current ? userBestScoreRef.current : false,
           gameSessionId: gameSessionIdRef.current,
           score: score,
           cHash: hash,
@@ -87,13 +88,13 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
         const displayScore = response.data.displayScores;
         if (displayScore) {
           props.setScores(displayScore);
-          setUserBestScore(displayScore[0]);
+          userBestScoreRef.current = displayScore[0];
           props.setTriggerAnimation(true);
+          toast({
+            description: response.data.message,
+          });
         }
         // Handle the response of the second POST request
-        toast({
-          description: response.data.message,
-        });
       })
       .catch((error) => {
         // const backPath = pathname.split('/').slice(0, -1).join('/');
@@ -128,7 +129,6 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
       gameHeight = 800;
       rescale = true;
     }
-    console.log(gameHeight);
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
       width: gameWidth,

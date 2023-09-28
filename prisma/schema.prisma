@@ -145,6 +145,15 @@ model GameSession {
   @@index([lobbySessionId])
 }
 
+// model UserPlayedInLobbySessions {
+//   id              String   @id @default(uuid())
+//   userId          String
+//   expiredDateTime DateTime @default(now())
+//   lobbyId         String
+//   lobbySessionId  String
+//   createdAt       DateTime @default(now())
+// }
+
 model UserStripeSubscription {
   id                     String    @id @default(cuid())
   userId                 String    @unique

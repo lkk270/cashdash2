@@ -1,7 +1,6 @@
 import { GameSession, Score, Prisma } from '@prisma/client';
-import { ModifiedScoreType, ModifiedGameType } from '@/app/types';
+import { ModifiedScoreType, ModifiedGameType2 } from '@/app/types';
 import prismadb from '@/lib/prismadb';
-import { all } from 'axios';
 
 export const createGameSession = async (
   userId: string,
@@ -70,6 +69,65 @@ export const getAllScores = async (
   return allScores;
 };
 
+export const getTop100Scores = async (
+  lobbySessionId: string,
+  orderDirection: Prisma.SortOrder
+): Promise<ModifiedScoreType[]> => {
+  const topScores = await prismadb.score.findMany({
+    where: {
+      lobbySessionId: lobbySessionId,
+    },
+    select: {
+      userId: true,
+      username: true,
+      score: true,
+    },
+    orderBy: [
+      {
+        score: orderDirection,
+      },
+      {
+        createdAt: 'asc',
+      },
+    ],
+    take: 100,
+  });
+
+  return topScores;
+};
+
+export const getUserScoreWithRank = async (
+  lobbySessionId: string,
+  userId: string,
+  orderDirection: Prisma.SortOrder
+) => {
+  const sortOrder = orderDirection === 'asc' ? 'ASC' : 'DESC';
+
+  const result = await prismadb.$queryRaw`SELECT userId, username, score, 
+           RANK() OVER (ORDER BY score ${sortOrder}) as rank
+    FROM score
+    WHERE lobbySessionId = ${lobbySessionId} AND userId = ${userId}`;
+
+  return (result as any)[0];
+};
+
+export const getTop100UniqueUserScores = async (
+  lobbySessionId: string,
+  orderDirection: Prisma.SortOrder
+) => {
+  const sortOrder = orderDirection === 'asc' ? 'ASC' : 'DESC';
+
+  const top100UniqueUserScores = await prismadb.$queryRaw`
+  SELECT userId, username, MAX(score) as score 
+  FROM score
+  WHERE lobbySessionId = ${lobbySessionId}
+  GROUP BY userId
+  (ORDER BY score ${sortOrder})
+  LIMIT 100
+`;
+  return top100UniqueUserScores as any;
+};
+
 export const getGameSession = async (
   gameSessionId: string,
   currentDate: Date
@@ -105,7 +163,10 @@ export const getGameSession = async (
   return gameSession;
 };
 
-export const getGame = async (userId: string, gameId: string): Promise<ModifiedGameType | null> => {
+export const getGame = async (
+  userId: string,
+  gameId: string
+): Promise<ModifiedGameType2 | null> => {
   const game = await prismadb.game.findUnique({
     where: {
       id: gameId,
@@ -114,35 +175,34 @@ export const getGame = async (userId: string, gameId: string): Promise<ModifiedG
       scoreType: true,
       cheatScore: true,
       tierBoundaries: true,
-      lobbies: {
-        select: {
-          id: true,
-          name: true,
-          scoreRestriction: true,
-          numScoresToAccess: true,
-          sessions: {
-            where: {
-              isActive: true,
-            },
-            select: {
-              id: true,
-              expiredDateTime: true,
-              startDateTime: true,
-              scores: {
-                where: {
-                  userId: userId,
-                },
-                take: 1,
-                select: {
-                  id: true, // Only select the ID
-                },
-              },
-            },
-          },
-        },
-      },
+      // lobbies: {
+      //   select: {
+      //     id: true,
+      //     name: true,
+      //     scoreRestriction: true,
+      //     numScoresToAccess: true,
+      //     sessions: {
+      //       where: {
+      //         isActive: true,
+      //       },
+      //       select: {
+      //         id: true,
+      //         expiredDateTime: true,
+      //         startDateTime: true,
+      //         scores: {
+      //           where: {
+      //             userId: userId,
+      //           },
+      //           take: 1,
+      //           select: {
+      //             id: true, // Only select the ID
+      //           },
+      //         },
+      //       },
+      //     },
+      //   },
+      // },
     },
   });
-
   return game;
 };

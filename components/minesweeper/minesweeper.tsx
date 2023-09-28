@@ -88,11 +88,11 @@ export const Minesweeper = ({
             setScores(displayScore);
             setUserBestScore(displayScore[0]);
             setTriggerAnimation(true);
+            toast({
+              description: response.data.message,
+            });
           }
           // Handle the response of the second POST request
-          toast({
-            description: response.data.message,
-          });
         })
         .catch((error) => {
           if (error.response.data && error.response.status === 302) {

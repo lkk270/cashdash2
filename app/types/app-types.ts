@@ -63,3 +63,9 @@ export type ModifiedGameType = {
     }[];
   }[];
 };
+
+export type ModifiedGameType2 = {
+  scoreType: string;
+  cheatScore: number;
+  tierBoundaries: TierBoundary[];
+};
