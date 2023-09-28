@@ -39,7 +39,7 @@ export async function POST(req: Request) {
       return new NextResponse('Invalid body', { status: 400 });
     }
 
-    if (receivedType.includes('05')) {
+    if (receivedType === '05') {
       const expiresAt = currentDate;
       expiresAt.setSeconds(expiresAt.getSeconds() + 3599); // 59 minutes 59 seconds from now
 
@@ -53,122 +53,8 @@ export async function POST(req: Request) {
           startedAt: Date.now(),
         },
       });
-      if (receivedType === '05b') {
-        //for balance games like blackjack need to update the balance (score)
-        const currentScore = await prismadb.score.findFirst({
-          where: {
-            userId: userId,
-            gameId: gameSession.gameId,
-            lobbySessionId: body.lobbySessionId,
-          },
-        });
-        if (currentScore) {
-          const newScore = currentScore.score + body.balanceChange;
 
-          await prismadb.score.update({
-            where: {
-              id: currentScore.id,
-            },
-            data: {
-              score: newScore,
-            },
-          });
-          return new NextResponse(JSON.stringify({ gameSessionId: gameSession.id }));
-        } else {
-          return new NextResponse('No balance Found!', { status: 401 });
-        }
-      }
-    } else if (receivedType === '1ub') {
-      const balanceChange = body.balanceChange;
-
-      if (balanceChange > -1) {
-        return new NextResponse('Unauthorized', { status: 401 });
-      }
-      const currentScore = await prismadb.score.findFirst({
-        where: {
-          userId: userId,
-          gameId: body.gameId,
-          lobbySessionId: body.lobbySessionId,
-        },
-      });
-      if (currentScore) {
-        const newScore = currentScore.score + balanceChange;
-        await prismadb.score.update({
-          where: {
-            id: currentScore.id,
-          },
-          data: {
-            score: newScore,
-          },
-        });
-        return new NextResponse('', { status: 200 });
-      } else {
-        return new NextResponse('No balance Found!', { status: 401 });
-      }
-    } else if (receivedType === '2eb') {
-      let displayScores = null;
-      const balanceChange = body.balanceChange;
-      // if (balanceChange > Math.ceil(lastBet * 2.5)) {
-      //   return new NextResponse('Unauthorized', { status: 401 });
-      // }
-      const currentScore = await prismadb.score.findFirst({
-        where: {
-          userId: userId,
-          gameId: body.gameId,
-          lobbySessionId: body.lobbySessionId,
-        },
-      });
-      if (currentScore) {
-        const newScore = currentScore.score + balanceChange;
-        if (balanceChange !== 0) {
-          await prismadb.score.update({
-            where: {
-              id: currentScore.id,
-            },
-            data: {
-              score: currentScore.score + balanceChange,
-            },
-          });
-        }
-
-        if (body.lastHand) {
-          const orderDirection = 'desc';
-
-          //a better score was created so send a new best scores array to be use in the score-table
-          const allScores = await prismadb.score.findMany({
-            where: {
-              lobbySessionId: body.lobbySessionId,
-            },
-            select: {
-              userId: true,
-              username: true,
-              score: true,
-            },
-            orderBy: [
-              {
-                score: orderDirection,
-              },
-              {
-                createdAt: 'asc',
-              },
-            ],
-          });
-          const bestScoresArray = processBestScores({
-            allScores,
-            orderDirection,
-          });
-
-          displayScores = prepareScoresForDisplay(bestScoresArray, userId);
-          if (displayScores[0].userId !== userId || displayScores[0].score !== newScore) {
-            return new NextResponse('No balance Found!', { status: 401 });
-          }
-          return new NextResponse(JSON.stringify({ displayScores: displayScores }));
-        } else {
-          return new NextResponse('', { status: 200 });
-        }
-      } else {
-        return new NextResponse('No balance Found!', { status: 401 });
-      }
+      return new NextResponse(JSON.stringify({ gameSessionId: gameSession.id }));
     }
 
     // else if (receivedType === '0') {
