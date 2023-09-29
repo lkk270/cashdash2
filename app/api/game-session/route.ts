@@ -232,8 +232,6 @@ export async function POST(req: Request) {
               }
               await transaction;
             } else {
-              console.log('in 233');
-
               await prismadb.gameAverageScore.updateMany({
                 where: {
                   userId: userId,
@@ -248,7 +246,6 @@ export async function POST(req: Request) {
               });
             }
           } else {
-            console.log('in 221');
             transaction = prismadb.$transaction([
               prismadb.gameAverageScore.create({
                 data: {

@@ -159,6 +159,8 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
             userId: userId,
             username: user.username || '',
             score: 1000,
+            betTotalHand1: 0,
+            betTotalHand2: 0,
           };
           allScores.push(score);
           await prismadb.score.create({

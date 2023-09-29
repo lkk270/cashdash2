@@ -5,12 +5,13 @@ import prismadb from '@/lib/prismadb';
 export const createGameSession = async (
   userId: string,
   gameId: string,
-  lobbySessionId: string
+  lobbySessionId: string,
+  secondsFromNow: number = 3599
 ): Promise<string> => {
   const currentDate = new Date();
 
   const expiresAt = currentDate;
-  expiresAt.setSeconds(expiresAt.getSeconds() + 3599); // 59 minutes 59 seconds from now
+  expiresAt.setSeconds(expiresAt.getSeconds() + secondsFromNow); // 59 minutes 59 seconds from now
 
   const gameSession = await prismadb.gameSession.create({
     data: {
@@ -29,7 +30,12 @@ export const findScore = async (
   userId: string,
   gameId: string,
   lobbySessionId: string
-): Promise<{ id: string; score: number } | null> => {
+): Promise<{
+  id: string;
+  score: number;
+  betTotalHand1?: number | null | undefined;
+  betTotalHand2?: number | null | undefined;
+} | null> => {
   const currentScore = await prismadb.score.findFirst({
     where: {
       userId: userId,
@@ -40,7 +46,19 @@ export const findScore = async (
   if (!currentScore) {
     return null;
   }
-  return { id: currentScore.id, score: currentScore.score };
+  if (typeof currentScore.betTotalHand1 === 'number' && currentScore.betTotalHand1 >= 0) {
+    return {
+      id: currentScore.id,
+      score: currentScore.score,
+      betTotalHand1: currentScore.betTotalHand1,
+      betTotalHand2: currentScore.betTotalHand2,
+    };
+  } else {
+    return {
+      id: currentScore.id,
+      score: currentScore.score,
+    };
+  }
 };
 
 export const getAllScores = async (

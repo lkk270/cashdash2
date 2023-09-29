@@ -11,7 +11,6 @@ import { useToast } from '@/components/ui/use-toast';
 import { initializeGrid } from '@/lib/minesweeper-utils';
 import { generateResponseHash } from '@/lib/hash';
 import { CellType } from '@/app/types';
-import { useRouter } from 'next/navigation';
 
 interface MinesweeperProps {
   userBestScoreParam: ModifiedScoreType | null;
@@ -47,7 +46,6 @@ export const Minesweeper = ({
   const [gameSessionId, setGameSessionId] = useState<string>('');
   const [startTime, setStartTime] = useState<number>(0);
   const [userBestScore, setUserBestScore] = useState<ModifiedScoreType | null>(userBestScoreParam);
-  const router = useRouter();
 
   const { toast } = useToast();
   let gameStatus: 'won' | 'lost' | 'regular' = 'regular';
@@ -96,13 +94,12 @@ export const Minesweeper = ({
         })
         .catch((error) => {
           if (error.response.data && error.response.status === 302) {
-            // router.push(backPath);
-            router.refresh();
             toast({
               description: error.response.data,
               variant: 'warning',
               duration: 7500,
             });
+            window.location.reload();
           }
 
           toast({

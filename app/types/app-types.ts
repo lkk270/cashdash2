@@ -18,6 +18,8 @@ export type ModifiedScoreType = {
   userId: string;
   username: string;
   score: number;
+  betTotalHand1?: number;
+  betTotalHand2?: number;
   rank?: number;
 };
 

@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
 import Phaser from 'phaser';
 import axios from 'axios';
 
@@ -27,11 +26,10 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
   const [userBestScore, setUserBestScore] = useState<ModifiedScoreType | null>(
     props.userBestScoreParam
   );
-  const router = useRouter();
   const { toast } = useToast();
   const gameSessionIdRef = useRef();
   const userBestScoreRef = useRef(userBestScore);
-  const gameRef = useRef<Phaser.Game | null>(null);
+  // const gameRef = useRef<Phaser.Game | null>(null);
 
   const setPulsing = (shouldPulse: boolean) => {
     const gameElement = document.getElementById('phaser-game');
@@ -42,12 +40,12 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
         gameElement.classList.remove('pulsing');
 
         // Notify the scene that the pulsing is done.
-        if (gameRef.current) {
-          const scene = gameRef.current.scene.getScene('FlappyBirdScene');
-          if (scene && scene instanceof FlappyBirdScene) {
-            scene.pulseCompleted();
-          }
-        }
+        // if (gameRef.current) {
+        //   const scene = gameRef.current.scene.getScene('FlappyBirdScene');
+        //   if (scene && scene instanceof FlappyBirdScene) {
+        //     scene.pulseCompleted();
+        //   }
+        // }
       }
     }
   };
@@ -99,13 +97,12 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
       .catch((error) => {
         // const backPath = pathname.split('/').slice(0, -1).join('/');
         if (error.response.data && error.response.status === 302) {
-          // router.push(backPath);
-          router.refresh();
           toast({
             description: error.response.data,
             variant: 'warning',
             duration: 7500,
           });
+          window.location.reload();
         } else {
           toast({
             description: error.response ? error.response.data : 'Network Error',
@@ -158,7 +155,7 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
     };
 
     const game = new Phaser.Game(config);
-    gameRef.current = game;
+    // gameRef.current = game;
 
     return () => {
       game.destroy(true); // Clean up on component unmount
