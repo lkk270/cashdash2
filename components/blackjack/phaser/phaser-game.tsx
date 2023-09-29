@@ -98,6 +98,8 @@ const PhaserGame = ({ props }: BlackjackProps) => {
       changeType: changeType,
       handNum: handNum,
     };
+    console.log(updatedIds);
+    console.log(gameSessionIdRef.current);
     axios.post('/api/game-sessionb', updatedIds).catch((error) => {
       if (error.response.data && error.response.status === 302) {
         toast({

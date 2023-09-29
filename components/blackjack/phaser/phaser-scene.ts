@@ -1681,19 +1681,19 @@ class BlackjackScene extends Phaser.Scene {
 
   dealCards() {
     //deals the first cards
-    this.playerHands = [['spades10', 'hearts10']];
+    this.playerHands = [[this.cards.pop(), this.cards.pop()]];
     this.dealerHand = ['back', this.cards.pop()];
 
     // Display first player card
     this.displayCards([this.playerHands[0][0]], CARD_INITIAL_X, PLAYER_CARD_Y, false);
 
     // Delay for next card
-    this.time.delayedCall(400, () => {
+    this.time.delayedCall(500, () => {
       // Display first dealer card
       this.displayCards([this.dealerHand[0]], CARD_INITIAL_X, DEALER_CARD_Y, true);
 
       // Delay for next card
-      this.time.delayedCall(400, () => {
+      this.time.delayedCall(550, () => {
         // Display second player card
         this.displayCards(
           [this.playerHands[0][1]],
@@ -1703,7 +1703,7 @@ class BlackjackScene extends Phaser.Scene {
         );
 
         // Delay for last card
-        this.time.delayedCall(400, () => {
+        this.time.delayedCall(550, () => {
           // Display second dealer card
           this.displayCards(
             [this.dealerHand[1]],
@@ -1712,7 +1712,7 @@ class BlackjackScene extends Phaser.Scene {
             true
           );
 
-          this.time.delayedCall(400, () => {
+          this.time.delayedCall(550, () => {
             this.playerHandsValues[0] = this.calculateHandValue(this.playerHands[0]);
             this.dealerHandValue = this.calculateHandValue(this.dealerHand);
             const circleTextObjPlayer = this.createTextInCircle(
@@ -1730,7 +1730,7 @@ class BlackjackScene extends Phaser.Scene {
             this.currentDealerHandValueCircle = circleTextObjDealer.container;
             this.currentDealerHandValueText = circleTextObjDealer.text;
 
-            this.time.delayedCall(400, () => {
+            this.time.delayedCall(650, () => {
               const playersHandValue = this.playerHandsValues[this.activePlayerHandIndex];
               const playerHasBlackjack =
                 playersHandValue === 21 &&
