@@ -5,6 +5,7 @@ import Phaser from 'phaser';
 import axios from 'axios';
 
 import { generateResponseHash } from '@/lib/hash';
+import { processBestScores, prepareScoresForDisplay } from '@/lib/scores';
 import { ModifiedScoreType } from '@/app/types';
 //import { BlackjackScene, HomeScene } from './phaser-scene';
 import { BlackjackScene } from './phaser-scene';
@@ -13,7 +14,8 @@ import { useToast } from '@/components/ui/use-toast';
 
 interface BlackjackProps {
   props: {
-    userBestScoreParam: ModifiedScoreType | null;
+    top100Scores: ModifiedScoreType[]; //Will always contain the user's score (even if it's not  top 100 it's included (like all games) and for balance games, if it's the first time the user is playing for the session, the score is initialized already )
+    userBestScoreParam: ModifiedScoreType;
     setScores: (scores: ModifiedScoreType[]) => void;
     setTriggerAnimation: (animate: boolean) => void;
     ids: {
@@ -24,9 +26,7 @@ interface BlackjackProps {
 }
 
 const PhaserGame = ({ props }: BlackjackProps) => {
-  const [userBestScore, setUserBestScore] = useState<ModifiedScoreType | null>(
-    props.userBestScoreParam
-  );
+  const [userBestScore, setUserBestScore] = useState<ModifiedScoreType>(props.userBestScoreParam);
   const queriedBalance = userBestScore ? userBestScore.score : 1000; //used as a safeguard in case server side fails
   const { toast } = useToast();
   const gameSessionIdRef = useRef();
@@ -140,10 +140,10 @@ const PhaserGame = ({ props }: BlackjackProps) => {
     axios
       .post('/api/game-sessionb', updatedIds)
       .then((response) => {
-        const displayScore = response.data.displayScores;
-        if (displayScore && lastHand) {
-          props.setScores(displayScore);
-          setUserBestScore(displayScore[0]);
+        const displayScores = response.data.displayScores;
+        if (displayScores && lastHand) {
+          props.setScores(displayScores);
+          setUserBestScore(displayScores[0]);
           props.setTriggerAnimation(true);
         }
       })
@@ -168,6 +168,21 @@ const PhaserGame = ({ props }: BlackjackProps) => {
           gameEvents.emit('gameEnded'); // Emit the gameEnded event
         }
       });
+  };
+
+  const setUserBestScoreNoApi = (newBalance: number) => {
+    const top100ScoresTemp = props.top100Scores;
+    const userBestScoreTemp = userBestScore;
+    userBestScoreTemp.score = newBalance;
+    top100ScoresTemp[0] = userBestScoreTemp;
+    setUserBestScore(userBestScoreTemp);
+    const bestScoresArray = processBestScores({
+      allScores: props.top100Scores,
+      orderDirection: 'desc',
+    });
+    const displayScores = prepareScoresForDisplay(bestScoresArray, userBestScoreTemp.userId);
+    props.setScores(displayScores);
+    props.setTriggerAnimation(true);
   };
 
   useEffect(() => {
@@ -199,6 +214,7 @@ const PhaserGame = ({ props }: BlackjackProps) => {
           onGameStart,
           onBalanceChange,
           onHandEnd,
+          setUserBestScoreNoApi,
           queriedBalance
         ),
       ],

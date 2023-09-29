@@ -11,7 +11,7 @@ import prismadb from '@/lib/prismadb';
 
 const acceptedTypesObj: { [key: string]: number } = {
   '05b': 5,
-  '1ub': 7,
+  '1ub': 8,
   '2eb': 10,
 };
 
@@ -38,11 +38,12 @@ export async function POST(req: Request) {
       !validType ||
       acceptedTypesObj[receivedType] != bodyLength
     ) {
-      return new NextResponse('Invalid body', { status: 400 });
+      return new NextResponse('Invalid body1', { status: 400 });
     }
     const currentScore = await findScore(userId, body.gameId, body.lobbySessionId);
     const currentBalance = body.currentBalance; //startBalance - chip amount
     const balanceChange = body.balanceChange; //a negative value
+    const changeType = body.changeType;
 
     if (!currentScore) {
       return new NextResponse('Internal Server Error, no balance found', { status: 500 });
@@ -51,9 +52,27 @@ export async function POST(req: Request) {
     const newScore = currentScoreScore + balanceChange;
 
     if (
+      !changeType &&
       currentBalance - balanceChange !== currentScoreScore &&
       (receivedType === '05b' || receivedType === '1ub')
     ) {
+      //currentBalance is the balance of the game after the first deal.
+      //So to compare it to currentScoreScore which has not been changed yet because the
+      //hand has just started, subtract the negative balanceChange (we add back) the
+      //balanceChange to the currentBalance
+      return new NextResponse('State out of sync, attempting refresh', {
+        status: 302,
+      });
+    }
+
+    if (
+      (changeType === 's' || changeType === 'd') &&
+      currentBalance !== currentScoreScore &&
+      (receivedType === '05b' || receivedType === '1ub')
+    ) {
+      //because for a split or a double down, the onBalanceChange function
+      //is called before this.balance can be modified, due to built in animation delays,
+      //unlike the previous if, here we check if currentBalance is equal to currentScoreScore
       return new NextResponse('State out of sync, attempting refresh', {
         status: 302,
       });
@@ -86,9 +105,15 @@ export async function POST(req: Request) {
       const handNum = body.handNum;
 
       if (handNum !== 0 && handNum !== 1) {
-        return new NextResponse('Invalid body', { status: 400 });
+        return new NextResponse('Invalid body2', { status: 400 });
       }
-      if (!currentScore.betTotalHand1 || !currentScore.betTotalHand2) {
+
+      if (
+        typeof currentScore.betTotalHand1 !== 'number' ||
+        currentScore.betTotalHand1 < 0 ||
+        typeof currentScore.betTotalHand2 !== 'number' ||
+        currentScore.betTotalHand2 < 0
+      ) {
         //even if there isn't a second hand, it should have still been initialized as 0
         return new NextResponse('Internal server error 97', { status: 500 });
       }
@@ -102,7 +127,6 @@ export async function POST(req: Request) {
         });
       }
       if (receivedType === '1ub') {
-        const changeType = body.changeType;
         let newData: { score: typeof newScore; betTotalHand1?: number; betTotalHand2?: number } = {
           score: newScore,
         };

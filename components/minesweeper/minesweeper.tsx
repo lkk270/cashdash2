@@ -81,10 +81,10 @@ export const Minesweeper = ({
           });
         })
         .then((response) => {
-          const displayScore = response.data.displayScores;
-          if (displayScore) {
-            setScores(displayScore);
-            setUserBestScore(displayScore[0]);
+          const displayScores = response.data.displayScores;
+          if (displayScores) {
+            setScores(displayScores);
+            setUserBestScore(displayScores[0]);
             setTriggerAnimation(true);
             toast({
               description: response.data.message,

@@ -88,11 +88,6 @@ export const ScoreChart = ({ scores, userGameAverageScores }: ScoreChartProps) =
   };
 
   const gameNames = Object.keys(games);
-  let gameNames2 = Object.keys(games);
-  for (let i = 0; i < 20; i++) {
-    gameNames2.push('testicles' + i.toString());
-  }
-
   if (gameNames.length > 0 && !activeTab) {
     setActiveTab(gameNames[0]);
   }

@@ -80,6 +80,7 @@ class BlackjackScene extends Phaser.Scene {
     handNum: 0 | 1,
     pm: number
   ) => void;
+  setUserBestScoreNoApi: (newBalance: number) => void;
   queriedBalance: number;
   private balance: number;
   private balanceText: Phaser.GameObjects.Text | null = null;
@@ -141,12 +142,14 @@ class BlackjackScene extends Phaser.Scene {
       handNum: 0 | 1,
       pm: number
     ) => void,
+    setUserBestScoreNoApi: (newBalance: number) => void,
     queriedBalance: number
   ) {
     super({ key: 'BlackjackScene', ...config });
     this.onGameStart = onGameStart;
     this.onBalanceChange = onBalanceChange;
     this.onHandEnd = onHandEnd;
+    this.setUserBestScoreNoApi = setUserBestScoreNoApi;
     this.queriedBalance = queriedBalance;
     this.balance = this.queriedBalance;
     // this.mainContainer = this.add.container();
@@ -1121,7 +1124,7 @@ class BlackjackScene extends Phaser.Scene {
   }
 
   decideWinner(splitEnd = false) {
-    const lastHand = splitEnd || !this.splitInProgress ? true : false;
+    const lastHand = splitEnd === false || !this.splitInProgress ? true : false;
     let playerBanner = null;
     let dealerBanner = null;
     let value = this.selectedChipsTotal[this.activePlayerHandIndex];
@@ -1188,6 +1191,8 @@ class BlackjackScene extends Phaser.Scene {
         handNum,
         pm
       );
+    } else if (this.setUserBestScoreNoApi && value === 0) {
+      this.setUserBestScoreNoApi(this.balance);
     }
 
     this.displayBanner(playerBanner, dealerBanner);
@@ -1676,7 +1681,7 @@ class BlackjackScene extends Phaser.Scene {
 
   dealCards() {
     //deals the first cards
-    this.playerHands = [[this.cards.pop(), this.cards.pop()]];
+    this.playerHands = [['spades10', 'hearts10']];
     this.dealerHand = ['back', this.cards.pop()];
 
     // Display first player card

@@ -174,8 +174,6 @@ export async function POST(req: Request) {
           let transaction; //make use of transaction - all updates/creates have to succeed for them to all succeed
 
           if (currentGameAverageScore) {
-            console.log('IN HERE');
-
             const newTimesPlayed = currentGameAverageScore.timesPlayed + 1;
             newAverageScore =
               (currentGameAverageScore.averageScore * currentGameAverageScore.timesPlayed +
@@ -198,8 +196,6 @@ export async function POST(req: Request) {
               (game.scoreType === ScoreType.points &&
                 newAverageScore > currentGameAverageScore.averageScore)
             ) {
-              console.log('in 201');
-
               //means score is better and the current score should be updated
               const currentScore = await findScore(
                 userId,
@@ -275,7 +271,6 @@ export async function POST(req: Request) {
             (game.scoreType === ScoreType.points && body.score > body.userBestScore.score) ||
             (game.scoreType === ScoreType.time && body.score < body.userBestScore.score)
           ) {
-            console.log(body);
             const orderDirection = game.scoreType === ScoreType.time ? 'asc' : 'desc';
 
             const allScores = await getAllScores(gameSession.lobbySessionId, orderDirection);

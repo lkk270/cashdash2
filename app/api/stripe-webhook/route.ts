@@ -60,8 +60,8 @@ export async function POST(req: Request) {
     });
     const externalAccountId =
       externalAccounts.data.length > 0 ? externalAccounts.data[0].id : undefined;
-    console.log(externalAccounts);
-    console.log(externalAccountId);
+    // console.log(externalAccounts);
+    // console.log(externalAccountId);
     const userId = session?.metadata?.userId;
     if (!userId) {
       return new NextResponse('User id is required', { status: 400 });

@@ -83,10 +83,10 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
         });
       })
       .then((response) => {
-        const displayScore = response.data.displayScores;
-        if (displayScore) {
-          props.setScores(displayScore);
-          userBestScoreRef.current = displayScore[0];
+        const displayScores = response.data.displayScores;
+        if (displayScores) {
+          props.setScores(displayScores);
+          userBestScoreRef.current = displayScores[0];
           props.setTriggerAnimation(true);
           toast({
             description: response.data.message,
