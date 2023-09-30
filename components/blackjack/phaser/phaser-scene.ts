@@ -65,7 +65,7 @@ const CHIP_OFFSETS = [0, -5, -10];
 
 // Game Scene
 class BlackjackScene extends Phaser.Scene {
-  onGameStart: (currentBalance: number, balanceChange: number) => void;
+  onGameStart: (currentBalance: number, balanceChange: number) => Promise<void>;
   onBalanceChange: (
     currentBalance: number,
     balanceChange: number,
@@ -127,7 +127,7 @@ class BlackjackScene extends Phaser.Scene {
   private gameStarted: boolean = false;
   constructor(
     config: Phaser.Types.Scenes.SettingsConfig,
-    onGameStart: (currentBalance: number, balanceChange: number) => void,
+    onGameStart: (currentBalance: number, balanceChange: number) => Promise<void>,
     onBalanceChange: (
       currentBalance: number,
       balanceChange: number,
@@ -740,27 +740,29 @@ class BlackjackScene extends Phaser.Scene {
     });
   }
 
-  onDealButtonClicked() {
-    this.dealInProgress = true;
-    this.lastBetAmount = this.selectedChipsTotal[this.activePlayerHandIndex];
-    if (this.lastBetAmount > 0) {
-      if (!this.gameStarted) {
-        if (this.onGameStart) {
-          this.onGameStart(this.balance, -this.lastBetAmount);
-        }
-        this.gameStarted = true;
-      }
-    }
+  async onDealButtonClicked() {
     this.dealButton?.setVisible(false).disableInteractive();
     this.allInButton?.setVisible(false).disableInteractive();
     this.clearBetButton?.setVisible(false).disableInteractive();
 
-    // Animate balanceText to the top-left
+    this.dealInProgress = true;
+    this.lastBetAmount = this.selectedChipsTotal[this.activePlayerHandIndex];
     this.toggleBalanceText();
     this.toggleMainContainer();
-    this.time.delayedCall(400, () => {
-      this.dealCards();
-    });
+    if (this.lastBetAmount > 0) {
+      if (!this.gameStarted) {
+        if (this.onGameStart) {
+          try {
+            await this.onGameStart(this.balance, -this.lastBetAmount); // Wait until onGameStart completes.
+            this.gameStarted = true;
+            this.dealCards();
+          } catch (error) {
+            window.location.reload();
+            // Handle any errors from onGameStart here if needed.
+          }
+        }
+      }
+    }
   }
 
   createSplitChip() {
@@ -1693,7 +1695,7 @@ class BlackjackScene extends Phaser.Scene {
       this.displayCards([this.dealerHand[0]], CARD_INITIAL_X, DEALER_CARD_Y, true);
 
       // Delay for next card
-      this.time.delayedCall(550, () => {
+      this.time.delayedCall(500, () => {
         // Display second player card
         this.displayCards(
           [this.playerHands[0][1]],
@@ -1703,7 +1705,7 @@ class BlackjackScene extends Phaser.Scene {
         );
 
         // Delay for last card
-        this.time.delayedCall(550, () => {
+        this.time.delayedCall(500, () => {
           // Display second dealer card
           this.displayCards(
             [this.dealerHand[1]],
@@ -1712,7 +1714,7 @@ class BlackjackScene extends Phaser.Scene {
             true
           );
 
-          this.time.delayedCall(550, () => {
+          this.time.delayedCall(500, () => {
             this.playerHandsValues[0] = this.calculateHandValue(this.playerHands[0]);
             this.dealerHandValue = this.calculateHandValue(this.dealerHand);
             const circleTextObjPlayer = this.createTextInCircle(
@@ -1730,7 +1732,7 @@ class BlackjackScene extends Phaser.Scene {
             this.currentDealerHandValueCircle = circleTextObjDealer.container;
             this.currentDealerHandValueText = circleTextObjDealer.text;
 
-            this.time.delayedCall(650, () => {
+            this.time.delayedCall(500, () => {
               const playersHandValue = this.playerHandsValues[this.activePlayerHandIndex];
               const playerHasBlackjack =
                 playersHandValue === 21 &&

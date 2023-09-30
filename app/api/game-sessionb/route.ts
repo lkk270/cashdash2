@@ -86,7 +86,12 @@ export async function POST(req: Request) {
     }
 
     if (receivedType === '05b') {
-      const gameSessionId = await createGameSession(userId, body.gameId, body.lobbySessionId, 150);
+      const gameSessionId = await createGameSession(
+        userId,
+        body.gameId,
+        body.lobbySessionId,
+        36000
+      );
       //for balance games like blackjack need to update the balance (score)
 
       await prismadb.score.update({

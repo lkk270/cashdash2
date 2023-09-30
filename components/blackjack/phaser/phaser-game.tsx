@@ -52,32 +52,25 @@ const PhaserGame = ({ props }: BlackjackProps) => {
   };
 
   const onGameStart = (currentBalance: number, balanceChange: number) => {
-    const updatedIds = {
-      ...props.ids,
-      at: '05b',
-      balanceChange: balanceChange,
-      currentBalance: currentBalance,
-    };
-    axios
-      .post('/api/game-sessionb', updatedIds)
-      .then((response) => {
-        gameSessionIdRef.current = response.data.gameSessionId;
-      })
-      .catch((error) => {
-        if (error.response.data && error.response.status === 302) {
-          toast({
-            description: error.response.data,
-            variant: 'warning',
-            duration: 7500,
-          });
-          window.location.reload();
-        } else {
-          toast({
-            description: error.response ? error.response.data : 'Network Error',
-            variant: 'destructive',
-          });
-        }
-      });
+    return new Promise<void>((resolve, reject) => {
+      const updatedIds = {
+        ...props.ids,
+        at: '05b',
+        balanceChange: balanceChange,
+        currentBalance: currentBalance,
+      };
+
+      axios
+        .post('/api/game-sessionb', updatedIds)
+        .then((response) => {
+          gameSessionIdRef.current = response.data.gameSessionId;
+          resolve(); // Promise is resolved here.
+        })
+        .catch((error) => {
+          // Handle the error...
+          reject(error); // Promise is rejected here.
+        });
+    });
   };
 
   const onBalanceChange = (

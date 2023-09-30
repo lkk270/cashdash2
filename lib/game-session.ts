@@ -10,8 +10,26 @@ export const createGameSession = async (
 ): Promise<string> => {
   const currentDate = new Date();
 
-  const expiresAt = currentDate;
-  expiresAt.setSeconds(expiresAt.getSeconds() + secondsFromNow); // 59 minutes 59 seconds from now
+  // Calculate the desired expiration time
+  const desiredExpiresAt = new Date(currentDate.getTime() + secondsFromNow * 1000);
+
+  // Fetch the lobbySession to get its expiration date
+  const lobbySession = await prismadb.lobbySession.findUnique({
+    where: {
+      id: lobbySessionId,
+    },
+  });
+
+  if (!lobbySession || !lobbySession.expiredDateTime) {
+    throw new Error('Lobby session not found or it doesn’t have an expiredAtDateTime');
+  }
+
+  // Convert lobbySession's expiredAtDateTime (assuming it's a string) to a Date object
+  const lobbySessionExpiresAt = new Date(lobbySession.expiredDateTime);
+
+  // Set expiresAt to the earlier of the two dates
+  const expiresAt =
+    desiredExpiresAt < lobbySessionExpiresAt ? desiredExpiresAt : lobbySessionExpiresAt;
 
   const gameSession = await prismadb.gameSession.create({
     data: {
@@ -23,6 +41,7 @@ export const createGameSession = async (
       startedAt: Date.now(),
     },
   });
+
   return gameSession.id;
 };
 
