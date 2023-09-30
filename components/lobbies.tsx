@@ -15,6 +15,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Card, CardFooter, CardHeader } from '@/components/ui/card';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { CardSkeleton } from '@/components/skeletons/card-skeleton';
+import { EmptyState } from '@/components/empty-state';
 
 interface LobbiesProps {
   data: Game & {
@@ -92,7 +93,7 @@ export const Lobbies = ({ data }: LobbiesProps) => {
       <div className="grid justify-center grid-cols-1 gap-2 pb-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
         {data.lobbies.map((item) => {
           if (!item.sessions[0]) {
-            return <div></div>;
+            return <EmptyState title="Uh Oh" subtitle="Something went wrong!" />;
           }
           const accessResult = accessResults[item.id];
           let disableCard = accessResult ? !accessResult.isValid : true;

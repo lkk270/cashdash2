@@ -11,6 +11,7 @@ import { LobbyAboutModal } from '@/components/modals/lobby-about-modal';
 import { UserCashModal } from '@/components/modals/user-cash-modal';
 import { LinkStripeAboutModal } from '@/components/modals/link-stripe-about-modal';
 import { UserPayoutHistoryModal } from '@/components/modals/payout-history-modal';
+import { GamePlaygroundInfoModal } from '@/components/modals/game-playground-info-modal';
 
 import './globals.css';
 
@@ -39,6 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <LinkStripeAboutModal />
             <ProModal />
             <UserPayoutHistoryModal />
+            <GamePlaygroundInfoModal />
             {children}
             <Toaster />
           </ThemeProvider>

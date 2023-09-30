@@ -8,7 +8,8 @@ import Loader from '@/components/loader';
 
 interface BlackjackProps {
   props: {
-    userBestScoreParam: ModifiedScoreType | null;
+    top100Scores: ModifiedScoreType[];
+    userBestScoreParam: ModifiedScoreType;
     setScores: (scores: ModifiedScoreType[]) => void;
     setTriggerAnimation: (animate: boolean) => void;
     ids: {

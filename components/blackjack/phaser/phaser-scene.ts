@@ -65,14 +65,14 @@ const CHIP_OFFSETS = [0, -5, -10];
 
 // Game Scene
 class BlackjackScene extends Phaser.Scene {
-  onGameStart: (currentBalance: number, balanceChange: number) => Promise<void>;
-  onBalanceChange: (
+  onGameStart?: (currentBalance: number, balanceChange: number) => Promise<void>;
+  onBalanceChange?: (
     currentBalance: number,
     balanceChange: number,
     changeType: 'd' | 's',
     handNum: 0 | 1
   ) => void;
-  onHandEnd: (
+  onHandEnd?: (
     currentBalance: number,
     balanceChange: number,
     betValue: number,
@@ -80,7 +80,7 @@ class BlackjackScene extends Phaser.Scene {
     handNum: 0 | 1,
     pm: number
   ) => void;
-  setUserBestScoreNoApi: (newBalance: number) => void;
+  setUserBestScoreNoApi?: (newBalance: number) => void;
   queriedBalance: number;
   private balance: number;
   private balanceText: Phaser.GameObjects.Text | null = null;
@@ -125,31 +125,45 @@ class BlackjackScene extends Phaser.Scene {
   private handlePlayerHitDelay: number = 500;
   private loading: boolean = false;
   private gameStarted: boolean = false;
+  private replenishText: Phaser.GameObjects.Text | null = null;
   constructor(
     config: Phaser.Types.Scenes.SettingsConfig,
-    onGameStart: (currentBalance: number, balanceChange: number) => Promise<void>,
-    onBalanceChange: (
-      currentBalance: number,
-      balanceChange: number,
-      changeType: 'd' | 's',
-      handNum: 0 | 1
-    ) => void,
-    onHandEnd: (
-      currentBalance: number,
-      balanceChange: number,
-      betValue: number,
-      lastHand: boolean,
-      handNum: 0 | 1,
-      pm: number
-    ) => void,
-    setUserBestScoreNoApi: (newBalance: number) => void,
+    onGameStart: ((currentBalance: number, balanceChange: number) => Promise<void>) | null,
+    onBalanceChange:
+      | ((
+          currentBalance: number,
+          balanceChange: number,
+          changeType: 'd' | 's',
+          handNum: 0 | 1
+        ) => void)
+      | null,
+    onHandEnd:
+      | ((
+          currentBalance: number,
+          balanceChange: number,
+          betValue: number,
+          lastHand: boolean,
+          handNum: 0 | 1,
+          pm: number
+        ) => void)
+      | null,
+    setUserBestScoreNoApi: ((newBalance: number) => void) | null,
     queriedBalance: number
   ) {
     super({ key: 'BlackjackScene', ...config });
-    this.onGameStart = onGameStart;
-    this.onBalanceChange = onBalanceChange;
-    this.onHandEnd = onHandEnd;
-    this.setUserBestScoreNoApi = setUserBestScoreNoApi;
+    if (onGameStart) {
+      this.onGameStart = onGameStart;
+    }
+    if (onBalanceChange) {
+      this.onBalanceChange = onBalanceChange;
+    }
+    if (onHandEnd) {
+      this.onHandEnd = onHandEnd;
+    }
+    if (setUserBestScoreNoApi) {
+      this.setUserBestScoreNoApi = setUserBestScoreNoApi;
+    }
+
     this.queriedBalance = queriedBalance;
     this.balance = this.queriedBalance;
     // this.mainContainer = this.add.container();
@@ -475,11 +489,62 @@ class BlackjackScene extends Phaser.Scene {
         this.selectedChipsTotal = [0, 0];
         this.selectedChipsTotalText?.setText('$0').setVisible(false);
       }
+
+      if (this.checkIsPlayground()) {
+        this.balance = 1000;
+        this.updateAvailableChips();
+        this.animateReplenishText();
+        this.replenishText?.setVisible(true);
+        this.balanceText?.setText(`Bank: $${this.formatBalance(this.balance)}`);
+      }
       if (this.cards.length < 52) {
         this.createDeck();
         this.shuffleDeck();
       }
     });
+  }
+
+  // Function to animate the replenishText
+  animateReplenishText() {
+    // Slide the text in from the top to the center
+    this.tweens.add({
+      targets: this.replenishText,
+      y: 200,
+      duration: 1000, // Adjust the duration as needed for desired speed
+      onComplete: () => {
+        // Start the fade out tween after a pause
+        setTimeout(() => {
+          this.fadeOut();
+        }, 1500); // 1.5 seconds delay
+      },
+    });
+  }
+
+  // Function to handle the fade out
+  fadeOut() {
+    this.tweens.add({
+      targets: this.replenishText,
+      alpha: 0, // Fade out effect
+      duration: 1000, // Adjust the duration as needed for desired speed
+      onComplete: () => {
+        this.replenishText?.setY(-200); // Reset y position
+        this.replenishText?.setAlpha(1); // Reset alpha to make it visible again
+      },
+    });
+  }
+
+  checkIsPlayground(): boolean {
+    if (
+      this.balance === 0 &&
+      window.location.pathname === '/blackjack-playground' &&
+      !this.onGameStart &&
+      !this.onBalanceChange &&
+      !this.onHandEnd &&
+      !this.setUserBestScoreNoApi
+    ) {
+      return true;
+    }
+    return false;
   }
 
   formatBalance(balance: number): string {
@@ -760,6 +825,9 @@ class BlackjackScene extends Phaser.Scene {
             window.location.reload();
             // Handle any errors from onGameStart here if needed.
           }
+        } else {
+          this.gameStarted = true;
+          this.dealCards();
         }
       }
     }
@@ -1841,6 +1909,14 @@ class BlackjackScene extends Phaser.Scene {
     //add available chips
     this.createChips();
     this.createSplitChip();
+    this.replenishText = this.add
+      .text(CENTER_X, -200, "You've run out of money.\nAnother $1000 has been given!", {
+        fontSize: '32px',
+        align: 'center',
+      })
+      .setOrigin(0.5)
+
+      .setVisible(false);
 
     if (this.allInButton) {
       this.mainContainer.add(this.allInButton);
