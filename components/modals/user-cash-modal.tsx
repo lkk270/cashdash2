@@ -76,7 +76,7 @@ export const UserCashModal = () => {
     if (userCashFloat < 20) {
       toast({
         duration: 6000,
-        description: 'You can only cash out a balance of at least $20',
+        description: 'You must have at least $20 to be able to cash out',
         variant: 'warning',
       });
       return;

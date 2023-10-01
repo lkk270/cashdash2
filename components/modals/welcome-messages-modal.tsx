@@ -28,12 +28,10 @@ export const WelcomeMessagesModal = () => {
   }, []);
 
   useEffect(() => {
-    // Pseudo logic - replace with actual logic based on Clerk's features or your setup
     if (user && user?.createdAt) {
-      localStorage.removeItem(`welcomed-${user.id}`);
       const userCreatedAt = user.createdAt;
       if (
-        areDatesWithinXMinutes(userCreatedAt, new Date(), 90500) &&
+        areDatesWithinXMinutes(userCreatedAt, new Date(), 5) &&
         !localStorage.getItem(`welcomed-${user.id}`)
       ) {
         infoModal.onOpen();

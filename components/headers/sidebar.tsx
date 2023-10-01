@@ -1,6 +1,6 @@
 'use client';
 
-import { Home, Plus, LineChart, Scale, HelpCircle, CreditCard, ShoppingCart } from 'lucide-react';
+import { LineChart, MessageSquarePlus, HelpCircle, CreditCard, Gamepad2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import Logo from '@/components/logo';
 import { usePathname, useRouter } from 'next/navigation';
@@ -26,15 +26,9 @@ export const Sidebar = ({ isPro }: SidebarProps) => {
 
   const routes = [
     {
-      icon: Home,
+      icon: Gamepad2,
       href: '/dashboard',
       label: 'Home',
-      pro: false,
-    },
-    {
-      icon: ShoppingCart,
-      href: '/store',
-      label: 'Store',
       pro: false,
     },
     {
@@ -49,11 +43,10 @@ export const Sidebar = ({ isPro }: SidebarProps) => {
       label: 'Stats',
       pro: false,
     },
-
     {
-      icon: Scale,
-      href: '/legal',
-      label: 'Legal',
+      icon: MessageSquarePlus,
+      href: '/feedback',
+      label: 'Feedback',
       pro: false,
     },
     {
@@ -62,6 +55,12 @@ export const Sidebar = ({ isPro }: SidebarProps) => {
       label: 'About',
       pro: false,
     },
+    // {
+    //   icon: ShoppingCart,
+    //   href: '/store',
+    //   label: 'Store',
+    //   pro: false,
+    // },
   ];
 
   return (
