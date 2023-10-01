@@ -104,6 +104,5 @@ export function absoluteUrl(path: string) {
 export function areDatesWithinXMinutes(date1: Date, date2: Date, minutesApart: number) {
   const minutesApartInMs = minutesApart * 60 * 1000;
   const difference = Math.abs(date1.getTime() - date2.getTime());
-  console.log(difference <= minutesApartInMs);
   return difference <= minutesApartInMs;
 }

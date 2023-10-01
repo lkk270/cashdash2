@@ -5,7 +5,7 @@ import { Sidebar } from '@/components/headers/sidebar';
 import { Menu } from 'lucide-react';
 
 export const MobileSidebar = ({ hide }: { hide?: string }) => {
-  const triggerClassName = hide ? `mr-2  ${hide}:hidden` : 'mr-2';
+  const triggerClassName = hide ? `mr-2 lg:hidden` : 'mr-2';
   return (
     <Sheet>
       <SheetTrigger className={triggerClassName}>
