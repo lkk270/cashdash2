@@ -4,8 +4,8 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Sidebar } from '@/components/headers/sidebar';
 import { Menu } from 'lucide-react';
 
-export const MobileSidebar = ({ hide }: { hide?: boolean }) => {
-  const triggerClassName = hide ? 'mr-2  md:hidden' : 'mr-2';
+export const MobileSidebar = ({ hide }: { hide?: string }) => {
+  const triggerClassName = hide ? `mr-2  ${hide}:hidden` : 'mr-2';
   return (
     <Sheet>
       <SheetTrigger className={triggerClassName}>

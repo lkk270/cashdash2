@@ -17,13 +17,13 @@ export const LobbyClient = () => {
 
       <div className="flex flex-grow">
         {/* Sidebar on the left */}
-        <div className="hidden w-20 mt-16 md:flex">
+        <div className="hidden w-20 mt-16 lg:flex">
           <Sidebar />
         </div>
 
         {/* Main content */}
         <main className="flex-grow">
-          <div className="h-full p-2 space-y-2">
+          <div className="h-full">
             <div className="flex justify-center h-full">
               <Blackjack />
             </div>

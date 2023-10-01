@@ -101,7 +101,7 @@ export const LobbyClient = ({ lobby, game, scoresParam, userBestScore }: LobbyCl
     // <TimerProvider>
     <div className="flex flex-col">
       <GameNavbar scores={scores} game={game} lobby={lobby} />
-      <div className="fixed inset-y-0 flex-col hidden mt-20 w-72 xl:flex">
+      <div className="fixed inset-y-0 flex-col hidden mt-32 w-72 xl:flex">
         <ScoresTable
           setTriggerAnimation={setTriggerAnimationBase}
           triggerAnimation={triggerAnimation}
@@ -111,7 +111,7 @@ export const LobbyClient = ({ lobby, game, scoresParam, userBestScore }: LobbyCl
         />
       </div>
       <main className="flex-grow">
-        <div className="h-full p-2 space-y-2 ">
+        <div className="h-full">
           <div className="flex justify-center h-full">
             {renderGameComponent(gameName, commonProps, commonPropsBlackjack)}
           </div>

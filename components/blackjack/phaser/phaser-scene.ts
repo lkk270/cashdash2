@@ -38,29 +38,29 @@ import { TrendingUp } from 'lucide-react';
 // }
 
 const CHIPS = [
-  { name: 'c1', value: 1, originalX: 101, originalY: 541 },
-  { name: 'c5', value: 5, originalX: 238, originalY: 541 },
-  { name: 'c25', value: 25, originalX: 375, originalY: 541 },
-  { name: 'c50', value: 50, originalX: 512, originalY: 541 },
-  { name: 'c100', value: 100, originalX: 101, originalY: 678 },
-  { name: 'c1000', value: 1000, originalX: 238, originalY: 678 },
-  { name: 'c2000', value: 2000, originalX: 375, originalY: 678 },
+  { name: 'c1', value: 1, originalX: 101, originalY: 491 },
+  { name: 'c5', value: 5, originalX: 238, originalY: 491 },
+  { name: 'c25', value: 25, originalX: 375, originalY: 491 },
+  { name: 'c50', value: 50, originalX: 512, originalY: 491 },
+  { name: 'c100', value: 100, originalX: 101, originalY: 628 },
+  { name: 'c1000', value: 1000, originalX: 238, originalY: 628 },
+  { name: 'c2000', value: 2000, originalX: 375, originalY: 628 },
 ];
 
 const PLACED_CHIP_X = 400;
 const WON_CHIPS_X = PLACED_CHIP_X - 200;
 const CARD_INITIAL_X = 375;
 const CARD_X_SEPARATION = 62.5;
-const CARD_SCALE_FACTOR = 1.25;
-const PLAYER_CARD_Y = 620;
+const CARD_SCALE_FACTOR = 1.15;
+const PLAYER_CARD_Y = 570;
 const DEALER_CARD_Y = 130;
-const CENTER_Y = 375;
+const CENTER_Y = 350;
 const CENTER_X = 450;
 const PLACED_CHIP_X_MULTIPLIER = 2.5;
 const DEALER_BANNER_Y = 150;
-const PLAYER_BANNER_Y = 600;
+const PLAYER_BANNER_Y = 550;
 const CORNER_X = 850;
-const CORNER_Y = 675;
+const CORNER_Y = 625;
 
 const CHIP_OFFSETS = [0, -5, -10];
 
@@ -188,7 +188,7 @@ class BlackjackScene extends Phaser.Scene {
   toggleBalanceText() {
     if (this.balanceText) {
       const targetX = this.balanceText.x === 10 ? 30 : 10;
-      const targetY = this.balanceText.y === 30 ? 370 : 30;
+      const targetY = this.balanceText.y === 30 ? 350 : 30;
 
       this.tweens.add({
         targets: this.balanceText,
@@ -246,7 +246,7 @@ class BlackjackScene extends Phaser.Scene {
       wonTotal -= chipObj.value;
       let clonedChip = this.add
         .sprite(chipObj.originalX, chipObj.originalY, 'chips', chipObj.name)
-        .setScale(0.42)
+        .setScale(0.4)
         .setDepth(100);
       clonedChip.x = WON_CHIPS_X;
       clonedChip.y = -200;
@@ -379,7 +379,7 @@ class BlackjackScene extends Phaser.Scene {
 
       const clonedChip = this.add
         .sprite(chipObj.originalX, chipObj.originalY, 'chips', chipObj.name)
-        .setScale(0.42);
+        .setScale(0.4);
 
       clonedChip
         .setInteractive({
@@ -682,7 +682,7 @@ class BlackjackScene extends Phaser.Scene {
       this.balance -= chipObj.value;
       const clonedChip = this.add
         .sprite(chipObj.originalX, chipObj.originalY, 'chips', chipObj.name)
-        .setScale(0.42);
+        .setScale(0.4);
 
       clonedChip
         .setInteractive({
@@ -761,8 +761,8 @@ class BlackjackScene extends Phaser.Scene {
     // Define color
     graphics.fillStyle(0x11354f, 1);
     // Draw rounded rectangles
-    graphics.fillRoundedRect(20, 340, 575 / 2.75, 125, 10);
-    graphics.fillRoundedRect(20, 440, 575, 310, 10);
+    graphics.fillRoundedRect(20, 320, 575 / 2.75, 125, 10);
+    graphics.fillRoundedRect(20, 420, 575, 310, 10);
 
     this.add.existing(graphics);
     return graphics;
@@ -771,7 +771,7 @@ class BlackjackScene extends Phaser.Scene {
   createAllInButton() {
     if (this.balance < 100000) {
       const x = 125;
-      const y = 415;
+      const y = 395;
       const width = 175;
       const height = 40;
       this.allInButton = this.createButton(x, y, 'All In', width, height);
@@ -787,7 +787,7 @@ class BlackjackScene extends Phaser.Scene {
   createClearBetButton() {
     if (this.balance < 100000) {
       const x = 125;
-      const y = 415;
+      const y = 395;
       const width = 175;
       const height = 40;
       this.clearBetButton = this.createButton(x, y, 'Clear Bet', width, height);
@@ -845,7 +845,7 @@ class BlackjackScene extends Phaser.Scene {
       .sprite(PLACED_CHIP_X, CENTER_Y, 'chips', 'split')
       .setVisible(false)
       .setDepth(1)
-      .setScale(0.42);
+      .setScale(0.4);
 
     // Use setOrigin(0.5) to set the origin of the text to its center
     this.splitValueText = this.add
@@ -860,7 +860,7 @@ class BlackjackScene extends Phaser.Scene {
 
   createChips() {
     this.chips = CHIPS.map((chipObj) => {
-      const chip = this.add.sprite(0, 0, 'chips', chipObj.name).setScale(0.42);
+      const chip = this.add.sprite(0, 0, 'chips', chipObj.name).setScale(0.4);
       chip.setInteractive({
         cursor: 'pointer',
       });
@@ -873,7 +873,7 @@ class BlackjackScene extends Phaser.Scene {
           this.canSelectChip = true; // Allow selections after a delay (in this case, 300ms)
         }, 600);
         // Create a clone of the clicked chip
-        const clonedChip = this.add.sprite(chip.x, chip.y, 'chips', chipObj.name).setScale(0.42);
+        const clonedChip = this.add.sprite(chip.x, chip.y, 'chips', chipObj.name).setScale(0.4);
         // Add the cloned chip to the selected chips array
         (clonedChip as any).originalX = chip.x;
         (clonedChip as any).originalY = chip.y;
@@ -1101,7 +1101,7 @@ class BlackjackScene extends Phaser.Scene {
   }
 
   createHitButton() {
-    this.hitButton = this.createButton(250, 375, 'Hit');
+    this.hitButton = this.createButton(250, CENTER_Y, 'Hit');
     this.hitButton.setVisible(false);
     this.hitButton?.on('pointerdown', () => {
       this.standButton?.setY(CENTER_Y);
@@ -1458,7 +1458,7 @@ class BlackjackScene extends Phaser.Scene {
       : CARD_INITIAL_X - CARD_X_SEPARATION * separationFactor;
     let targetX = startX;
     let targetY = corner ? CORNER_Y : PLAYER_CARD_Y;
-    const scale = corner ? 0.55 : 1.25;
+    const scale = corner ? 0.55 : 1.15;
     const duration = 500;
     for (let i = 0; i < spritesLength; i++) {
       let sprite = this.playerHandsSprites[index][i];
@@ -1627,7 +1627,7 @@ class BlackjackScene extends Phaser.Scene {
 
       const clonedChip = this.add
         .sprite(chipObj.originalX, chipObj.originalY, 'chips', chipObj.name)
-        .setScale(0.42);
+        .setScale(0.4);
 
       clonedChip
         .setInteractive({
@@ -1680,7 +1680,7 @@ class BlackjackScene extends Phaser.Scene {
   }
 
   createSplitButton() {
-    this.splitButton = this.createButton(650, 345, 'Split');
+    this.splitButton = this.createButton(650, CENTER_Y - 30, 'Split');
     this.splitButton.setVisible(false);
     this.splitButton?.on('pointerdown', () => {
       this.splitClicked = true;
@@ -1758,7 +1758,7 @@ class BlackjackScene extends Phaser.Scene {
 
   dealCards() {
     //deals the first cards
-    this.playerHands = [[this.cards.pop(), this.cards.pop()]];
+    this.playerHands = [['spades3', 'hearts3']];
     this.dealerHand = ['back', this.cards.pop()];
 
     // Display first player card
@@ -1793,12 +1793,12 @@ class BlackjackScene extends Phaser.Scene {
             this.playerHandsValues[0] = this.calculateHandValue(this.playerHands[0]);
             this.dealerHandValue = this.calculateHandValue(this.dealerHand);
             const circleTextObjPlayer = this.createTextInCircle(
-              600,
-              465,
+              550,
+              415,
               this.playerHandsValues[0].toString()
             );
             const circleTextObjDealer = this.createTextInCircle(
-              600,
+              550,
               285,
               this.dealerHandValue.toString()
             );
@@ -1986,14 +1986,14 @@ class BlackjackScene extends Phaser.Scene {
     });
 
     this.balanceText = this.add
-      .text(30, 370, `Bank: $${this.formatBalance(this.balance)}`, {
+      .text(30, 350, `Bank: $${this.formatBalance(this.balance)}`, {
         fontSize: '24px',
         fontStyle: 'bold',
       })
       .setOrigin(0, 0.5);
 
     this.selectedChipsTotalText = this.add
-      .text(462.5, 365, '$0', {
+      .text(462.5, 340, '$0', {
         fontSize: '28px',
       })
       .setVisible(false);
@@ -2004,7 +2004,7 @@ class BlackjackScene extends Phaser.Scene {
       cellWidth: 137,
       cellHeight: 137,
       x: -40, // Adjust these to be in the center of the blue area
-      y: 400,
+      y: 350,
     });
 
     // Deal Button

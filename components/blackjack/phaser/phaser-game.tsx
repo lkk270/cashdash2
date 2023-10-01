@@ -183,7 +183,7 @@ const PhaserGame = ({ props }: BlackjackProps) => {
   useEffect(() => {
     // onGameLoad();
     let gameWidth = 900;
-    let gameHeight = 750;
+    let gameHeight = 700;
     let rescale = false;
     // if (window.innerHeight / window.innerWidth > 1.5) {
     //   gameWidth = 600;

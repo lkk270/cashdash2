@@ -37,9 +37,11 @@ export const GameNavbar = ({ lobby, game, scores }: LobbyHeaderProps) => {
     startDateTime: lobby.sessions[0].startDateTime,
   };
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    //     <div className="fixed z-50 flex items-center justify-between w-full h-16 px-4 py-2 border-b border-primary/10 bg-secondary">
+
+    <div className="w-full">
       <div className="flex flex-col h-full p-3 space-y-2">
-        <div className="grid items-center w-full grid-cols-3 pb-4 border-b border-primary/10">
+        <div className="grid items-center w-full grid-cols-3 pb-1 border-b border-primary/10">
           {/* Left content */}
           <div className="z-10 flex items-center">
             <Button
@@ -50,7 +52,7 @@ export const GameNavbar = ({ lobby, game, scores }: LobbyHeaderProps) => {
             >
               <ChevronLeft className="w-8 h-8" />
             </Button>
-            <MobileSidebar hide={false} />
+            <MobileSidebar hide={'lg'} />
             <MobileScoresTable scores={scores} scoreType={game.scoreType} lobby={lobby} />
             <div className="items-center hidden pl-3 lg:flex gap-x-3">
               <CountdownTimer data={countdownData} />

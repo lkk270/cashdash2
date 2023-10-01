@@ -27,7 +27,7 @@ export const GameNavbarPlayground = ({ gameName }: LobbyHeaderProps) => {
         <div className="grid items-center w-full grid-cols-3 pb-4 border-b border-primary/10">
           {/* Left content */}
           <div className="z-10 flex items-center">
-            <MobileSidebar hide={true} />
+            <MobileSidebar hide={'lg'} />
             <Button title="Details" onClick={() => infoModal.onOpen()} size="icon" variant="ghost">
               <Info className="w-5 h-5" />
             </Button>

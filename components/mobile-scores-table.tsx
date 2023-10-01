@@ -16,7 +16,7 @@ interface MobileScoresTableProps {
 export const MobileScoresTable = ({ lobby, scoreType, scores }: MobileScoresTableProps) => {
   return (
     <Sheet>
-      <SheetTrigger className=" xl:hidden">
+      <SheetTrigger className="xl:hidden">
         <BarChart4 />
       </SheetTrigger>
       <SheetContent side="left" className="p-0 pt-10 w-72 bg-secondary">
