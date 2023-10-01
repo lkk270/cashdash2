@@ -87,6 +87,7 @@ export const Sidebar = ({ isPro }: SidebarProps) => {
               {(index === 2 || index === 5) && <Separator className="bg-primary/10" />}
             </div>
           ))}
+          <div className="text-xs text-center text-primary/10">cashdash © 2023</div>
         </div>
       </div>
     </div>
