@@ -12,7 +12,7 @@ export const DashboardLayout = async ({
     userStripeAccount?: UserStripeAccount;
   };
   children: React.ReactNode;
-}) => {
+}) => {  
   return (
     <div className="h-full">
       <Navbar userValues={userValues} />
