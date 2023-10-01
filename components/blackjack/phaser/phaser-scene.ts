@@ -1909,7 +1909,7 @@ class BlackjackScene extends Phaser.Scene {
       .text(
         0, // Centered relative to the container
         -300, // Adjusting for vertical alignment within the new rectangle size
-        "You've run out of money :(\nThe next session isn't yet available,\nso either pick another game to play\nor you can continue to play blackjack\nin a playground environment.",
+        "You have run out of money :(\nThe next session isn't yet available,\nso either pick a different game to play\nor you can continue to play blackjack\nin a playground environment.",
         {
           fontSize: '20px',
           align: 'left',
@@ -1968,8 +1968,8 @@ class BlackjackScene extends Phaser.Scene {
     this.createChips();
     this.createSplitChip();
     this.replenishText = this.add
-      .text(CENTER_X, -200, "You've run out of money.\nYou've been given another $1000 👾", {
-        fontSize: '32px',
+      .text(CENTER_X, -200, "You have run out of money.\n Here's another $1000 👾", {
+        fontSize: '28px',
         align: 'center',
       })
       .setOrigin(0.5)
