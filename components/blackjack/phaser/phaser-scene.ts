@@ -1,6 +1,7 @@
 import { Elsie_Swash_Caps } from 'next/font/google';
 import gameEvents from './event-emitter';
 import { initialize } from 'next/dist/server/lib/render-server';
+import { TrendingUp } from 'lucide-react';
 
 // const CHIPS = [
 //   { name: 'c1', value: 1 },
@@ -126,6 +127,9 @@ class BlackjackScene extends Phaser.Scene {
   private loading: boolean = false;
   private gameStarted: boolean = false;
   private replenishText: Phaser.GameObjects.Text | null = null;
+  private zeroBalanceContainer: Phaser.GameObjects.Container | null = null;
+  private zeroBalanceText: Phaser.GameObjects.Text | null = null;
+
   constructor(
     config: Phaser.Types.Scenes.SettingsConfig,
     onGameStart: ((currentBalance: number, balanceChange: number) => Promise<void>) | null,
@@ -489,13 +493,16 @@ class BlackjackScene extends Phaser.Scene {
         this.selectedChipsTotal = [0, 0];
         this.selectedChipsTotalText?.setText('$0').setVisible(false);
       }
+      const isPlayground = this.checkIsPlayground();
 
-      if (this.checkIsPlayground()) {
+      if (isPlayground) {
         this.balance = 1000;
         this.updateAvailableChips();
         this.animateReplenishText();
         this.replenishText?.setVisible(true);
         this.balanceText?.setText(`Bank: $${this.formatBalance(this.balance)}`);
+      } else if (!isPlayground && this.balance <= 0) {
+        this.zeroBalanceContainer?.setVisible(true);
       }
       if (this.cards.length < 52) {
         this.createDeck();
@@ -749,15 +756,15 @@ class BlackjackScene extends Phaser.Scene {
     this.selectedChips = [[], []]; // Clear the array
   }
 
-  createRoundedBackground(scene: Phaser.Scene): Phaser.GameObjects.Graphics {
-    const graphics = scene.add.graphics();
+  createRoundedBackground(): Phaser.GameObjects.Graphics {
+    const graphics = this.add.graphics();
     // Define color
     graphics.fillStyle(0x11354f, 1);
     // Draw rounded rectangles
     graphics.fillRoundedRect(20, 340, 575 / 2.75, 125, 10);
     graphics.fillRoundedRect(20, 440, 575, 310, 10);
 
-    scene.add.existing(graphics);
+    this.add.existing(graphics);
     return graphics;
   }
 
@@ -1887,6 +1894,53 @@ class BlackjackScene extends Phaser.Scene {
     this.activePlayerHandIndex = 0;
   }
 
+  createZeroBalanceScreen() {
+    const graphics = this.add.graphics();
+
+    // Adjust the dimensions of the rounded rectangle
+    const rectWidth = 550;
+    const rectHeight = 250;
+
+    // Draw the adjusted rounded rectangles
+    graphics.fillStyle(0x4f5eff, 1);
+    graphics.fillRoundedRect(-rectWidth / 2, -rectHeight / 0.75, rectWidth, rectHeight, 10);
+
+    this.zeroBalanceText = this.add
+      .text(
+        0, // Centered relative to the container
+        -300, // Adjusting for vertical alignment within the new rectangle size
+        "You've run out of money :(\nThe next session isn't yet available,\nso either pick another game to play\nor you can continue to play blackjack\nin a playground environment.",
+        {
+          fontSize: '20px',
+          align: 'left',
+          fontStyle: 'bold',
+        }
+      )
+      .setOrigin(0.5, 0);
+
+    const otherGamesButton = this.createButton(-rectWidth / 4, -130, 'Other games', 200).on(
+      'pointerdown',
+      () => {
+        window.location.href = '/dashboard';
+      }
+    ); // Positioning it on the left side of the container
+    const blackjackButton = this.createButton(rectWidth / 4, -130, 'Playground', 200).on(
+      'pointerdown',
+      () => {
+        window.location.href = '/blackjack-playground';
+      }
+    ); // Positioning it on the right side of the container
+
+    this.zeroBalanceContainer = this.add.container(CENTER_X, CENTER_Y);
+    this.zeroBalanceContainer.add([
+      graphics,
+      this.zeroBalanceText,
+      otherGamesButton,
+      blackjackButton,
+    ]);
+    this.zeroBalanceContainer?.setVisible(false);
+  }
+
   create() {
     this.cleanUp();
     this.createDeck();
@@ -1897,9 +1951,13 @@ class BlackjackScene extends Phaser.Scene {
     // this.add.image(CENTER_X, PLAYER_BANNER_Y, 'youWin').setScale(0.5).setDepth(100);
     this.mainContainer = this.add.container();
 
-    this.mainBackground = this.createRoundedBackground(this);
+    this.mainBackground = this.createRoundedBackground();
     this.mainContainer.add(this.mainBackground);
-    // ALL IN Button
+    this.createZeroBalanceScreen();
+    const isPlayground = this.checkIsPlayground();
+    if (!isPlayground && this.balance <= 0) {
+      this.zeroBalanceContainer?.setVisible(true);
+    }
     this.createAllInButton();
     this.createClearBetButton();
     this.createHitButton();
@@ -1910,7 +1968,7 @@ class BlackjackScene extends Phaser.Scene {
     this.createChips();
     this.createSplitChip();
     this.replenishText = this.add
-      .text(CENTER_X, -200, "You've run out of money.\nAnother $1000 has been given!", {
+      .text(CENTER_X, -200, "You've run out of money.\nYou've been given another $1000 👾", {
         fontSize: '32px',
         align: 'center',
       })

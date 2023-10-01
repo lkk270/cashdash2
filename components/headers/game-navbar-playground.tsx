@@ -31,15 +31,10 @@ export const GameNavbarPlayground = ({ gameName }: LobbyHeaderProps) => {
         <div className="grid items-center w-full grid-cols-3 pb-4 border-b border-primary/10">
           {/* Left content */}
           <div className="z-10 flex items-center">
-            <Button
-              onClick={() => router.push(backPath)}
-              size="icon"
-              variant="ghost"
-              className="hidden mr-1 xxs:flex"
-            >
-              <ChevronLeft className="w-8 h-8" />
-            </Button>
             <MobileSidebar hide={false} />
+            <Button title="Details" onClick={() => infoModal.onOpen()} size="icon" variant="ghost">
+              <Info className="w-5 h-5" />
+            </Button>
           </div>
           {/* Center content */}
 
@@ -60,21 +55,11 @@ export const GameNavbarPlayground = ({ gameName }: LobbyHeaderProps) => {
 
           {/* Right content */}
           <div className="flex items-center justify-end">
-            <div className="flex items-center">
-              <Button
-                title="Details"
-                onClick={() => infoModal.onOpen()}
-                size="icon"
-                variant="ghost"
-              >
-                <Info className="w-5 h-5 ml-3" />
-              </Button>
-            </div>
             {/* added justify-end to align items to the right */}
             <div className="items-center hidden xxs:flex">
               <ModeToggle />
             </div>
-            <div className="ml-1">
+            <div className="ml-2">
               <UserButton afterSignOutUrl="/" />
             </div>
           </div>
