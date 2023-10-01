@@ -38,7 +38,7 @@ export const GamePlaygroundInfoModal = () => {
           <p className="justify-center gap-x-1">
             If you've run out of your balance and still would like to play blackjack, you can do so
             here. However, since playing here doesn't count for anything, your balance will not be
-            saved and once a new blackjack session starts, you will want to play there instead
+            saved and once a new blackjack session starts, you will want to play there instead.
           </p>
         </div>
       </DialogContent>

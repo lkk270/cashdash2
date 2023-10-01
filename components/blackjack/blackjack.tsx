@@ -30,7 +30,7 @@ const PhaserGame = dynamic(() => import('@/components/blackjack/phaser/phaser-ga
 
 export const Blackjack = ({ props }: BlackjackProps) => {
   return (
-    <div className="z-20 game-container">
+    <div className="z-20 game-container xl:ml-44">
       {/* <GameLoader /> */}
       <PhaserGame props={props} />
     </div>
