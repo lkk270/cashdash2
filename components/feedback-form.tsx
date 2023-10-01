@@ -18,6 +18,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from './ui/button';
 import { useForm } from 'react-hook-form';
+import { useState } from 'react';
 
 const formSchema = z.object({
   feedback: z.string().min(2, {
@@ -26,6 +27,7 @@ const formSchema = z.object({
 });
 
 const FeedbackForm = () => {
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
   // 1. Define your form.
@@ -38,24 +40,24 @@ const FeedbackForm = () => {
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     const feedbackText = values.feedback;
-
+    setLoading(true);
     axios
       .post('/api/feedback', {
         feedback: feedbackText,
       })
       .then((response) => {
-        console.log(response.data);
         toast({
           description: response.data,
         });
       })
       .catch((error) => {
-        console.log(error);
-        console.log(error.response.data);
         toast({
           description: error.response.data,
           variant: 'destructive',
         });
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
   return (
@@ -78,7 +80,9 @@ const FeedbackForm = () => {
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <Button disabled={loading} type="submit">
+          {loading ? 'Submitting...' : 'Submit'}
+        </Button>
       </form>
     </Form>
   );
