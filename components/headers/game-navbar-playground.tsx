@@ -2,8 +2,7 @@
 
 import { UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
-import { ChevronLeft, Info } from 'lucide-react';
+import { Info } from 'lucide-react';
 import { Orbitron } from 'next/font/google';
 
 import { useLobbyAboutModal } from '@/hooks/use-lobby-about-modal';
@@ -20,10 +19,7 @@ interface LobbyHeaderProps {
 }
 
 export const GameNavbarPlayground = ({ gameName }: LobbyHeaderProps) => {
-  const router = useRouter();
-  const pathname = usePathname();
   const infoModal = useGamePlaygroundInfoModal();
-  const backPath = pathname ? pathname.split('/').slice(0, -1).join('/') : '/dashboard';
 
   return (
     <div className="w-full max-w-4xl mx-auto">
@@ -31,7 +27,7 @@ export const GameNavbarPlayground = ({ gameName }: LobbyHeaderProps) => {
         <div className="grid items-center w-full grid-cols-3 pb-4 border-b border-primary/10">
           {/* Left content */}
           <div className="z-10 flex items-center">
-            <MobileSidebar hide={false} />
+            <MobileSidebar hide={true} />
             <Button title="Details" onClick={() => infoModal.onOpen()} size="icon" variant="ghost">
               <Info className="w-5 h-5" />
             </Button>
