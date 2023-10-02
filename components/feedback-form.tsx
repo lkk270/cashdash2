@@ -43,12 +43,13 @@ const FeedbackForm = () => {
     setLoading(true);
     axios
       .post('/api/feedback', {
-        feedback: feedbackText,
+        feedbackText: feedbackText,
       })
       .then((response) => {
         toast({
           description: response.data,
         });
+        form.reset();
       })
       .catch((error) => {
         toast({

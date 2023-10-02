@@ -6,6 +6,7 @@ import { NextResponse } from 'next/server';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+    const feedbackText = body.feedbackText;
     const bodyLength = Object.keys(body).length;
 
     const { userId } = auth();
@@ -14,11 +15,9 @@ export async function POST(req: Request) {
     if (!userId || !user) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
-    if (bodyLength === 0 || bodyLength > 1) {
+    if (bodyLength === 0 || bodyLength > 1 || !feedbackText) {
       return new NextResponse('Invalid body', { status: 400 });
     }
-
-    const feedbackText = body.feedbackText;
 
     const transporter = nodemailer.createTransport({
       host: process.env.MAIL_HOST,
@@ -33,14 +32,14 @@ export async function POST(req: Request) {
       from: 'no-reply@cashdash.com',
       to: 'Leekk270@gmail.com',
       subject: 'New Feedback Received',
-      text: feedbackText,
+      html: `<html><body>${feedbackText}</body></html>`,
     };
 
     const sendEmail = async (mailOptions: {
       from: string;
       to: string;
       subject: string;
-      text: string;
+      html: string;
     }) => {
       return new Promise((resolve, reject) => {
         transporter.sendMail(mailOptions, (error) => {

@@ -2,6 +2,7 @@ import { Elsie_Swash_Caps } from 'next/font/google';
 import gameEvents from './event-emitter';
 import { initialize } from 'next/dist/server/lib/render-server';
 import { TrendingUp } from 'lucide-react';
+import { formatBalance } from '@/lib/utils';
 
 // const CHIPS = [
 //   { name: 'c1', value: 1 },
@@ -428,7 +429,7 @@ class BlackjackScene extends Phaser.Scene {
               this.canSelectChip = true;
               this.loading = false;
               if (this.balanceText) {
-                this.balanceText.setText(`Bank: $${this.formatBalance(this.balance)}`);
+                this.balanceText.setText(`Bank: $${formatBalance(this.balance)}`);
               }
               // this.updateSelectedChipsTotal(forDoubleDownOrSplit);
               // this.updateAvailableChips();
@@ -439,7 +440,7 @@ class BlackjackScene extends Phaser.Scene {
       } else {
         this.loading = false;
         if (this.balanceText) {
-          this.balanceText.setText(`Bank: $${this.formatBalance(this.balance)}`);
+          this.balanceText.setText(`Bank: $${formatBalance(this.balance)}`);
         }
         // this.updateSelectedChipsTotal(forDoubleDownOrSplit);
         // this.updateAvailableChips();
@@ -500,7 +501,7 @@ class BlackjackScene extends Phaser.Scene {
         this.updateAvailableChips();
         this.animateReplenishText();
         this.replenishText?.setVisible(true);
-        this.balanceText?.setText(`Bank: $${this.formatBalance(this.balance)}`);
+        this.balanceText?.setText(`Bank: $${formatBalance(this.balance)}`);
       } else if (!isPlayground && this.balance <= 0) {
         this.zeroBalanceContainer?.setVisible(true);
       }
@@ -554,20 +555,6 @@ class BlackjackScene extends Phaser.Scene {
     return false;
   }
 
-  formatBalance(balance: number): string {
-    if (balance <= 9999) {
-      return balance.toString();
-    } else if (balance >= 995_000 && balance < 1_000_000) {
-      return '1M';
-    } else if (balance < 1_000_000) {
-      return (Math.round(balance / 100) / 10 + 'K').toString();
-    } else if (balance < 1_000_000_000) {
-      return (Math.round(balance / 100_000) / 10 + 'M').toString();
-    } else {
-      return (Math.round(balance / 100_000_000) / 10 + 'B').toString();
-    }
-  }
-
   // Function to update the visibility of the chips based on the balance
   updateAvailableChips() {
     this.chips.forEach((chip, index) => {
@@ -615,7 +602,7 @@ class BlackjackScene extends Phaser.Scene {
     }
 
     if (this.balanceText) {
-      this.balanceText.setText(`Bank: $${this.formatBalance(this.balance)}`);
+      this.balanceText.setText(`Bank: $${formatBalance(this.balance)}`);
     }
 
     this.tweens.add({
@@ -653,7 +640,7 @@ class BlackjackScene extends Phaser.Scene {
 
     if (this.selectedChipsTotalText) {
       this.selectedChipsTotal[this.activePlayerHandIndex] = total;
-      this.selectedChipsTotalText.setText(`$${this.formatBalance(total)}`);
+      this.selectedChipsTotalText.setText(`$${formatBalance(total)}`);
     }
     if (!forDoubleDownOrSplit) {
       if (this.selectedChipsTotalText?.text === '$0') {
@@ -717,7 +704,7 @@ class BlackjackScene extends Phaser.Scene {
         delay: idx * 100, // Add a small delay to each to make it more realistic
         onComplete: () => {
           if (this.balanceText) {
-            this.balanceText.setText(`Bank: $${this.formatBalance(this.balance)}`);
+            this.balanceText.setText(`Bank: $${formatBalance(this.balance)}`);
           }
           this.updateSelectedChipsTotal();
           this.updateAvailableChips();
@@ -744,7 +731,7 @@ class BlackjackScene extends Phaser.Scene {
           onComplete: () => {
             chip.destroy();
             if (this.balanceText) {
-              this.balanceText.setText(`Bank: $${this.formatBalance(this.balance)}`);
+              this.balanceText.setText(`Bank: $${formatBalance(this.balance)}`);
             }
             this.lastSelectedChipXPosition = PLACED_CHIP_X;
             this.updateSelectedChipsTotal();
@@ -920,7 +907,7 @@ class BlackjackScene extends Phaser.Scene {
         // Deduct the chip value from the balance
         this.balance -= chipObj.value;
         if (this.balanceText) {
-          this.balanceText.setText(`Bank: $${this.formatBalance(this.balance)}`);
+          this.balanceText.setText(`Bank: $${formatBalance(this.balance)}`);
         }
         this.updateAvailableChips();
       });
@@ -1274,7 +1261,7 @@ class BlackjackScene extends Phaser.Scene {
 
     this.displayBanner(playerBanner, dealerBanner);
     this.balance = Math.ceil(this.balance + value);
-    this.balanceText?.setText(`Bank: $${this.formatBalance(this.balance)}`);
+    this.balanceText?.setText(`Bank: $${formatBalance(this.balance)}`);
     this.updateAvailableChips();
   }
 
@@ -1498,12 +1485,12 @@ class BlackjackScene extends Phaser.Scene {
       this.swapChips(false, 0);
     }
     this.splitValueText?.setText(
-      `$${this.formatBalance(this.selectedChipsTotal[this.activePlayerHandIndex])}`
+      `$${formatBalance(this.selectedChipsTotal[this.activePlayerHandIndex])}`
     );
     this.time.delayedCall(500, () => {
       this.activePlayerHandIndex = this.activePlayerHandIndex === 1 ? 0 : 1;
       this.selectedChipsTotalText?.setText(
-        `$${this.formatBalance(this.selectedChipsTotal[this.activePlayerHandIndex])}`
+        `$${formatBalance(this.selectedChipsTotal[this.activePlayerHandIndex])}`
       );
 
       this.currentPlayerHandValueText?.setText(
@@ -1535,7 +1522,7 @@ class BlackjackScene extends Phaser.Scene {
     const duration = 500;
     this.splitValueText
       ?.setVisible(true)
-      .setText(`$${this.formatBalance(this.selectedChipsTotal[this.activePlayerHandIndex])}`);
+      .setText(`$${formatBalance(this.selectedChipsTotal[this.activePlayerHandIndex])}`);
     this.splitChip?.setVisible(true);
     this.tweens.add({
       targets: this.splitValueText,
@@ -1672,7 +1659,7 @@ class BlackjackScene extends Phaser.Scene {
     });
 
     if (this.balanceText) {
-      this.balanceText.setText(`Bank: $${this.formatBalance(this.balance)}`);
+      this.balanceText.setText(`Bank: $${formatBalance(this.balance)}`);
     }
     this.selectedChipsTotal[1] = this.selectedChipsTotal[0];
 
@@ -1986,7 +1973,7 @@ class BlackjackScene extends Phaser.Scene {
     });
 
     this.balanceText = this.add
-      .text(30, 350, `Bank: $${this.formatBalance(this.balance)}`, {
+      .text(30, 350, `Bank: $${formatBalance(this.balance)}`, {
         fontSize: '24px',
         fontStyle: 'bold',
       })

@@ -48,7 +48,6 @@ const renderGameComponent = (
   commonPropsBlackjack: BlackjackProps | null
 ) => {
   if (commonProps) {
-    console.log('IN HERE');
     switch (gameName) {
       case 'minesweeper 12x12':
         return <Minesweeper {...commonProps} rows={12} cols={12} numMines={13} min3bv={15} />;

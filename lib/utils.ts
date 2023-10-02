@@ -106,3 +106,17 @@ export function areDatesWithinXMinutes(date1: Date, date2: Date, minutesApart: n
   const difference = Math.abs(date1.getTime() - date2.getTime());
   return difference <= minutesApartInMs;
 }
+
+export function formatBalance(balance: number): string {
+  if (balance <= 9999) {
+    return balance.toString();
+  } else if (balance >= 995_000 && balance < 1_000_000) {
+    return '1M';
+  } else if (balance < 1_000_000) {
+    return (Math.round(balance / 100) / 10 + 'K').toString();
+  } else if (balance < 1_000_000_000) {
+    return (Math.round(balance / 100_000) / 10 + 'M').toString();
+  } else {
+    return (Math.round(balance / 100_000_000) / 10 + 'B').toString();
+  }
+}
