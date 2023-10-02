@@ -29,7 +29,7 @@ export const GameNavbarPlayground = ({ gameName }: HeaderProps) => {
           <div className="z-10 flex items-center">
             <MobileSidebar hide={'lg'} />
             <Button title="Details" onClick={() => infoModal.onOpen()} size="icon" variant="ghost">
-              <Info className="w-5 h-5" />
+              <Info className="w-6 h-6" />
             </Button>
           </div>
           {/* Center content */}
@@ -50,14 +50,12 @@ export const GameNavbarPlayground = ({ gameName }: HeaderProps) => {
           </div>
 
           {/* Right content */}
-          <div className="flex items-center justify-end">
+          <div className="flex items-center justify-end gap-x-4">
             {/* added justify-end to align items to the right */}
             <div className="items-center hidden xxs:flex">
               <ModeToggle />
             </div>
-            <div className="ml-2">
-              <UserButton afterSignOutUrl="/" />
-            </div>
+            <UserButton afterSignOutUrl="/" />
           </div>
         </div>
       </div>

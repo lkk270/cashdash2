@@ -29,7 +29,9 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
       <div className="flex flex-col items-center pb-6 text-4xl font-bold text-primary/50">
         <h1>Games</h1>
       </div>
-      <Games data={games} />
+      <div className="md:pl-20">
+        <Games data={games} />
+      </div>
     </div>
   );
 };

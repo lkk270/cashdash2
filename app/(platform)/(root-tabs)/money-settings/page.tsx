@@ -13,7 +13,7 @@ const SettingsPage = async () => {
   const userCash = await getUserCash();
   const userStripeAccount = await getUserStripeAccount();
   return (
-    <div className="h-full p-4 space-y-6">
+    <div className="h-full p-4 md:pr-[52px] pace-y-6 p md:pl-32">
       <Card className="p-4 shadow-md bg-primary/10 rounded-xl">
         <h3 className="mb-3 text-lg font-bold text-sky-300">Subscription Settings</h3>
         <div className="mb-4 text-sm text-zinc-500">

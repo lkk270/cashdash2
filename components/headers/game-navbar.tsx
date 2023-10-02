@@ -82,7 +82,7 @@ export const GameNavbar = ({ lobby, game, scores }: LobbyHeaderProps) => {
           </div>
 
           {/* Right content */}
-          <div className="flex items-center justify-end">
+          <div className="flex items-center justify-end gap-x-4">
             {/* <div className="items-center hidden sm:flex gap-x-2">
               <Button
                 title="Details"
@@ -100,14 +100,12 @@ export const GameNavbar = ({ lobby, game, scores }: LobbyHeaderProps) => {
                 size="icon"
                 variant="ghost"
               >
-                <Info className="w-5 h-5 ml-3" />
+                <Info className="w-6 h-6 ml-3" />
               </Button>
             </div>
             {/* added justify-end to align items to the right */}
-            <div className="items-center hidden xxs:flex">
-              <ModeToggle />
-            </div>
-            <div className="ml-1">
+            <ModeToggle />
+            <div>
               <UserButton afterSignOutUrl="/" />
             </div>
           </div>

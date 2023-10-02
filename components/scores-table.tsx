@@ -141,7 +141,7 @@ export const ScoresTable = ({
                       </div>
                       {isCurrentUser && (
                         <Badge
-                          className="flex flex-col justify-center w-[10px] h-[50px]"
+                          className="flex flex-col justify-center w-[10px] h-[50px] leading-3"
                           variant={'gradient1'}
                         >
                           You

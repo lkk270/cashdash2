@@ -64,8 +64,8 @@ export const Sidebar = ({ isPro }: SidebarProps) => {
   ];
 
   return (
-    <div className="flex flex-col h-full space-y-4 overflow-y-scroll text-primary bg-secondary">
-      <div className="px-3 sm:hidden">
+    <div className="flex flex-col h-full space-y-4 overflow-y-scroll border-r border-primary/10 text-primary bg-secondary">
+      <div className="px-3 md:hidden">
         <Logo />
       </div>
       <div className="flex justify-center flex-1 p-3">

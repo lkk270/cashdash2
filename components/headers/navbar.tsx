@@ -12,11 +12,12 @@ import { MobileSidebar } from '@/components/headers/mobile-sidebar';
 import { useProModal } from '@/hooks/use-pro-modal';
 import { useUserCashModal } from '@/hooks/use-user-cash-modal';
 import { UserStripeAccount } from '@prisma/client';
+import { Notifications } from '@/components/notifications';
 
-const font = Poppins({
-  weight: '600',
-  subsets: ['latin'],
-});
+// const font = Poppins({
+//   weight: '600',
+//   subsets: ['latin'],
+// });
 
 interface NavbarProps {
   userValues: {
@@ -49,8 +50,8 @@ export const Navbar = ({ userValues }: NavbarProps) => {
           </div>
         </Link>
       </div>
-      <div className="flex items-center gap-x-3">
-        <div className="flex items-center sm:flex gap-x-3">
+      <div className="flex items-center">
+        <div className="flex items-center sm:flex gap-x-4">
           {userCash && (
             <Button
               onClick={() => userCashModal.onOpen(userCash)}
@@ -68,14 +69,14 @@ export const Navbar = ({ userValues }: NavbarProps) => {
               size="sm"
               className="hidden xs:flex"
             >
-              <Ban className="w-4 h-4 mr-2 text-white" />
+              <Ban className="w-4 h-4 text-white" />
               Ads
             </Button>
           )}
-          <Bell />
+          <Notifications />
           <ModeToggle />
+          <UserButton afterSignOutUrl="/" />
         </div>
-        <UserButton afterSignOutUrl="/" />
       </div>
     </div>
   );

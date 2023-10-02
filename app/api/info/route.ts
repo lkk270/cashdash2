@@ -2,12 +2,12 @@ import { auth, currentUser } from '@clerk/nextjs';
 import { NextResponse } from 'next/server';
 import prismadb from '@/lib/prismadb';
 import { stripe } from '@/lib/stripe';
-import { PayoutStatus } from '@prisma/client';
+import { PayoutStatus, Notification } from '@prisma/client';
 
 import { getUserStripeAccount } from '@/lib/stripeAccount';
 import { ModifiedPaymentType2 } from '@/app/types';
 
-const acceptedTypesObj: { [key: string]: number } = { gusa: 1, guph: 3 };
+const acceptedTypesObj: { [key: string]: number } = { gusa: 1, guph: 3, ns: 3 };
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
         orderBy: {
           createdAt: 'desc', // Order by createdAt in descending order to get the most recent
         },
-        take: 1, // Take only 5 entries
+        take: 5, // Take only 5 entries
         skip: body.loadedEntries,
       });
       if (body.needCount) {
@@ -93,7 +93,7 @@ export async function POST(req: Request) {
             },
           },
           data: {
-            status: 'FAILED', 
+            status: 'FAILED',
           },
         });
       }
@@ -120,6 +120,34 @@ export async function POST(req: Request) {
 
       return new NextResponse(
         JSON.stringify({ userPayouts: filteredUserPayouts, totalNumOfPayouts: totalNumOfPayouts })
+      );
+    }
+
+    if (receivedType === 'ns') {
+      let totalNumOfNotifications;
+      const notifications: Notification[] = await prismadb.notification.findMany({
+        where: {
+          userId: userId,
+        },
+        orderBy: {
+          createdAt: 'desc', // Order by createdAt in descending order to get the most recent
+        },
+        take: 5, // Take only 5 entries
+        skip: body.loadedEntries,
+      });
+      if (body.needCount) {
+        totalNumOfNotifications = await prismadb.notification.count({
+          where: {
+            userId: userId,
+          },
+        });
+      }
+
+      return new NextResponse(
+        JSON.stringify({
+          notifications: notifications,
+          totalNumOfNotifications: totalNumOfNotifications,
+        })
       );
     }
   } catch (error: any) {

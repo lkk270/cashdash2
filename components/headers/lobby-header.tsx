@@ -18,13 +18,7 @@ export const LobbyHeader = ({ gameName }: LobbyHeaderProps) => {
   const router = useRouter();
 
   return (
-    <div className="flex items-center justify-between w-full pb-4">
-      <div className="items-center hidden sm:flex gap-x-2">
-        <Button onClick={() => router.push('/dashboard')} size="icon" variant="ghost">
-          <ChevronLeft className="w-8 h-8" />
-        </Button>
-      </div>
-
+    <div className="flex flex-col items-center justify-between w-full pb-4">
       <div className="text-sm text-center text-primary/50">
         <div className="flex flex-col items-center justify-center text-2xl">
           <Link href="/dashboard">
@@ -33,9 +27,20 @@ export const LobbyHeader = ({ gameName }: LobbyHeaderProps) => {
             >
               {gameName}
             </span>
+            <span
+              className={`${orbitronFont.className} font-bold bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent whitespace-nowrap flex-grow`}
+            >
+              {' '}
+              Tiers
+            </span>
           </Link>
         </div>
-        <h1 className="items-center text-4xl font-bold">Choose a Tier</h1>
+        {/* <h1 className="items-center text-3xl font-bold">Choose a Tier</h1> */}
+        {/* <div className="items-center hidden ml-20 sm:flex gap-x-2">
+          <Button onClick={() => router.push('/dashboard')} size="icon" variant="ghost">
+            <ChevronLeft className="w-8 h-8" />
+          </Button>
+        </div> */}
         <div className="max-w-lg mt-4 text-left">
           <p>
             To maintain an even playing field, better players are restricted to more advanced tiers.
