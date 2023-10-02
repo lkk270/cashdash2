@@ -30,13 +30,11 @@ interface GameClientPageProps {
 
 export const GameClient = ({ data }: GameClientPageProps) => {
   return (
-    <div className="h-full p-4 space-y-2">
+    <div className="h-full p-4 space-y-2 md:pl-20">
       <div className="flex justify-center w-full p-1 pb-2">
         <LobbyHeader gameName={data.name} />
       </div>
-      <div className="md:pl-20">
-        <Lobbies data={data} />
-      </div>
+      <Lobbies data={data} />
     </div>
   );
 };

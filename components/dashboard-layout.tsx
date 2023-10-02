@@ -10,6 +10,7 @@ export const DashboardLayout = async ({
     isPro?: boolean;
     userCash?: string;
     userStripeAccount?: UserStripeAccount;
+    numOfUnreadNotifications?: number;
   };
   children: React.ReactNode;
 }) => {

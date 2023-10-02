@@ -8,7 +8,7 @@ import { getUserCash } from '@/lib/userCash';
 import { getUserStripeAccount } from '@/lib/stripeAccount';
 import { OpenPayoutHistoryModal } from '@/components/buttons/open-payout-history-modal-button';
 
-const SettingsPage = async () => {
+const MoneySettingsPage = async () => {
   const isPro = await checkSubscription();
   const userCash = await getUserCash();
   const userStripeAccount = await getUserStripeAccount();
@@ -40,4 +40,4 @@ const SettingsPage = async () => {
   );
 };
 
-export default SettingsPage;
+export default MoneySettingsPage;

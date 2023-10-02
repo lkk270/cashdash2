@@ -210,7 +210,7 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
   if (accessResult.isValid === false) {
     return (
       <DashboardLayout
-        userValues={{ isPro: undefined, userCash: undefined }}
+        userValues={{ isPro: undefined, userCash: undefined, numOfUnreadNotifications: undefined }}
         children={
           <EmptyState
             withBackButton={true}

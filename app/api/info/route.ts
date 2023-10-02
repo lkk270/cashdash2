@@ -125,6 +125,7 @@ export async function POST(req: Request) {
 
     if (receivedType === 'ns') {
       let totalNumOfNotifications;
+      // Retrieve the notifications
       const notifications: Notification[] = await prismadb.notification.findMany({
         where: {
           userId: userId,
@@ -135,6 +136,22 @@ export async function POST(req: Request) {
         take: 5, // Take only 5 entries
         skip: body.loadedEntries,
       });
+
+      // Extract the IDs of the retrieved notifications
+      const notificationIds = notifications.map((notification) => notification.id);
+
+      // Update the 'read' field of the retrieved notifications to true
+      // await prismadb.notification.updateMany({
+      //   where: {
+      //     id: {
+      //       in: notificationIds,
+      //     },
+      //   },
+      //   data: {
+      //     read: true,
+      //   },
+      // });
+
       if (body.needCount) {
         totalNumOfNotifications = await prismadb.notification.count({
           where: {

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { UserButton } from '@clerk/nextjs';
-import { Poppins } from 'next/font/google';
+// import { Poppins } from 'next/font/google';
 import { Ban, Bell } from 'lucide-react';
 
 import Logo from '@/components/logo';
@@ -24,6 +24,7 @@ interface NavbarProps {
     isPro?: boolean;
     userCash?: string;
     userStripeAccount?: UserStripeAccount;
+    numOfUnreadNotifications?: number;
   };
 }
 
@@ -73,7 +74,9 @@ export const Navbar = ({ userValues }: NavbarProps) => {
               Ads
             </Button>
           )}
-          <Notifications />
+          {userValues.numOfUnreadNotifications && (
+            <Notifications numOfUnreadNotificationsParam={userValues.numOfUnreadNotifications} />
+          )}
           <ModeToggle />
           <UserButton afterSignOutUrl="/" />
         </div>

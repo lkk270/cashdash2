@@ -2,6 +2,7 @@ import { auth, redirectToSignIn } from '@clerk/nextjs';
 import prismadb from '@/lib/prismadb';
 import { redirect } from 'next/navigation';
 
+import { getNumOfUnreadNotifications } from '@/lib/notifications';
 import { checkSubscription } from '@/lib/subscription';
 import { getUserCash } from '@/lib/userCash';
 import { GameClient } from './components/client';
@@ -17,7 +18,13 @@ const GameIdPage = async ({ params }: GameIdPageProps) => {
   const { userId } = auth();
   const isPro = await checkSubscription();
   const userCash = await getUserCash();
-  const userValues = { isPro: isPro, userCash: userCash };
+  const numOfUnreadNotifications = await getNumOfUnreadNotifications();
+  
+  const userValues = {
+    isPro: isPro,
+    userCash: userCash,
+    numOfUnreadNotifications: numOfUnreadNotifications,
+  };
 
   if (!userId) {
     return redirectToSignIn;
