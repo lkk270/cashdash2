@@ -13,7 +13,7 @@ const howItWorks = [
     name: 'Tiers',
     bg: 'bg-gradient-to-r from-violet-600 to-blue-700',
     description:
-      'TTo ensure a fair competition, each game provides a minimum of three difficulty tiers.',
+      'To ensure a fair competition, each game provides a minimum of three difficulty tiers.',
   },
   {
     name: 'Sessions',
@@ -31,8 +31,10 @@ const howItWorks = [
 
 export const LandingContent = () => {
   return (
-    <div className="px-10 pb-20">
-      <h2 className="mb-10 text-4xl font-extrabold text-center text-white">How it works</h2>
+    <div className="px-10 pb-10">
+      <h2 className="mb-10 text-4xl font-extrabold text-center text-white lg:mr-[500px] xl:mr-0">
+        How it works
+      </h2>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {howItWorks.map((item) => (
           <Card key={item.description} className={`text-white border-none ${item.bg}`}>
@@ -48,6 +50,7 @@ export const LandingContent = () => {
           </Card>
         ))}
       </div>
+      <div className="pt-10 text-xs text-center text-primary/20">cashdash © 2023</div>
     </div>
   );
 };

@@ -52,7 +52,7 @@ export const LandingHero = () => {
           width={500}
           alt="Right"
           src="/home/homeRight.svg"
-          className="hidden -mb-48 xl:block" // Adjust -mb-10 (negative margin-bottom) as required
+          className="hidden -mb-48 lg:block lg:ml-[280px] xl:ml-0" // Adjust -mb-10 (negative margin-bottom) as required
         />
       </div>
 
