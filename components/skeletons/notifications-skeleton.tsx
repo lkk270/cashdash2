@@ -4,7 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 
 export const NotificationsSkeleton = () => {
-  return [...Array(3)].map((_, i) => {
+  return [...Array(5)].map((_, i) => {
     // Rendering 5 skeleton rows as an example
     return (
       <div>

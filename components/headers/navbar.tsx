@@ -68,13 +68,12 @@ export const Navbar = ({ userValues }: NavbarProps) => {
               onClick={proModal.onOpen}
               variant="premium"
               size="sm"
-              className="hidden xs:flex"
+              className="hidden xs:flex gap-x-1"
             >
-              <Ban className="w-4 h-4 text-white" />
-              Ads
+              <Ban className="w-4 h-4 text-white" /> Ads
             </Button>
           )}
-          {userValues.numOfUnreadNotifications && (
+          {typeof userValues.numOfUnreadNotifications === 'number' && (
             <Notifications numOfUnreadNotificationsParam={userValues.numOfUnreadNotifications} />
           )}
           <ModeToggle />

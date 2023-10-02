@@ -7,7 +7,7 @@ import { PayoutStatus, Notification } from '@prisma/client';
 import { getUserStripeAccount } from '@/lib/stripeAccount';
 import { ModifiedPaymentType2 } from '@/app/types';
 
-const acceptedTypesObj: { [key: string]: number } = { gusa: 1, guph: 3, ns: 3 };
+const acceptedTypesObj: { [key: string]: number } = { gusa: 1, guph: 3, ns: 4 };
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -51,7 +51,7 @@ export async function POST(req: Request) {
           createdAt: 'desc', // Order by createdAt in descending order to get the most recent
         },
         take: 5, // Take only 5 entries
-        skip: body.loadedEntries,
+        skip: body.numOfLoadedEntries,
       });
       if (body.needCount) {
         totalNumOfPayouts = await prismadb.userPayout.count({
@@ -124,46 +124,70 @@ export async function POST(req: Request) {
     }
 
     if (receivedType === 'ns') {
-      let totalNumOfNotifications;
-      // Retrieve the notifications
-      const notifications: Notification[] = await prismadb.notification.findMany({
-        where: {
-          userId: userId,
-        },
-        orderBy: {
-          createdAt: 'desc', // Order by createdAt in descending order to get the most recent
-        },
-        take: 5, // Take only 5 entries
-        skip: body.loadedEntries,
-      });
+      let unreadNotifications: Notification[] = [];
+      // Fetch the most recent unread notifications if there are unread notifications left
+      if (body.numOfRemainingUnreadNotifications > 0) {
+        unreadNotifications = await prismadb.notification.findMany({
+          where: {
+            userId: userId,
+            read: false,
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        });
+      }
+      let readNotifications: Notification[] = [];
+      const unreadNotificationsLength = unreadNotifications.length;
+      // If we have fewer than 5 unread notifications, fetch the remaining from the read ones
+      if (unreadNotificationsLength < 5) {
+        readNotifications = await prismadb.notification.findMany({
+          where: {
+            userId: userId,
+            read: true,
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+          skip: body.numOfLoadedEntries + unreadNotificationsLength,
+          take: unreadNotificationsLength === 0 ? 5 : 5 - unreadNotificationsLength,
+        });
+      }
+
+      // Combine both lists
+      const notifications = [...unreadNotifications, ...readNotifications];
 
       // Extract the IDs of the retrieved notifications
-      const notificationIds = notifications.map((notification) => notification.id);
+      const unreadNotificationsIds = unreadNotifications.map((notification) => notification.id);
 
       // Update the 'read' field of the retrieved notifications to true
-      // await prismadb.notification.updateMany({
-      //   where: {
-      //     id: {
-      //       in: notificationIds,
-      //     },
-      //   },
-      //   data: {
-      //     read: true,
-      //   },
-      // });
+      await prismadb.notification.updateMany({
+        where: {
+          id: {
+            in: unreadNotificationsIds,
+          },
+        },
+        data: {
+          read: true,
+        },
+      });
 
       if (body.needCount) {
-        totalNumOfNotifications = await prismadb.notification.count({
+        const totalNumOfNotifications = await prismadb.notification.count({
           where: {
             userId: userId,
           },
         });
+        return new NextResponse(
+          JSON.stringify({
+            notifications: notifications,
+            totalNumOfNotifications: totalNumOfNotifications,
+          })
+        );
       }
-
       return new NextResponse(
         JSON.stringify({
           notifications: notifications,
-          totalNumOfNotifications: totalNumOfNotifications,
         })
       );
     }

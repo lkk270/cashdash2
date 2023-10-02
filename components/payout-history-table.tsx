@@ -28,19 +28,23 @@ export const PayoutHistoryTable = ({
   setParentsPayouts,
 }: PayoutHistoryTableProps) => {
   const [loading, setLoading] = useState(false);
-  const [loadedEntries, setLoadedEntries] = useState(payoutsParam.length);
+  const [numOfLoadedEntries, setNumOfLoadedEntries] = useState(payoutsParam.length);
   const [payouts, setPayouts] = useState<ModifiedPaymentType[]>(payoutsParam);
   const { toast } = useToast();
   const onLoadMore = () => {
     setLoading(true);
     // Call the necessary API endpoint to get userCash and userStripeAccount here
     axios
-      .post('/api/info', { getFunc: 'guph', loadedEntries: loadedEntries, needCount: false })
+      .post('/api/info', {
+        getFunc: 'guph',
+        numOfLoadedEntries: numOfLoadedEntries,
+        needCount: false,
+      })
       .then((response) => {
         const newPayouts = payouts.concat(response.data.userPayouts);
         setPayouts(newPayouts);
         setParentsPayouts(newPayouts);
-        setLoadedEntries(newPayouts.length);
+        setNumOfLoadedEntries(newPayouts.length);
       })
       .catch((error) => {
         toast({
@@ -98,7 +102,7 @@ export const PayoutHistoryTable = ({
         </div>
         {payouts.length < numOfPayouts && (
           <Button disabled={loading} variant="outline" size="sm" onClick={onLoadMore}>
-            Load more
+            {loading ? 'Loading more...' : 'Load more'}
           </Button>
         )}
       </div>

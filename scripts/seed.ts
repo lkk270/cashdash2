@@ -67,12 +67,28 @@ async function main() {
     // await db.score.createMany({
     //   data: data,
     // });
-    await db.score.deleteMany({
-      where: {
-        lobbySessionId: '611f5cb1-e380-4261-a2bc-718c2b246294',
-      },
-    });
+    // await db.score.deleteMany({
+    //   where: {
+    //     lobbySessionId: '611f5cb1-e380-4261-a2bc-718c2b246294',
+    //   },
+    // });
     // await db.gameSession.deleteMany({});
+
+    await db.notification.deleteMany({});
+
+    let data = [];
+    for (let i = 0; i < 17; i++) {
+      let obj = {
+        userId: 'user_2TKskwGmolB1V1OQ7FvEZvjkzh2',
+        text: `${i}Flappy Birb${i} session ended. You ended up with a score of 1200. Your score ranked 2323/2552`,
+        createdAt: new Date(1696281956735 - i * 86400000),
+        read: i < 3 ? false : true,
+      };
+      data.push(obj);
+    }
+    await db.notification.createMany({
+      data: data,
+    });
   } catch (error) {
     console.error('Error seeding default categories:', error);
   } finally {
