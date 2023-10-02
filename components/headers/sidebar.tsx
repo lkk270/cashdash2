@@ -49,12 +49,12 @@ export const Sidebar = ({ isPro }: SidebarProps) => {
       label: 'Feedback',
       pro: false,
     },
-    {
-      icon: HelpCircle,
-      href: '/about',
-      label: 'About',
-      pro: false,
-    },
+    // {
+    //   icon: HelpCircle,
+    //   href: '/about',
+    //   label: 'About',
+    //   pro: false,
+    // },
     // {
     //   icon: ShoppingCart,
     //   href: '/store',

@@ -22,7 +22,8 @@ export const LobbyHeader = () => {
           <p>
             To maintain an even playing field, better players are restricted to more advanced tiers.
             We use a combination of your average score & individual scores to determine tier
-            eligibility. Additionally, only one tier can be played in at a time
+            eligibility. Please note that players can participate in only one tier at any given
+            time.
           </p>
         </div>
         <p className="flex justify-center mt-2 font-bold gap-x-1">

@@ -19,7 +19,7 @@ export const LandingNavbar = () => {
   }, [isSignedIn, router]);
 
   const buttonPath = isSignedIn ? '/dashboard' : '/sign-up';
-  const startButtonName = isSignedIn ? 'To Dashboard ->' : 'Get Started';
+  const startButtonName = isSignedIn ? 'To Dashboard ->' : 'Claim your username';
 
   return (
     <nav className="flex items-center justify-between p-4 bg-transparent">
