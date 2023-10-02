@@ -23,6 +23,7 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
   let userHasScore = true;
   let userHasGameSessionScore = true;
   let userPlayedInSession = true;
+  let balanceGame = false;
   let game = null;
   let allScores: ModifiedScoreType[] = [];
   let bestScoresArray: ModifiedScoreType[] = [];
@@ -170,6 +171,7 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
               lobbySessionId: lobby.sessions[0].id,
             },
           });
+          balanceGame = true;
         }
       }
       if (!userHasScore) {
@@ -222,7 +224,11 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
   }
   return (
     <LobbyClient
-      userBestScore={userPlayedInSession && userPlayedInSession !== null ? displayScores[0] : null}
+      userBestScore={
+        (userPlayedInSession && userPlayedInSession !== null) || balanceGame
+          ? displayScores[0]
+          : null
+      }
       scoresParam={displayScores}
       game={game!}
       lobby={lobby}
