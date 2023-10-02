@@ -14,11 +14,11 @@ import { useGamePlaygroundInfoModal } from '@/hooks/use-game-playground-info-mod
 
 const orbitronFont = Orbitron({ subsets: ['latin'] });
 
-interface LobbyHeaderProps {
+interface HeaderProps {
   gameName: string;
 }
 
-export const GameNavbarPlayground = ({ gameName }: LobbyHeaderProps) => {
+export const GameNavbarPlayground = ({ gameName }: HeaderProps) => {
   const infoModal = useGamePlaygroundInfoModal();
 
   return (

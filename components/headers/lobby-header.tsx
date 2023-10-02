@@ -1,11 +1,20 @@
 'use client';
 
+import Link from 'next/link';
+import { Orbitron } from 'next/font/google';
+
 import { useRouter } from 'next/navigation';
 import { ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Info } from 'lucide-react';
 
-export const LobbyHeader = () => {
+const orbitronFont = Orbitron({ subsets: ['latin'] });
+
+interface LobbyHeaderProps {
+  gameName: string;
+}
+
+export const LobbyHeader = ({ gameName }: LobbyHeaderProps) => {
   const router = useRouter();
 
   return (
@@ -17,6 +26,15 @@ export const LobbyHeader = () => {
       </div>
 
       <div className="text-sm text-center text-primary/50">
+        <div className="flex flex-col items-center justify-center text-2xl">
+          <Link href="/dashboard">
+            <span
+              className={`${orbitronFont.className} font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent whitespace-nowrap`}
+            >
+              {gameName}
+            </span>
+          </Link>
+        </div>
         <h1 className="items-center text-4xl font-bold">Choose a Tier</h1>
         <div className="max-w-lg mt-4 text-left">
           <p>

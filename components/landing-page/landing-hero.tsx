@@ -41,7 +41,7 @@ export const LandingHero = () => {
         <Link href={isSignedIn ? '/dashboard' : '/sign-up'}>
           <Button
             variant="premium"
-            className="w-full pb-4 font-semibold rounded-full md:text-lg md:p-6 xl:mt-20"
+            className="w-full p-6 font-semibold rounded-full md:text-lg md:p-6 xl:mt-20"
           >
             Start playing today!
           </Button>
