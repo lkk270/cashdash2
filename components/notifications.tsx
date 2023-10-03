@@ -107,7 +107,7 @@ export const Notifications = ({ numOfUnreadNotificationsParam }: NotificationPro
           </div>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="overflow-y-scroll w-96 h-96">
+      <DropdownMenuContent className="overflow-y-scroll w-96 max-h-[550px]">
         <DropdownMenuGroup>
           {loading ? (
             <NotificationsSkeleton />
@@ -115,11 +115,15 @@ export const Notifications = ({ numOfUnreadNotificationsParam }: NotificationPro
             notifications.map((item) => {
               return (
                 <div>
-                  <DropdownMenuItem>
-                    {!item.read && <Dot size={40} strokeWidth={3} className="text-sky-500" />}
+                  <DropdownMenuItem className="flex flex-col items-start">
                     {/* {item.read && <Dot size={40} strokeWidth={3} className="text-transparent" />} */}
-                    <span>{item.text}</span>
-                    <span>{item.createdAt.toString()}</span>
+                    <span className="flex items-center mb-1 text-primary/40">
+                      {item.createdAt.toString().split('T')[0]}
+                      {!item.read && (
+                        <Dot size={10} strokeWidth={24} className="ml-2 text-sky-500" />
+                      )}
+                    </span>
+                    <span className="text-primary/80">{item.text}</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                 </div>
