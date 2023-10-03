@@ -7,8 +7,8 @@ export const DashboardLayout = async ({
   children,
 }: {
   userValues: {
+    userCashString: string;
     isPro?: boolean;
-    userCashString?: string;
     userStripeAccount?: UserStripeAccount;
     numOfUnreadNotifications?: number;
   };

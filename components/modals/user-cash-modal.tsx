@@ -17,11 +17,12 @@ import { Separator } from '@/components/ui/separator';
 import { ToastAction } from '@/components/ui/toast';
 import { useToast } from '@/components/ui/use-toast';
 import { UserStripeAccount } from '@prisma/client';
+import { useUserCash } from '@/components/providers/user-cash-provider';
 
 export const UserCashModal = () => {
   const userCashModal = useUserCashModal();
-  const [userCashString, setUserCashString] = useState(userCashModal.userCashString);
-  const userCashFloat = parseFloat(userCashModal.userCashString.split('$')[1]);
+  const { userCashString, setUserCashString } = useUserCash();
+  const userCashFloat = parseFloat(userCashString.split('$')[1]);
   const [isMounted, setIsMounted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [dataFetched, setDataFetched] = useState(false);
@@ -37,7 +38,6 @@ export const UserCashModal = () => {
   useEffect(() => {
     if (userCashModal.isOpen && !dataFetched) {
       setLoading(true);
-      setUserCashString(userCashModal.userCashString);
       // Call the necessary API endpoint to get userCash and userStripeAccount here
       axios
         .post('/api/info', { getFunc: 'gusa' })
@@ -87,13 +87,11 @@ export const UserCashModal = () => {
       axios
         .post('/api/stripe-payout', { withdrawalAmount: userCashFloat })
         .then((response) => {
+          // const newCashValue = userCashFloat - response.data.withdrawnAmount;
+          setUserCashString(`$0.00`);
           toast({
             description: 'Withdrawal initiated successfully!',
           });
-          if (userCashModal.setUserCashString) {
-            userCashModal.setUserCashString('$0.00'); // Update the store
-            setUserCashString('$0.00');
-          }
         })
         .catch((error) => {
           toast({
@@ -110,6 +108,7 @@ export const UserCashModal = () => {
   if (!isMounted) {
     return null;
   }
+
   return (
     <Dialog open={userCashModal.isOpen} onOpenChange={userCashModal.onClose}>
       <DialogContent className="overflow-y-auto max-h-[80vh]">

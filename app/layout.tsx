@@ -13,6 +13,7 @@ import { LinkStripeAboutModal } from '@/components/modals/link-stripe-about-moda
 import { UserPayoutHistoryModal } from '@/components/modals/payout-history-modal';
 import { GamePlaygroundInfoModal } from '@/components/modals/game-playground-info-modal';
 import { WelcomeMessagesModal } from '@/components/modals/welcome-messages-modal';
+import { UserCashProvider } from '@/components/providers/user-cash-provider';
 
 import './globals.css';
 
@@ -37,15 +38,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <html lang="en" suppressHydrationWarning>
         <body className={cn('bg-secondary', inter.className)}>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-            <LobbyAboutModal />
-            <UserCashModal />
-            <LinkStripeAboutModal />
-            <ProModal />
-            <UserPayoutHistoryModal />
-            <GamePlaygroundInfoModal />
-            <WelcomeMessagesModal />
-            {children}
-            <Toaster />
+            <UserCashProvider initialCash={'$0.00'}>
+              <LobbyAboutModal />
+              <UserCashModal />
+              <LinkStripeAboutModal />
+              <ProModal />
+              <UserPayoutHistoryModal />
+              <GamePlaygroundInfoModal />
+              <WelcomeMessagesModal />
+              {children}
+              <Toaster />
+            </UserCashProvider>
           </ThemeProvider>
         </body>
       </html>

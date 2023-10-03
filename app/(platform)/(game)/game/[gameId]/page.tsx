@@ -19,7 +19,7 @@ const GameIdPage = async ({ params }: GameIdPageProps) => {
   const isPro = await checkSubscription();
   const userCashString = await getUserCashString();
   const numOfUnreadNotifications = await getNumOfUnreadNotifications();
-  
+
   const userValues = {
     isPro: isPro,
     userCashString: userCashString,

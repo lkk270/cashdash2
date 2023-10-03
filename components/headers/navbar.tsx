@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { UserButton } from '@clerk/nextjs';
@@ -15,6 +15,7 @@ import { useProModal } from '@/hooks/use-pro-modal';
 import { useUserCashModal } from '@/hooks/use-user-cash-modal';
 import { UserStripeAccount } from '@prisma/client';
 import { Notifications } from '@/components/notifications';
+import { useUserCash } from '@/components/providers/user-cash-provider';
 
 // const font = Poppins({
 //   weight: '600',
@@ -23,8 +24,8 @@ import { Notifications } from '@/components/notifications';
 
 interface NavbarProps {
   userValues: {
+    userCashString: string;
     isPro?: boolean;
-    userCashString?: string;
     userStripeAccount?: UserStripeAccount;
     numOfUnreadNotifications?: number;
   };
@@ -34,8 +35,13 @@ export const Navbar = ({ userValues }: NavbarProps) => {
   const isPro = userValues.isPro;
   const proModal = useProModal();
   const userCashModal = useUserCashModal();
-  const pathname = usePathname();
-  const [userCashString, setUserCashString] = useState(userValues.userCashString);
+  const { userCashString, setUserCashString } = useUserCash();
+
+  useEffect(() => {
+    setUserCashString(userValues.userCashString);
+  }, [userValues.userCashString]);
+
+  // setUserCashString(userValues.userCashString);
 
   return (
     <div className="fixed z-50 flex items-center justify-between w-full h-16 px-4 py-2 border-b border-primary/10 bg-secondary">
@@ -57,9 +63,9 @@ export const Navbar = ({ userValues }: NavbarProps) => {
       </div>
       <div className="flex items-center">
         <div className="flex items-center sm:flex gap-x-4">
-          {userCashString && pathname !== '/money-settings' && (
+          {userCashString && (
             <Button
-              onClick={() => userCashModal.onOpen(userCashString, setUserCashString)}
+              onClick={() => userCashModal.onOpen(userCashString)}
               variant="gradient2"
               size="sm"
               className="hidden xs:flex"

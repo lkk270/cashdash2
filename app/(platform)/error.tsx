@@ -15,7 +15,11 @@ const ErrorState: React.FC<ErrorStateProps> = ({ error }) => {
   return (
     <>
       <DashboardLayout
-        userValues={{ isPro: undefined, userCashString: undefined, numOfUnreadNotifications: undefined }}
+        userValues={{
+          isPro: undefined,
+          userCashString: '$0.00',
+          numOfUnreadNotifications: undefined,
+        }}
         children={<EmptyState title="Uh Oh" subtitle="Something went wrong!" />}
       />
     </>

@@ -10,7 +10,6 @@ import { OpenPayoutHistoryModal } from '@/components/buttons/open-payout-history
 
 const MoneySettingsPage = async () => {
   const isPro = await checkSubscription();
-  const userCashString = await getUserCashString();
   const userStripeAccount = await getUserStripeAccount();
   return (
     <div className="h-full p-4 md:pr-[52px] pace-y-6 p md:pl-32">
@@ -32,7 +31,9 @@ const MoneySettingsPage = async () => {
         </div>
         <div className="flex flex-wrap min-w-[100px]">
           <LinkStripeButton userStripeAccount={userStripeAccount} />
-          <CashOutButton userStripeAccount={userStripeAccount} userCashString={userCashString} />
+          <CashOutButton
+            userStripeAccount={userStripeAccount}
+          />
           <OpenPayoutHistoryModal />
         </div>
       </Card>
