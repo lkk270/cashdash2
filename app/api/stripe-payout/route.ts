@@ -56,7 +56,7 @@ export async function POST(req: Request) {
     }
 
     const transfer = await stripe.transfers.create({
-      amount: Math.round(1 * 100), // Convert to cents.
+      amount: Math.round(1 * 100), // Convert to cents. //change to withdrawalAmount * 100
       currency: 'usd',
       destination: userStripeAccount.stripeAccountId, // The ID of the connected Stripe account.
       metadata: {

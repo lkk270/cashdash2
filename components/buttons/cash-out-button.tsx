@@ -7,12 +7,13 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 
 interface CashOutButtonProps {
-  userCash: string;
+  userCashString: string;
   userStripeAccount?: UserStripeAccount;
 }
 
-export const CashOutButton = ({ userCash, userStripeAccount }: CashOutButtonProps) => {
-  const userCashFloat = parseFloat(userCash);
+export const CashOutButton = ({ userCashString, userStripeAccount }: CashOutButtonProps) => {
+  const [localUserCashString, setLocalUserCashString] = useState(userCashString);
+  const userCashFloat = parseFloat(userCashString.split('$')[1]);
   const [isLoading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -37,6 +38,7 @@ export const CashOutButton = ({ userCash, userStripeAccount }: CashOutButtonProp
       axios
         .post('/api/stripe-payout', { withdrawalAmount: userCashFloat })
         .then((response) => {
+          setLocalUserCashString('$0.00');
           toast({
             description: 'Withdrawal initiated successfully!',
           });
@@ -61,7 +63,7 @@ export const CashOutButton = ({ userCash, userStripeAccount }: CashOutButtonProp
       disabled={isLoading}
       onClick={onClick}
     >
-      Cash Out ${userCash}
+      Cash Out {localUserCashString}
     </Button>
   );
 };

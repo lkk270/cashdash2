@@ -6,7 +6,7 @@ const Loading = () => {
   return (
     <>
       <DashboardLayout
-        userValues={{ isPro: undefined, userCash: undefined, numOfUnreadNotifications: undefined }}
+        userValues={{ isPro: undefined, userCashString: undefined, numOfUnreadNotifications: undefined }}
         children={<Loader />}
       />
     </>

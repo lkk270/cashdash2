@@ -20,7 +20,8 @@ import { UserStripeAccount } from '@prisma/client';
 
 export const UserCashModal = () => {
   const userCashModal = useUserCashModal();
-  const userCashFloat = parseFloat(userCashModal.userCash);
+  const [userCashString, setUserCashString] = useState(userCashModal.userCashString);
+  const userCashFloat = parseFloat(userCashModal.userCashString.split('$')[1]);
   const [isMounted, setIsMounted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [dataFetched, setDataFetched] = useState(false);
@@ -36,6 +37,7 @@ export const UserCashModal = () => {
   useEffect(() => {
     if (userCashModal.isOpen && !dataFetched) {
       setLoading(true);
+      setUserCashString(userCashModal.userCashString);
       // Call the necessary API endpoint to get userCash and userStripeAccount here
       axios
         .post('/api/info', { getFunc: 'gusa' })
@@ -88,6 +90,10 @@ export const UserCashModal = () => {
           toast({
             description: 'Withdrawal initiated successfully!',
           });
+          if (userCashModal.setUserCashString) {
+            userCashModal.setUserCashString('$0.00'); // Update the store
+            setUserCashString('$0.00');
+          }
         })
         .catch((error) => {
           toast({
@@ -104,7 +110,6 @@ export const UserCashModal = () => {
   if (!isMounted) {
     return null;
   }
-
   return (
     <Dialog open={userCashModal.isOpen} onOpenChange={userCashModal.onClose}>
       <DialogContent className="overflow-y-auto max-h-[80vh]">
@@ -116,7 +121,7 @@ export const UserCashModal = () => {
         </DialogHeader>
         <Separator />
         <div className="flex justify-between">
-          <p className="text-2xl font-medium">Total: ${userCashModal.userCash}</p>
+          <p className="text-2xl font-medium">Total: {userCashString}</p>
           <Button onClick={onWithdraw} disabled={loading} variant="gradient2">
             {loading ? 'Loading...' : 'Cash out'}
           </Button>

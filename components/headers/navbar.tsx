@@ -1,6 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { UserButton } from '@clerk/nextjs';
 // import { Poppins } from 'next/font/google';
 import { Ban, Bell } from 'lucide-react';
@@ -22,7 +24,7 @@ import { Notifications } from '@/components/notifications';
 interface NavbarProps {
   userValues: {
     isPro?: boolean;
-    userCash?: string;
+    userCashString?: string;
     userStripeAccount?: UserStripeAccount;
     numOfUnreadNotifications?: number;
   };
@@ -30,9 +32,11 @@ interface NavbarProps {
 
 export const Navbar = ({ userValues }: NavbarProps) => {
   const isPro = userValues.isPro;
-  const userCash = userValues.userCash;
   const proModal = useProModal();
   const userCashModal = useUserCashModal();
+  const pathname = usePathname();
+  const [userCashString, setUserCashString] = useState(userValues.userCashString);
+
   return (
     <div className="fixed z-50 flex items-center justify-between w-full h-16 px-4 py-2 border-b border-primary/10 bg-secondary">
       <div className="flex items-center">
@@ -53,14 +57,15 @@ export const Navbar = ({ userValues }: NavbarProps) => {
       </div>
       <div className="flex items-center">
         <div className="flex items-center sm:flex gap-x-4">
-          {userCash && (
+          {userCashString && pathname !== '/money-settings' && (
             <Button
-              onClick={() => userCashModal.onOpen(userCash)}
+              onClick={() => userCashModal.onOpen(userCashString, setUserCashString)}
               variant="gradient2"
               size="sm"
               className="hidden xs:flex"
             >
-              ${userCash}
+              {userCashString}
+              {/* {userCashModal.valueChanged ? userCashModal.userCashString : userCashString} */}
             </Button>
           )}
           {isPro !== undefined && isPro === false && (

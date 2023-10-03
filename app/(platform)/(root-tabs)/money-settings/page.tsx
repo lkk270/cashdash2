@@ -4,13 +4,13 @@ import { CashOutButton } from '@/components/buttons/cash-out-button';
 import { Card } from '@/components/ui/card';
 import { Wallet } from 'lucide-react';
 import { checkSubscription } from '@/lib/subscription';
-import { getUserCash } from '@/lib/userCash';
+import { getUserCashString } from '@/lib/userCash';
 import { getUserStripeAccount } from '@/lib/stripeAccount';
 import { OpenPayoutHistoryModal } from '@/components/buttons/open-payout-history-modal-button';
 
 const MoneySettingsPage = async () => {
   const isPro = await checkSubscription();
-  const userCash = await getUserCash();
+  const userCashString = await getUserCashString();
   const userStripeAccount = await getUserStripeAccount();
   return (
     <div className="h-full p-4 md:pr-[52px] pace-y-6 p md:pl-32">
@@ -24,7 +24,7 @@ const MoneySettingsPage = async () => {
         <SubscriptionButton isPro={isPro} />
       </Card>
 
-      <Card className="p-4 shadow-md bg-primary/10 rounded-xl">
+      <Card className="p-4 mt-4 shadow-md bg-primary/10 rounded-xl">
         <h3 className="mb-3 text-lg font-bold text-sky-300">Cash Outs</h3>
         <div className="flex items-center mb-4 space-x-3">
           <Wallet size={24} />
@@ -32,7 +32,7 @@ const MoneySettingsPage = async () => {
         </div>
         <div className="flex flex-wrap min-w-[100px]">
           <LinkStripeButton userStripeAccount={userStripeAccount} />
-          <CashOutButton userStripeAccount={userStripeAccount} userCash={userCash} />
+          <CashOutButton userStripeAccount={userStripeAccount} userCashString={userCashString} />
           <OpenPayoutHistoryModal />
         </div>
       </Card>

@@ -10,7 +10,7 @@ const NotFound: React.FC<NotFoundProps> = ({ error }) => {
   return (
     <>
       <DashboardLayout
-        userValues={{ isPro: undefined, userCash: undefined, numOfUnreadNotifications: undefined }}
+        userValues={{ isPro: undefined, userCashString: undefined, numOfUnreadNotifications: undefined }}
         children={<EmptyState title="Uh Oh" subtitle="404 - Page not Found 👾" />}
       />
     </>

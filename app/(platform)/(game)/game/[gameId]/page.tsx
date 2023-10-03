@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 
 import { getNumOfUnreadNotifications } from '@/lib/notifications';
 import { checkSubscription } from '@/lib/subscription';
-import { getUserCash } from '@/lib/userCash';
+import { getUserCashString } from '@/lib/userCash';
 import { GameClient } from './components/client';
 import { DashboardLayout } from '@/components/dashboard-layout';
 
@@ -17,12 +17,12 @@ interface GameIdPageProps {
 const GameIdPage = async ({ params }: GameIdPageProps) => {
   const { userId } = auth();
   const isPro = await checkSubscription();
-  const userCash = await getUserCash();
+  const userCashString = await getUserCashString();
   const numOfUnreadNotifications = await getNumOfUnreadNotifications();
   
   const userValues = {
     isPro: isPro,
-    userCash: userCash,
+    userCashString: userCashString,
     numOfUnreadNotifications: numOfUnreadNotifications,
   };
 
