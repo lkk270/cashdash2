@@ -62,7 +62,7 @@ model Lobby {
   gameId                String
   numRewards            Int
   firstPlacePrize       Float
-  secondPlacePrice      Float
+  secondPlacePrize      Float
   thirdPlacePrize       Float
   unspecifiedPlacePrize Float?
   numScoresToAccess     Int

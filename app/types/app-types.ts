@@ -28,6 +28,13 @@ export type ModifiedScoreType2 = {
   createdAt: Date;
 };
 
+export type ModifiedScoreType3 = {
+  id: string;
+  userId: string;
+  score: number;
+  createdAt: Date;
+};
+
 export type ModifiedPaymentType = {
   id: string;
   amount: number;

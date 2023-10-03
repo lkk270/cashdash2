@@ -32,7 +32,7 @@ export const LobbyAboutModal = () => {
 
   const prizes = {
     first: `$${lobbyAboutModal.data?.lobby.firstPlacePrize}`,
-    second: `$${lobbyAboutModal.data?.lobby.secondPlacePrice}`,
+    second: `$${lobbyAboutModal.data?.lobby.secondPlacePrize}`,
     third: `$${lobbyAboutModal.data?.lobby.thirdPlacePrize}`,
     other: `$${lobbyAboutModal.data?.lobby.unspecifiedPlacePrize}`,
   };
