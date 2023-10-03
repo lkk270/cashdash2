@@ -13,7 +13,7 @@ const howItWorks = [
     name: 'Tiers',
     bg: 'bg-gradient-to-r from-violet-600 to-blue-700',
     description:
-      'To ensure a fair competition, each game provides a minimum of three difficulty tiers.',
+      'To ensure fair competition, each game provides a minimum of three difficulty tiers.',
   },
   {
     name: 'Sessions',
