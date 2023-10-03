@@ -13,7 +13,7 @@ import {
 import { processBestScores, prepareScoresForDisplay } from '@/lib/scores';
 import { generateChallengeHash, generateResponseHash } from '@/lib/hash';
 import prismadb from '@/lib/prismadb';
-import { ScoreType, GameSession } from '@prisma/client';
+import { ScoreType } from '@prisma/client';
 
 const acceptedTypesObj: { [key: string]: number } = {
   '05': 3,

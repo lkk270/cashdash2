@@ -130,16 +130,16 @@ export const Notifications = ({ numOfUnreadNotificationsParam }: NotificationPro
             })
           )}
         </DropdownMenuGroup>
-        <div className="flex items-center justify-between py-4 space-x-2">
-          <div className="text-sm text-muted-foreground">
-            Showing {notifications.length.toString()}/{totalNumOfNotifications.toString()} rows
-          </div>
-          {!loading && notifications.length < totalNumOfNotifications && (
+        {!loading && notifications.length < totalNumOfNotifications && (
+          <div className="flex items-center justify-between py-4 space-x-2">
+            <div className="text-sm text-muted-foreground">
+              Showing {notifications.length.toString()}/{totalNumOfNotifications.toString()} rows
+            </div>
             <Button disabled={loadingMore} variant="outline" size="sm" onClick={onLoadMore}>
               {loadingMore ? 'Loading more...' : 'Load more'}
             </Button>
-          )}
-        </div>
+          </div>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

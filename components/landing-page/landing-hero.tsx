@@ -15,7 +15,7 @@ export const LandingHero = () => {
     <div className="pt-12 pb-24 space-y-5 font-bold text-center text-white ">
       <div className="flex flex-col items-center space-y-5 text-4xl font-extrabold sm:text-5xl md:text-4xl lg:text-5xl">
         <h1>IMAGINE A PLACE...</h1>
-        <div className="justify-center w-2/3 text-sm font-light text-center items-marker:center md:text-xl text-zinc-400">
+        <div className="justify-center w-2/3 text-lg font-light text-center items-marker:center md:text-xl text-zinc-400">
           ...where you can play games and make money by achieving high scores. A place that makes
           playing games a lot more fun and worth your time!
         </div>
