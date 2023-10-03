@@ -116,7 +116,6 @@ export const Notifications = ({ numOfUnreadNotificationsParam }: NotificationPro
               return (
                 <div>
                   <DropdownMenuItem className="flex flex-col items-start">
-                    {/* {item.read && <Dot size={40} strokeWidth={3} className="text-transparent" />} */}
                     <span className="flex items-center mb-1 text-primary/40">
                       {item.createdAt.toString().split('T')[0]}
                       {!item.read && (

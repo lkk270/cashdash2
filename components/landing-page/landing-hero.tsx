@@ -23,7 +23,7 @@ export const LandingHero = () => {
       <div className="text-4xl text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
         <TypewriterComponent
           options={{
-            strings: ['Play', 'Minesweeper', 'Blackjack', 'Flappy Birb', '& become a winner!'],
+            strings: ['Play', 'Minesweeper', 'Blackjack', 'Flappy Birb', '& win big!'],
             autoStart: true,
             loop: true,
           }}

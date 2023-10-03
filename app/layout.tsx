@@ -19,8 +19,9 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Cash Dash',
-  description: 'Cash Dash - Have fun, make cash',
+  title: 'CashDash',
+  description:
+    'IMAGINE A PLACE... where you can play games and make money by achieving high scores. A place that makes playing games a lot more fun and worth your time!',
   appleWebApp: false,
 };
 export default function RootLayout({ children }: { children: React.ReactNode }) {
