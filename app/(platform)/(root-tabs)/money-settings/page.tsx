@@ -4,7 +4,6 @@ import { CashOutButton } from '@/components/buttons/cash-out-button';
 import { Card } from '@/components/ui/card';
 import { Wallet } from 'lucide-react';
 import { checkSubscription } from '@/lib/subscription';
-import { getUserCashString } from '@/lib/userCash';
 import { getUserStripeAccount } from '@/lib/stripeAccount';
 import { OpenPayoutHistoryModal } from '@/components/buttons/open-payout-history-modal-button';
 
