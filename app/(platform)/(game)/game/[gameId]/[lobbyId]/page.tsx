@@ -173,6 +173,19 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
           });
           balanceGame = true;
         }
+        if (!game.averageScores[0]) {
+          //for balance games we need to initialize an gameAverageScore if there isn't one already
+          await prismadb.gameAverageScore.create({
+            data: {
+              userId: userId,
+              gameId: game.id,
+              timesPlayed: 0,
+              averageScore: -1,
+              weightedAverageScore: -1,
+              weightedTimesPlayed: 0,
+            },
+          });
+        }
       }
       if (!userHasScore) {
         userHasGameSessionScore = await checkUserHasGameSessionScore(lobby.sessions[0].id);

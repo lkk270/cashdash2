@@ -188,7 +188,7 @@ export async function POST(req: Request) {
                 weightedScoreObj.weightedScore) /
               newWeightedTimesPlayed;
 
-            game.scoreType === ScoreType.time && body.score < body.userBestScore.score;
+            // game.scoreType === ScoreType.time && body.score < body.userBestScore.score;
 
             if (
               (game.scoreType === ScoreType.time &&
@@ -202,6 +202,7 @@ export async function POST(req: Request) {
                 gameSession.gameId,
                 gameSession.lobbySessionId
               );
+              //there will always be a found score, but if something goes wrong and it doesn't find one we have this check
               if (currentScore) {
                 transaction = prismadb.$transaction([
                   prismadb.gameAverageScore.updateMany({
@@ -225,8 +226,8 @@ export async function POST(req: Request) {
                     },
                   }),
                 ]);
+                await transaction;
               }
-              await transaction;
             } else {
               await prismadb.gameAverageScore.updateMany({
                 where: {
@@ -263,8 +264,8 @@ export async function POST(req: Request) {
                 },
               }),
             ]);
+            await transaction;
           }
-          await transaction;
 
           if (
             !body.userBestScore.score ||
