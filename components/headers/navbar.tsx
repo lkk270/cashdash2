@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { UserButton } from '@clerk/nextjs';
 // import { Poppins } from 'next/font/google';
 import { Ban, Bell } from 'lucide-react';
@@ -16,6 +15,7 @@ import { useUserCashModal } from '@/hooks/use-user-cash-modal';
 import { UserStripeAccount } from '@prisma/client';
 import { Notifications } from '@/components/notifications';
 import { useUserCash } from '@/components/providers/user-cash-provider';
+import { useIsPro } from '@/components/providers/is-pro-provider';
 
 // const font = Poppins({
 //   weight: '600',
@@ -32,14 +32,20 @@ interface NavbarProps {
 }
 
 export const Navbar = ({ userValues }: NavbarProps) => {
-  const isPro = userValues.isPro;
   const proModal = useProModal();
   const userCashModal = useUserCashModal();
   const { userCashString, setUserCashString } = useUserCash();
+  const { isPro, setIsPro } = useIsPro();
 
   useEffect(() => {
     setUserCashString(userValues.userCashString);
   }, [userValues.userCashString]);
+
+  useEffect(() => {
+    if (typeof userValues.isPro === 'boolean') {
+      setIsPro(userValues.isPro);
+    }
+  }, [userValues.isPro]);
 
   return (
     <div className="fixed z-50 flex items-center justify-between w-full h-16 px-4 py-2 border-b border-primary/10 bg-secondary">

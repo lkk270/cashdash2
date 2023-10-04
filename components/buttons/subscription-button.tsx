@@ -3,16 +3,14 @@
 import axios from 'axios';
 import { useState } from 'react';
 import { Sparkles } from 'lucide-react';
-
 import { Button } from '@/components/ui/button';
+
 import { useToast } from '@/components/ui/use-toast';
+import { useIsPro } from '@/components/providers/is-pro-provider';
 
-interface SubscriptionButtonProps {
-  isPro?: boolean;
-}
-
-export const SubscriptionButton = ({ isPro }: SubscriptionButtonProps) => {
+export const SubscriptionButton = () => {
   const [isLoading, setLoading] = useState(false);
+  const { isPro, setIsPro } = useIsPro();
   const { toast } = useToast();
 
   const onClick = () => {

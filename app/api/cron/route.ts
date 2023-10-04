@@ -194,7 +194,7 @@ export async function POST(req: Request) {
             value: prize,
             place: iPlusOne,
           };
-          notificationText = `${gameObj.name} session ended. Your final score was ${score.score}, which was good enough for ${rankText} place - out of ${sortedScoresLength} scores! The cash prize for ${rankText} is $${prize}, and it has been delivered.`;
+          notificationText = `${gameObj.name} session ended. Your final score was ${score.score}, which was good enough for ${rankText} place - out of ${sortedScoresLength} scores! The cash prize for ${rankText} place is $${prize}, and it has been delivered.`;
           await prismadb.reward.create({
             data: {
               userId: score.userId,
