@@ -101,7 +101,7 @@ export async function POST(req: Request) {
         let newWeightedAverageScore;
         const responseHashToCompare = generateResponseHash(body.cHash, body.score);
         if (responseHashToCompare !== body.rHash) {
-          return new NextResponse('Unauthorized1', { status: 401 });
+          return new NextResponse('Unauthorized', { status: 401 });
         }
         const currentMilliseconds = currentDate.getTime();
         const game = await getGame(userId, gameSession.gameId);
