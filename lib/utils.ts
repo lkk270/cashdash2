@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { ScoreType } from '@prisma/client';
+import { DateTime } from 'luxon';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -29,16 +30,16 @@ export function isValidLobbyAccess(inputs: {
     message: 'Access granted.',
   };
 
-  const currentZuluTime = new Date();
+  const currentDate = new Date();
 
   let errorMessages: string[] = [];
 
   // Check if expiredDateTime or startDateTime is before the current Zulu time
-  if (inputs.expiredDateTime < currentZuluTime && inputs.startDateTime < currentZuluTime) {
+  if (inputs.expiredDateTime < currentDate && inputs.startDateTime < currentDate) {
     errorMessages.push('This lobby has expired');
   }
 
-  if (inputs.expiredDateTime < currentZuluTime && inputs.startDateTime > currentZuluTime) {
+  if (inputs.expiredDateTime < currentDate && inputs.startDateTime > currentDate) {
     errorMessages.push('This lobby is not yet accessible');
   }
 
@@ -122,23 +123,23 @@ export function formatBalance(balance: number): string {
 }
 
 export const getStartAndExpiredDate = () => {
-  const currentDate = new Date();
+  const currentDateInEST = DateTime.now().setZone('America/New_York');
+  const isPastMidnight = currentDateInEST.hour === 0;
 
-  // For safety check, in case cron runs slightly after 11:59 pm
-  const isPastMidnight = currentDate.getHours() === 0;
-
-  const baseDate = new Date(currentDate);
-  if (!isPastMidnight) {
-    baseDate.setDate(baseDate.getDate() + 1);
+  let baseDate;
+  if (isPastMidnight) {
+    baseDate = currentDateInEST;
+  } else {
+    baseDate = currentDateInEST.plus({ days: 1 });
   }
 
   // Set startDateTime to 00:05 AM
-  const startDateTime = new Date(baseDate);
-  startDateTime.setHours(0, 5, 0, 0); // Hours, Minutes, Seconds, Milliseconds
+  const startDateTime = baseDate.set({ hour: 0, minute: 5, second: 0, millisecond: 0 }).toJSDate();
 
   // Set expiredDateTime to 11:59 PM
-  const expiredDateTime = new Date(baseDate);
-  expiredDateTime.setHours(23, 59, 0, 0); // Hours, Minutes, Seconds, Milliseconds
+  const expiredDateTime = baseDate
+    .set({ hour: 23, minute: 59, second: 0, millisecond: 0 })
+    .toJSDate();
 
-  return {currentDate, startDateTime, expiredDateTime };
+  return { startDateTime, expiredDateTime };
 };

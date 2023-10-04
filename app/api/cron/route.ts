@@ -13,7 +13,8 @@ export async function POST(req: Request) {
     const reqHeaders = headers();
     const secret = reqHeaders.get('cron_secret');
     const bodyLength = Object.keys(body).length;
-    const { currentDate, startDateTime, expiredDateTime } = getStartAndExpiredDate();
+    const { startDateTime, expiredDateTime } = getStartAndExpiredDate();
+    const currentDate = new Date();
     const thirtyMinutesFromNow = new Date(currentDate.getTime() + 30 * 60 * 1000);
 
     //query all things now that use isActive = true, because we will set it false first

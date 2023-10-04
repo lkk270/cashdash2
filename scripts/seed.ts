@@ -118,6 +118,25 @@ async function main() {
     // await db.score.deleteMany({});
     // await db.gameSession.deleteMany({});
     // await db.lobbySession.deleteMany({});
+    // const game = await db.game.findUnique({
+    //   where: {
+    //     id: '01ee9a4a-0d74-4a55-9752-875477b50099',
+    //   },
+    // });
+    // const createdAt = game.createdAt;
+    // const localCreatedAt = new Date(createdAt);
+    // const createdAtIsoString = createdAt.toISOString();
+    // const localCreatedAtIsoString = localCreatedAt.toISOString();
+    // console.log('createdAt', createdAt);
+    // console.log('localCreatedAt', localCreatedAt);
+    // console.log('createdAtIsoString', createdAtIsoString);
+    // console.log('localCreatedAtIsoString', localCreatedAtIsoString);
+    // const localCreatedAt2 = localCreatedAt.toString();
+    // const localCreatedAt3 = localCreatedAt.toLocaleString();
+    // console.log('localCreatedAt2', localCreatedAt2); // This will show the local representation
+    // console.log('localCreatedAt3', localCreatedAt3); // This will show the local representation with user's locale
+    // console.log(createdAt.toLocaleString());
+    // console.log(createdAt.toString());
   } catch (error) {
     console.error('Error seeding default categories:', error);
   } finally {

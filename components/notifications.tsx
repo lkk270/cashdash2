@@ -117,7 +117,7 @@ export const Notifications = ({ numOfUnreadNotificationsParam }: NotificationPro
                 <div>
                   <DropdownMenuItem className="flex flex-col items-start">
                     <span className="flex items-center mb-1 text-primary/40">
-                      {item.createdAt.toString().split('T')[0]}
+                      {new Date(item.createdAt).toLocaleString().split(',')[0]}
                       {!item.read && (
                         <Dot size={10} strokeWidth={24} className="ml-2 text-sky-500" />
                       )}
