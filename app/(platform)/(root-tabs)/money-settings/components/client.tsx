@@ -15,7 +15,7 @@ interface MoneySettingsClientProps {
 }
 
 export const MoneySettingsClient = ({ userStripeAccount }: MoneySettingsClientProps) => {
-  const { isPro, setIsPro } = useIsPro();
+  const { isPro } = useIsPro();
   return (
     <div className="h-full p-4 md:pr-[52px] pace-y-6 p md:pl-32">
       <Card className="p-4 shadow-md bg-primary/10 rounded-xl">

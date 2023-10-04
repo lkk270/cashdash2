@@ -68,11 +68,11 @@ export const WelcomeMessagesModal = () => {
             <div className="justify-center mt-6">
               <p>
                 CashDash is currently in beta! We're excited about the future and have plans to
-                offer enticing cash prizes. We cannot offer prizes until a critical mass of users is
-                reached. So once we hit our initial target of 10,000 users, the top 3 scores of
-                every game's session will share a total prize pool of $500. And here's the thrilling
-                part: as our user base grows, so will the rewards! The more players we have, the
-                bigger the cash rewards. We truly appreciate you being a part of CashDash.
+                offer enticing cash prizes. However, we cannot offer prizes until a critical mass of
+                users is reached. So once we hit our initial target of 10,000 users, the top 3
+                scores of every game's session will share a total prize pool of $500. And here's the
+                thrilling part: as our user base grows, so will the rewards! The more players we
+                have, the bigger the cash rewards. We truly appreciate you being a part of CashDash.
               </p>
               <br />
               <p>

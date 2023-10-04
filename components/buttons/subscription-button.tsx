@@ -10,7 +10,7 @@ import { useIsPro } from '@/components/providers/is-pro-provider';
 
 export const SubscriptionButton = () => {
   const [isLoading, setLoading] = useState(false);
-  const { isPro, setIsPro } = useIsPro();
+  const { isPro } = useIsPro();
   const { toast } = useToast();
 
   const onClick = () => {
