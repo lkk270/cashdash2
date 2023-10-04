@@ -241,7 +241,9 @@ export async function POST(req: Request) {
           prize = lobby.unspecifiedPlacePrize;
         }
         if (iPlusOne <= lobby.numRewards || iPlusOne <= 3) {
-          notificationText = `${gameObj.name} session ended. Your final score was ${formattedScore}, which was good enough for ${rankText} place - out of ${sortedScoresLength} scores! The cash prize for ${rankText} place is $${prize}, and it has been delivered.`;
+          notificationText = `${gameObj.name} session ended. Your final score was ${formattedScore}, which was good enough for ${rankText} place - out of ${sortedScoresLength} scores!`;
+          //once I am giving out rewards, I will switch the notificationText to this one
+          // notificationText = `${gameObj.name} session ended. Your final score was ${formattedScore}, which was good enough for ${rankText} place - out of ${sortedScoresLength} scores! The cash prize for ${rankText} place is $${prize}, and it has been delivered.`;
           await prismadb.reward.create({
             data: {
               userId: score.userId,
