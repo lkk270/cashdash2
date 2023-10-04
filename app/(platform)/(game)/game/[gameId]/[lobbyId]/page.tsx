@@ -23,6 +23,7 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
   let userHasScore = true;
   let userHasGameSessionScore = true;
   let userPlayedInSession = true;
+  let balanceGame = false;
   let game = null;
   let allScores: ModifiedScoreType[] = [];
   let bestScoresArray: ModifiedScoreType[] = [];
@@ -159,6 +160,8 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
             userId: userId,
             username: user.username || '',
             score: 1000,
+            betTotalHand1: 0,
+            betTotalHand2: 0,
           };
           allScores.push(score);
           await prismadb.score.create({
@@ -168,7 +171,21 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
               lobbySessionId: lobby.sessions[0].id,
             },
           });
+          balanceGame = true;
         }
+      }
+      //initialize an gameAverageScore if there isn't one already
+      if (!game.averageScores[0]) {
+        await prismadb.gameAverageScore.create({
+          data: {
+            userId: userId,
+            gameId: game.id,
+            timesPlayed: 0,
+            averageScore: -1,
+            weightedAverageScore: -1,
+            weightedTimesPlayed: 0,
+          },
+        });
       }
       if (!userHasScore) {
         userHasGameSessionScore = await checkUserHasGameSessionScore(lobby.sessions[0].id);
@@ -206,7 +223,11 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
   if (accessResult.isValid === false) {
     return (
       <DashboardLayout
-        userValues={{ isPro: undefined, userCash: undefined }}
+        userValues={{
+          isPro: undefined,
+          userCashString: '$0.00',
+          numOfUnreadNotifications: undefined,
+        }}
         children={
           <EmptyState
             withBackButton={true}
@@ -220,7 +241,11 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
   }
   return (
     <LobbyClient
-      userBestScore={userPlayedInSession && userPlayedInSession !== null ? displayScores[0] : null}
+      userBestScore={
+        (userPlayedInSession && userPlayedInSession !== null) || balanceGame
+          ? displayScores[0]
+          : null
+      }
       scoresParam={displayScores}
       game={game!}
       lobby={lobby}

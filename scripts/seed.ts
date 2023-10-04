@@ -69,11 +69,74 @@ async function main() {
     // });
     // await db.score.deleteMany({
     //   where: {
-    //     lobbySessionId: 'f8ab962c-60b9-41d9-a689-be731f8a8ce5',
-    //     createdAt: '2023-09-05T01:18:43.557Z',
+    //     lobbySessionId: '611f5cb1-e380-4261-a2bc-718c2b246294',
     //   },
     // });
     // await db.gameSession.deleteMany({});
+    // await db.notification.deleteMany({});
+    // let data = [];
+    // for (let i = 0; i < 17; i++) {
+    //   let obj = {
+    //     userId: 'user_2TKskwGmolB1V1OQ7FvEZvjkzh2',
+    //     text: `${i}Flappy Birb${i} session ended. You ended up with a score of 1200. Your score ranked 2323/2552`,
+    //     createdAt: new Date(1696281956735 - i * 86400000),
+    //     read: i < 3 ? false : true,
+    //   };
+    //   data.push(obj);
+    // }
+    // await db.notification.createMany({
+    //   data: data,
+    // });
+    // const thirtyMinutesFromNow = new Date(new Date().getTime() + 30 * 60 * 1000);
+    //  await db.score.deleteMany({
+    //   where: {
+    //     gameId: '95342055-5033-49a9-8231-c0b1841a8238',
+    //   },
+    // });
+    // await db.gameSession.deleteMany({
+    //   where: {
+    //     gameId: '95342055-5033-49a9-8231-c0b1841a8238',
+    //   },
+    // });
+    // await db.lobbySession.deleteMany({
+    //   where: {
+    //     lobbyId: '6ac5594a-794a-4352-b051-4ae2f31d3340',
+    //   },
+    // });
+    // const lobbies = await db.lobby.findMany({
+    //   select: {
+    //     id: true,
+    //     sessions: true,
+    //   },
+    // });
+    // if (!lobbies) {
+    //   console.log('Lobby with the given ID does not exist');
+    // } else {
+    //   console.log(lobbies);
+    //   console.log(lobbies.length);
+    // }
+    // await db.score.deleteMany({});
+    // await db.gameSession.deleteMany({});
+    // await db.lobbySession.deleteMany({});
+    // const game = await db.game.findUnique({
+    //   where: {
+    //     id: '01ee9a4a-0d74-4a55-9752-875477b50099',
+    //   },
+    // });
+    // const createdAt = game.createdAt;
+    // const localCreatedAt = new Date(createdAt);
+    // const createdAtIsoString = createdAt.toISOString();
+    // const localCreatedAtIsoString = localCreatedAt.toISOString();
+    // console.log('createdAt', createdAt);
+    // console.log('localCreatedAt', localCreatedAt);
+    // console.log('createdAtIsoString', createdAtIsoString);
+    // console.log('localCreatedAtIsoString', localCreatedAtIsoString);
+    // const localCreatedAt2 = localCreatedAt.toString();
+    // const localCreatedAt3 = localCreatedAt.toLocaleString();
+    // console.log('localCreatedAt2', localCreatedAt2); // This will show the local representation
+    // console.log('localCreatedAt3', localCreatedAt3); // This will show the local representation with user's locale
+    // console.log(createdAt.toLocaleString());
+    // console.log(createdAt.toString());
   } catch (error) {
     console.error('Error seeding default categories:', error);
   } finally {

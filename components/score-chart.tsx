@@ -88,11 +88,6 @@ export const ScoreChart = ({ scores, userGameAverageScores }: ScoreChartProps) =
   };
 
   const gameNames = Object.keys(games);
-  let gameNames2 = Object.keys(games);
-  for (let i = 0; i < 20; i++) {
-    gameNames2.push('testicles' + i.toString());
-  }
-
   if (gameNames.length > 0 && !activeTab) {
     setActiveTab(gameNames[0]);
   }
@@ -153,18 +148,32 @@ export const ScoreChart = ({ scores, userGameAverageScores }: ScoreChartProps) =
           const startIndex = endIndex - 30 > 0 ? endIndex - 30 : 0; // 10th from last, but not less than 0
           const activeGameId = games[gameName]?.[0]?.lobbySession?.lobby?.game?.id;
 
-          const averageScore = getAverageScoreForGame(activeGameId);
-          const weightedAverageScore = getWeightedAverageScoreForGame(activeGameId);
           const timesPlayed = getTimesPlayedForGame(activeGameId);
           const totalWinnings = getTotalWinningsForGame(games[gameName]);
-          const formattedAverageScore =
-            currentScoreType === ScoreType.time
-              ? convertMillisecondsToMinSec(averageScore)
-              : averageScore.toFixed(2);
-          const formattedWeightedAverageScore =
-            currentScoreType === ScoreType.time
-              ? convertMillisecondsToMinSec(weightedAverageScore)
-              : weightedAverageScore.toFixed(2);
+
+          const timesPlayedText =
+            currentScoreType === ScoreType.balance
+              ? 'Sessions played in:'
+              : 'Times played i.e recorded a meaningful score:';
+
+          let formattedAverageScore = 'Not yet available';
+          let formattedWeightedAverageScore = 'Not yet available';
+
+          const averageScore = getAverageScoreForGame(activeGameId);
+          const weightedAverageScore = getWeightedAverageScoreForGame(activeGameId);
+          if (averageScore > 0 && timesPlayed > 25) {
+            formattedAverageScore =
+              currentScoreType === ScoreType.time
+                ? convertMillisecondsToMinSec(averageScore)
+                : averageScore.toFixed(2);
+          }
+          if (weightedAverageScore > 0 && timesPlayed > 25) {
+            formattedWeightedAverageScore =
+              currentScoreType === ScoreType.time
+                ? convertMillisecondsToMinSec(weightedAverageScore)
+                : weightedAverageScore.toFixed(2);
+          }
+
           return (
             <TabsContent
               key={gameName}
@@ -175,7 +184,9 @@ export const ScoreChart = ({ scores, userGameAverageScores }: ScoreChartProps) =
                 <div className="justify-center pl-10 mb-3 text-sm text-gray-600 ">
                   <p>Average Score: {formattedAverageScore}</p>
                   <p>Weighted Average Score: {formattedWeightedAverageScore}</p>
-                  <p>Times played i.e. recorded a score: {timesPlayed}</p>
+                  <p>
+                    {timesPlayedText} {timesPlayed}
+                  </p>
                   <p>Total Winnings: ${totalWinnings}</p>
                 </div>
               )}

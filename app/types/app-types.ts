@@ -1,4 +1,4 @@
-import { Reward, PayoutStatus } from '@prisma/client';
+import { Reward, PayoutStatus, TierBoundary } from '@prisma/client';
 
 export type ScoreRelationsType = {
   id: string;
@@ -18,10 +18,19 @@ export type ModifiedScoreType = {
   userId: string;
   username: string;
   score: number;
+  betTotalHand1?: number;
+  betTotalHand2?: number;
   rank?: number;
 };
 
 export type ModifiedScoreType2 = {
+  score: number;
+  createdAt: Date;
+};
+
+export type ModifiedScoreType3 = {
+  id: string;
+  userId: string;
   score: number;
   createdAt: Date;
 };
@@ -42,4 +51,30 @@ export type ModifiedPaymentType2 = {
   createdAt: Date;
   stripePayoutId?: string | null;
   stripeAccountId?: string | null;
+};
+
+export type ModifiedGameType = {
+  scoreType: string;
+  cheatScore: number;
+  tierBoundaries: TierBoundary[];
+  lobbies: {
+    id: string;
+    name: string;
+    scoreRestriction: number;
+    numScoresToAccess: number;
+    sessions: {
+      id: string;
+      expiredDateTime: any;
+      startDateTime: any;
+      scores: {
+        id: string;
+      }[];
+    }[];
+  }[];
+};
+
+export type ModifiedGameType2 = {
+  scoreType: string;
+  cheatScore: number;
+  tierBoundaries: TierBoundary[];
 };

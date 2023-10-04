@@ -3,10 +3,10 @@ import gameEvents from './event-emitter';
 const SCREEN_SIZE = window.innerWidth;
 const MOBILE_SCREEN_WIDTH = 469;
 const IS_MOBILE = SCREEN_SIZE > MOBILE_SCREEN_WIDTH ? false : true;
-const JUMP_STRENGTH = IS_MOBILE ? -350 : -275;
-const GAP_SIZE = IS_MOBILE ? 85 : 75;
-const NORMAL_SPEED = IS_MOBILE ? 1950 : 1750;
-const FAST_SPEED = IS_MOBILE ? 1550 : 1350;
+const JUMP_STRENGTH = IS_MOBILE ? -350 : -300;
+const GAP_SIZE = IS_MOBILE ? 85 : 82;
+const NORMAL_SPEED = IS_MOBILE ? 1950 : 1850;
+const FAST_SPEED = IS_MOBILE ? 1550 : 1500;
 export default class FlappyBirdScene extends Phaser.Scene {
   onGameStart: () => void;
   onGameEnd: (score: number) => void;
@@ -228,7 +228,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
     // this.physics.world.createDebugGraphic();
     this.cleanUp();
     this.gameOver = false;
-    this.add.image(centerX, centerY, 'sky');
+    this.add.image(centerX, centerY, 'sky').setScale(1.17);
     this.scoreText = this.add.text(16, 16, 'Score: 0', {
       fontSize: '20px',
       color: '#580d82',

@@ -1,8 +1,9 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { UserButton } from '@clerk/nextjs';
-import { Poppins } from 'next/font/google';
+// import { Poppins } from 'next/font/google';
 import { Ban, Bell } from 'lucide-react';
 
 import Logo from '@/components/logo';
@@ -12,29 +13,44 @@ import { MobileSidebar } from '@/components/headers/mobile-sidebar';
 import { useProModal } from '@/hooks/use-pro-modal';
 import { useUserCashModal } from '@/hooks/use-user-cash-modal';
 import { UserStripeAccount } from '@prisma/client';
+import { Notifications } from '@/components/notifications';
+import { useUserCash } from '@/components/providers/user-cash-provider';
+import { useIsPro } from '@/components/providers/is-pro-provider';
 
-const font = Poppins({
-  weight: '600',
-  subsets: ['latin'],
-});
+// const font = Poppins({
+//   weight: '600',
+//   subsets: ['latin'],
+// });
 
 interface NavbarProps {
   userValues: {
+    userCashString: string;
     isPro?: boolean;
-    userCash?: string;
     userStripeAccount?: UserStripeAccount;
+    numOfUnreadNotifications?: number;
   };
 }
 
 export const Navbar = ({ userValues }: NavbarProps) => {
-  const isPro = userValues.isPro;
-  const userCash = userValues.userCash;
   const proModal = useProModal();
   const userCashModal = useUserCashModal();
+  const { userCashString, setUserCashString } = useUserCash();
+  const { isPro, setIsPro } = useIsPro();
+
+  useEffect(() => {
+    setUserCashString(userValues.userCashString);
+  }, [userValues.userCashString]);
+
+  useEffect(() => {
+    if (typeof userValues.isPro === 'boolean') {
+      setIsPro(userValues.isPro);
+    }
+  }, [userValues.isPro]);
+
   return (
     <div className="fixed z-50 flex items-center justify-between w-full h-16 px-4 py-2 border-b border-primary/10 bg-secondary">
       <div className="flex items-center">
-        <MobileSidebar hide={true} />
+        <MobileSidebar hide={'md'} />
         <Link href="/dashboard">
           {/* <h1
             className={cn(
@@ -49,16 +65,17 @@ export const Navbar = ({ userValues }: NavbarProps) => {
           </div>
         </Link>
       </div>
-      <div className="flex items-center gap-x-3">
-        <div className="flex items-center sm:flex gap-x-3">
-          {userCash && (
+      <div className="flex items-center">
+        <div className="flex items-center sm:flex gap-x-4">
+          {userCashString && (
             <Button
-              onClick={() => userCashModal.onOpen(userCash)}
+              onClick={() => userCashModal.onOpen(userCashString)}
               variant="gradient2"
               size="sm"
               className="hidden xs:flex"
             >
-              ${userCash}
+              {userCashString}
+              {/* {userCashModal.valueChanged ? userCashModal.userCashString : userCashString} */}
             </Button>
           )}
           {isPro !== undefined && isPro === false && (
@@ -66,16 +83,17 @@ export const Navbar = ({ userValues }: NavbarProps) => {
               onClick={proModal.onOpen}
               variant="premium"
               size="sm"
-              className="hidden xs:flex"
+              className="hidden xs:flex gap-x-1"
             >
-              <Ban className="w-4 h-4 mr-2 text-white" />
-              Ads
+              <Ban className="w-4 h-4 text-white" /> Ads
             </Button>
           )}
-          <Bell />
+          {typeof userValues.numOfUnreadNotifications === 'number' && (
+            <Notifications numOfUnreadNotificationsParam={userValues.numOfUnreadNotifications} />
+          )}
           <ModeToggle />
+          <UserButton afterSignOutUrl="/" />
         </div>
-        <UserButton afterSignOutUrl="/" />
       </div>
     </div>
   );

@@ -55,31 +55,31 @@ export async function POST(req: Request) {
       );
     }
 
-    const transfer = await stripe.transfers.create({
-      amount: Math.round(1 * 100), // Convert to cents.
-      currency: 'usd',
-      destination: userStripeAccount.stripeAccountId, // The ID of the connected Stripe account.
-      metadata: {
-        userId: userId,
-        note: 'Transfer for user withdrawal',
-      },
-    });
+    // const transfer = await stripe.transfers.create({
+    //   amount: Math.round(1 * 100), // Convert to cents. //change to withdrawalAmount * 100
+    //   currency: 'usd',
+    //   destination: userStripeAccount.stripeAccountId, // The ID of the connected Stripe account.
+    //   metadata: {
+    //     userId: userId,
+    //     note: 'Transfer for user withdrawal',
+    //   },
+    // });
     // Initiate the Stripe Payout.
 
-    const payout = await stripe.payouts.create(
-      {
-        amount: Math.round(1 * 100), // Convert to cents.
-        currency: 'usd',
-        destination: userStripeAccount.stripeBankAccountId, // The ID for the bank account or card.
-        metadata: {
-          userId: userId,
-          note: 'User withdrawal',
-        },
-      },
-      {
-        stripeAccount: userStripeAccount.stripeAccountId,
-      }
-    );
+    // const payout = await stripe.payouts.create(
+    //   {
+    //     amount: Math.round(1 * 100), // Convert to cents.
+    //     currency: 'usd',
+    //     destination: userStripeAccount.stripeBankAccountId, // The ID for the bank account or card.
+    //     metadata: {
+    //       userId: userId,
+    //       note: 'User withdrawal',
+    //     },
+    //   },
+    //   {
+    //     stripeAccount: userStripeAccount.stripeAccountId,
+    //   }
+    // );
     // The Stripe account ID
 
     // Double-check the user's balance before deduction.
@@ -91,15 +91,15 @@ export async function POST(req: Request) {
     // If balance check passes, proceed with deduction and other operations
     await prismadb.$transaction([
       // Update the UserPayout table.
-      prismadb.userPayout.create({
-        data: {
-          userId: userId,
-          amount: withdrawalAmount,
-          status: 'PENDING',
-          stripePayoutId: payout.id,
-          stripeAccountId: userStripeAccount.stripeAccountId,
-        },
-      }),
+      // prismadb.userPayout.create({
+      //   data: {
+      //     userId: userId,
+      //     amount: withdrawalAmount,
+      //     status: 'PENDING',
+      //     stripePayoutId: payout.id,
+      //     stripeAccountId: userStripeAccount.stripeAccountId,
+      //   },
+      // }),
       // Deduct the amount from the UserCash balance.
       prismadb.userCash.update({
         where: { userId },

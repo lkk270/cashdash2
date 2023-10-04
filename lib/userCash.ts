@@ -2,11 +2,11 @@ import { auth } from '@clerk/nextjs';
 
 import prismadb from '@/lib/prismadb';
 
-export const getUserCash = async () => {
+export const getUserCashString = async () => {
   const { userId } = auth();
 
   if (!userId) {
-    return '0.00';
+    return '$0.00';
   }
 
   const userCash = await prismadb.userCash.findUnique({
@@ -16,7 +16,7 @@ export const getUserCash = async () => {
   });
 
   if (!userCash) {
-    return '0.00';
+    return '$0.00';
   }
-  return userCash.cash.toFixed(2);
+  return '$' + userCash.cash.toFixed(2);
 };

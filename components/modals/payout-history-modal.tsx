@@ -29,7 +29,7 @@ export const UserPayoutHistoryModal = () => {
       setLoading(true);
       // Call the necessary API endpoint to get userCash and userStripeAccount here
       axios
-        .post('/api/info', { getFunc: 'guph', loadedEntries: 0, needCount: true })
+        .post('/api/info', { getFunc: 'guph', numOfLoadedEntries: 0, needCount: true })
         .then((response) => {
           setPayouts(response.data.userPayouts);
           setTotalNumOfPayouts(response.data.totalNumOfPayouts);

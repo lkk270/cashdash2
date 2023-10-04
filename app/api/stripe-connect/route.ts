@@ -27,11 +27,8 @@ export async function GET() {
         userId,
       },
     });
-    console.log('IN 30');
     if (userStripeAccount && userStripeAccount.stripeAccountId) {
-      console.log('IN IFFF');
       const account = await stripe.accounts.update(userStripeAccount.stripeAccountId);
-      console.log(account);
       const accountLink = await stripe.accountLinks.create({
         account: account.id,
         refresh_url: settingsUrl,

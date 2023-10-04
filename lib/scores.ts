@@ -1,4 +1,4 @@
-import { ModifiedScoreType } from '@/app/types';
+import { ModifiedGameType2, ModifiedScoreType, ModifiedScoreType3 } from '@/app/types';
 
 type ScoreProcessingParams = {
   allScores: ModifiedScoreType[];
@@ -52,4 +52,18 @@ export const prepareScoresForDisplay = (
   }
 
   return [userScore, ...otherScores];
+};
+
+export const sortScores = (scores: ModifiedScoreType3[], orderDirection: string) => {
+  return scores.sort((a, b) => {
+    if (a.score === b.score) {
+      // If the scores are the same, compare based on the createdAt date
+      return a.createdAt.getTime() - b.createdAt.getTime();
+    }
+    if (orderDirection === 'asc') {
+      return a.score - b.score;
+    } else {
+      return b.score - a.score;
+    }
+  });
 };

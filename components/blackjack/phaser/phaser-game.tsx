@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
 import Phaser from 'phaser';
 import axios from 'axios';
 
 import { generateResponseHash } from '@/lib/hash';
+import { processBestScores, prepareScoresForDisplay } from '@/lib/scores';
 import { ModifiedScoreType } from '@/app/types';
 //import { BlackjackScene, HomeScene } from './phaser-scene';
 import { BlackjackScene } from './phaser-scene';
@@ -14,7 +14,8 @@ import { useToast } from '@/components/ui/use-toast';
 
 interface BlackjackProps {
   props: {
-    userBestScoreParam: ModifiedScoreType | null;
+    top100Scores: ModifiedScoreType[]; //Will always contain the user's score (even if it's not  top 100 it's included (like all games) and for balance games, if it's the first time the user is playing for the session, the score is initialized already )
+    userBestScoreParam: ModifiedScoreType;
     setScores: (scores: ModifiedScoreType[]) => void;
     setTriggerAnimation: (animate: boolean) => void;
     ids: {
@@ -25,15 +26,11 @@ interface BlackjackProps {
 }
 
 const PhaserGame = ({ props }: BlackjackProps) => {
-  const [userBestScore, setUserBestScore] = useState<ModifiedScoreType | null>(
-    props.userBestScoreParam
-  );
+  const [userBestScore, setUserBestScore] = useState<ModifiedScoreType>(props.userBestScoreParam);
   const queriedBalance = userBestScore ? userBestScore.score : 1000; //used as a safeguard in case server side fails
-  const router = useRouter();
-  const pathname = usePathname();
   const { toast } = useToast();
   const gameSessionIdRef = useRef();
-  const gameRef = useRef<Phaser.Game | null>(null);
+  // const gameRef = useRef<Phaser.Game | null>(null);
 
   const setPulsing = (shouldPulse: boolean) => {
     const gameElement = document.getElementById('phaser-game');
@@ -54,73 +51,103 @@ const PhaserGame = ({ props }: BlackjackProps) => {
     }
   };
 
-  const onBalanceChange = (balanceChange: number) => {
+  const onGameStart = (currentBalance: number, balanceChange: number) => {
+    return new Promise<void>((resolve, reject) => {
+      const updatedIds = {
+        ...props.ids,
+        at: '05b',
+        balanceChange: balanceChange,
+        currentBalance: currentBalance,
+      };
+
+      axios
+        .post('/api/game-sessionb', updatedIds)
+        .then((response) => {
+          gameSessionIdRef.current = response.data.gameSessionId;
+          resolve(); // Promise is resolved here.
+        })
+        .catch((error) => {
+          // Handle the error...
+          reject(error); // Promise is rejected here.
+        });
+    });
+  };
+
+  const onBalanceChange = (
+    currentBalance: number,
+    balanceChange: number,
+    changeType: 'd' | 's',
+    handNum: 0 | 1
+  ) => {
     //used for doubles, initiating a split, and the first split's hand being resolved
-    //value is the value by which the balance should be changed. It can be negative or positve.
+    //value is the value by which the balance should be changed. It can be negative or positive.
 
     const updatedIds = {
       ...props.ids,
       at: '1ub',
+      gameSessionId: gameSessionIdRef.current,
+      currentBalance: currentBalance,
       balanceChange: balanceChange,
+      changeType: changeType,
+      handNum: handNum,
     };
-    axios
-      .post('/api/game-session', updatedIds)
-      // .then((response) => {
-      //   gameSessionIdRef.current = response.data.gameSessionId;
-      // })
-      .catch((error) => {
+    axios.post('/api/game-sessionb', updatedIds).catch((error) => {
+      if (error.response.data && error.response.status === 302) {
         toast({
           description: error.response.data,
-          variant: 'destructive',
+          variant: 'warning',
+          duration: 7500,
         });
-      });
-  };
-
-  const onGameStart = (balanceChange: number) => {
-    const updatedIds = { ...props.ids, at: '05b', balanceChange: balanceChange };
-    axios
-      .post('/api/game-session', updatedIds)
-      .then((response) => {
-        gameSessionIdRef.current = response.data.gameSessionId;
-      })
-      .catch((error) => {
+        window.location.reload();
+      } else {
         toast({
-          description: error.response.data,
+          description: error.response ? error.response.data : 'Network Error',
           variant: 'destructive',
         });
-      });
+      }
+    });
   };
 
-  const onHandEnd = (balanceChange: number, lastHand: boolean): Promise<number> | void => {
-    let returnedScore: number;
+  const onHandEnd = (
+    currentBalance: number,
+    balanceChange: number,
+    betValue: number,
+    lastHand: boolean,
+    handNum: 0 | 1,
+    pm: number
+  ): void => {
     if (lastHand) {
       setPulsing(true);
     }
     const updatedIds = {
       ...props.ids,
       at: '2eb',
-      lastHand: lastHand,
+      gameSessionId: gameSessionIdRef.current,
+      currentBalance: currentBalance,
       balanceChange: balanceChange,
+      betValue: betValue,
+      lastHand: lastHand,
+      handNum: handNum,
+      pm: pm,
     };
     axios
-      .post('/api/game-session', updatedIds)
+      .post('/api/game-sessionb', updatedIds)
       .then((response) => {
-        const displayScore = response.data.displayScores;
-        returnedScore = response.data.returnedScore;
-        if (displayScore && lastHand) {
-          props.setScores(displayScore);
-          setUserBestScore(displayScore[0]);
+        const displayScores = response.data.displayScores;
+        if (displayScores && lastHand) {
+          props.setScores(displayScores);
+          setUserBestScore(displayScores[0]);
           props.setTriggerAnimation(true);
         }
       })
       .catch((error) => {
         if (error.response.data && error.response.status === 302) {
-          router.refresh();
           toast({
             description: error.response.data,
             variant: 'warning',
             duration: 7500,
           });
+          window.location.reload();
         } else {
           toast({
             description: error.response ? error.response.data : 'Network Error',
@@ -132,15 +159,29 @@ const PhaserGame = ({ props }: BlackjackProps) => {
         if (lastHand) {
           setPulsing(false);
           gameEvents.emit('gameEnded'); // Emit the gameEnded event
-          return returnedScore;
         }
       });
+  };
+
+  const setUserBestScoreNoApi = (newBalance: number) => {
+    const top100ScoresTemp = props.top100Scores;
+    const userBestScoreTemp = userBestScore;
+    userBestScoreTemp.score = newBalance;
+    top100ScoresTemp[0] = userBestScoreTemp;
+    setUserBestScore(userBestScoreTemp);
+    const bestScoresArray = processBestScores({
+      allScores: props.top100Scores,
+      orderDirection: 'desc',
+    });
+    const displayScores = prepareScoresForDisplay(bestScoresArray, userBestScoreTemp.userId);
+    props.setScores(displayScores);
+    props.setTriggerAnimation(true);
   };
 
   useEffect(() => {
     // onGameLoad();
     let gameWidth = 900;
-    let gameHeight = 750;
+    let gameHeight = 700;
     let rescale = false;
     // if (window.innerHeight / window.innerWidth > 1.5) {
     //   gameWidth = 600;
@@ -166,6 +207,7 @@ const PhaserGame = ({ props }: BlackjackProps) => {
           onGameStart,
           onBalanceChange,
           onHandEnd,
+          setUserBestScoreNoApi,
           queriedBalance
         ),
       ],
@@ -181,7 +223,7 @@ const PhaserGame = ({ props }: BlackjackProps) => {
     };
 
     const game = new Phaser.Game(config);
-    gameRef.current = game;
+    // gameRef.current = game;
 
     return () => {
       game.destroy(true); // Clean up on component unmount

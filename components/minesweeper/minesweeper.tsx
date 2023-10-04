@@ -11,7 +11,6 @@ import { useToast } from '@/components/ui/use-toast';
 import { initializeGrid } from '@/lib/minesweeper-utils';
 import { generateResponseHash } from '@/lib/hash';
 import { CellType } from '@/app/types';
-import { useRouter, usePathname } from 'next/navigation';
 
 interface MinesweeperProps {
   userBestScoreParam: ModifiedScoreType | null;
@@ -47,8 +46,6 @@ export const Minesweeper = ({
   const [gameSessionId, setGameSessionId] = useState<string>('');
   const [startTime, setStartTime] = useState<number>(0);
   const [userBestScore, setUserBestScore] = useState<ModifiedScoreType | null>(userBestScoreParam);
-  const router = useRouter();
-  const pathname = usePathname();
 
   const { toast } = useToast();
   let gameStatus: 'won' | 'lost' | 'regular' = 'regular';
@@ -84,27 +81,25 @@ export const Minesweeper = ({
           });
         })
         .then((response) => {
-          const displayScore = response.data.displayScores;
-          if (displayScore) {
-            setScores(displayScore);
-            setUserBestScore(displayScore[0]);
+          const displayScores = response.data.displayScores;
+          if (displayScores) {
+            setScores(displayScores);
+            setUserBestScore(displayScores[0]);
             setTriggerAnimation(true);
+            toast({
+              description: response.data.message,
+            });
           }
           // Handle the response of the second POST request
-          toast({
-            description: response.data.message,
-          });
         })
         .catch((error) => {
-          const backPath = pathname.split('/').slice(0, -1).join('/');
           if (error.response.data && error.response.status === 302) {
-            // router.push(backPath);
-            router.refresh();
             toast({
               description: error.response.data,
               variant: 'warning',
               duration: 7500,
             });
+            window.location.reload();
           }
 
           toast({

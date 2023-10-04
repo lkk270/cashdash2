@@ -8,11 +8,10 @@ import { ChevronLeft, Info } from 'lucide-react';
 import { Orbitron } from 'next/font/google';
 
 import { useLobbyAboutModal } from '@/hooks/use-lobby-about-modal';
-import Logo from '@/components/logo';
+// import Logo from '@/components/logo';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
 import { MobileSidebar } from '@/components/headers/mobile-sidebar';
-
 import { MobileScoresTable } from '@/components/mobile-scores-table';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { ModifiedScoreType } from '@/app/types';
@@ -31,16 +30,18 @@ export const GameNavbar = ({ lobby, game, scores }: LobbyHeaderProps) => {
   const lobbyAboutModal = useLobbyAboutModal();
   const router = useRouter();
   const pathname = usePathname();
-  const backPath = pathname.split('/').slice(0, -1).join('/');
+  const backPath = pathname ? pathname.split('/').slice(0, -1).join('/') : '/dashboard';
   const countdownData = {
     textSize: 'text-sm',
     expiredDateTime: lobby.sessions[0].expiredDateTime,
     startDateTime: lobby.sessions[0].startDateTime,
   };
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    //     <div className="fixed z-50 flex items-center justify-between w-full h-16 px-4 py-2 border-b border-primary/10 bg-secondary">
+
+    <div className="w-full">
       <div className="flex flex-col h-full p-3 space-y-2">
-        <div className="grid items-center w-full grid-cols-3 pb-4 border-b border-primary/10">
+        <div className="grid items-center w-full grid-cols-3 pb-1 border-b border-primary/10">
           {/* Left content */}
           <div className="z-10 flex items-center">
             <Button
@@ -51,7 +52,7 @@ export const GameNavbar = ({ lobby, game, scores }: LobbyHeaderProps) => {
             >
               <ChevronLeft className="w-8 h-8" />
             </Button>
-            <MobileSidebar hide={false} />
+            <MobileSidebar hide={'lg'} />
             <MobileScoresTable scores={scores} scoreType={game.scoreType} lobby={lobby} />
             <div className="items-center hidden pl-3 lg:flex gap-x-3">
               <CountdownTimer data={countdownData} />
@@ -75,13 +76,13 @@ export const GameNavbar = ({ lobby, game, scores }: LobbyHeaderProps) => {
                 className={`${orbitronFont.className} font-bold bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent whitespace-nowrap flex-grow`}
               >
                 {' '}
-                {lobby.name}
+                {lobby.name.split(' or New Player')[0]}
               </span>
             </Link>
           </div>
 
           {/* Right content */}
-          <div className="flex items-center justify-end">
+          <div className="flex items-center justify-end gap-x-4">
             {/* <div className="items-center hidden sm:flex gap-x-2">
               <Button
                 title="Details"
@@ -103,10 +104,8 @@ export const GameNavbar = ({ lobby, game, scores }: LobbyHeaderProps) => {
               </Button>
             </div>
             {/* added justify-end to align items to the right */}
-            <div className="items-center hidden xxs:flex">
-              <ModeToggle />
-            </div>
-            <div className="ml-1">
+            <ModeToggle />
+            <div>
               <UserButton afterSignOutUrl="/" />
             </div>
           </div>

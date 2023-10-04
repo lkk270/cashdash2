@@ -29,7 +29,7 @@ const PhaserGame = dynamic(() => import('@/components/flappy-birb/phaser/phaser-
 
 export const FlappyBirb = ({ props }: FlappyBirbProps) => {
   return (
-    <div className="game-container">
+    <div className="z-20 game-container xl:ml-24">
       {/* <GameLoader /> */}
       <PhaserGame props={props} />
     </div>

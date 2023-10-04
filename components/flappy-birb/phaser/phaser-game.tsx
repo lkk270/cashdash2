@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
 import Phaser from 'phaser';
 import axios from 'axios';
 
@@ -27,11 +26,10 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
   const [userBestScore, setUserBestScore] = useState<ModifiedScoreType | null>(
     props.userBestScoreParam
   );
-  const router = useRouter();
-  const pathname = usePathname();
   const { toast } = useToast();
   const gameSessionIdRef = useRef();
-  const gameRef = useRef<Phaser.Game | null>(null);
+  const userBestScoreRef = useRef(userBestScore);
+  // const gameRef = useRef<Phaser.Game | null>(null);
 
   const setPulsing = (shouldPulse: boolean) => {
     const gameElement = document.getElementById('phaser-game');
@@ -42,12 +40,12 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
         gameElement.classList.remove('pulsing');
 
         // Notify the scene that the pulsing is done.
-        if (gameRef.current) {
-          const scene = gameRef.current.scene.getScene('FlappyBirdScene');
-          if (scene && scene instanceof FlappyBirdScene) {
-            scene.pulseCompleted();
-          }
-        }
+        // if (gameRef.current) {
+        //   const scene = gameRef.current.scene.getScene('FlappyBirdScene');
+        //   if (scene && scene instanceof FlappyBirdScene) {
+        //     scene.pulseCompleted();
+        //   }
+        // }
       }
     }
   };
@@ -76,7 +74,7 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
         // Send another POST request with response.data.hash and at: '3'
         return axios.post('/api/game-session', {
           lobbySessionId: props.ids.lobbySessionId,
-          userBestScore: userBestScore ? userBestScore : false,
+          userBestScore: userBestScoreRef.current ? userBestScoreRef.current : false,
           gameSessionId: gameSessionIdRef.current,
           score: score,
           cHash: hash,
@@ -85,27 +83,26 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
         });
       })
       .then((response) => {
-        const displayScore = response.data.displayScores;
-        if (displayScore) {
-          props.setScores(displayScore);
-          setUserBestScore(displayScore[0]);
+        const displayScores = response.data.displayScores;
+        if (displayScores) {
+          props.setScores(displayScores);
+          userBestScoreRef.current = displayScores[0];
           props.setTriggerAnimation(true);
+          toast({
+            description: response.data.message,
+          });
         }
         // Handle the response of the second POST request
-        toast({
-          description: response.data.message,
-        });
       })
       .catch((error) => {
         // const backPath = pathname.split('/').slice(0, -1).join('/');
         if (error.response.data && error.response.status === 302) {
-          // router.push(backPath);
-          router.refresh();
           toast({
             description: error.response.data,
             variant: 'warning',
             duration: 7500,
           });
+          window.location.reload();
         } else {
           toast({
             description: error.response ? error.response.data : 'Network Error',
@@ -122,7 +119,7 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
   useEffect(() => {
     // onGameLoad();
     let gameWidth = 800;
-    let gameHeight = 600;
+    let gameHeight = 700;
     let rescale = false;
     if (window.innerHeight / window.innerWidth > 1.5) {
       gameWidth = 600;
@@ -158,7 +155,7 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
     };
 
     const game = new Phaser.Game(config);
-    gameRef.current = game;
+    // gameRef.current = game;
 
     return () => {
       game.destroy(true); // Clean up on component unmount

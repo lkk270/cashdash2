@@ -5,14 +5,15 @@ import { UserStripeAccount } from '@prisma/client';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
+import { useUserCash } from '@/components/providers/user-cash-provider';
 
 interface CashOutButtonProps {
-  userCash: string;
   userStripeAccount?: UserStripeAccount;
 }
 
-export const CashOutButton = ({ userCash, userStripeAccount }: CashOutButtonProps) => {
-  const userCashFloat = parseFloat(userCash);
+export const CashOutButton = ({ userStripeAccount }: CashOutButtonProps) => {
+  const { userCashString, setUserCashString } = useUserCash();
+  const userCashFloat = parseFloat(userCashString.split('$')[1]);
   const [isLoading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -28,7 +29,7 @@ export const CashOutButton = ({ userCash, userStripeAccount }: CashOutButtonProp
     if (userCashFloat < 20) {
       toast({
         duration: 6000,
-        description: 'You can only cash out a balance of at least $20',
+        description: 'You must have at least $20 to be able to cash out',
         variant: 'warning',
       });
       return;
@@ -37,6 +38,7 @@ export const CashOutButton = ({ userCash, userStripeAccount }: CashOutButtonProp
       axios
         .post('/api/stripe-payout', { withdrawalAmount: userCashFloat })
         .then((response) => {
+          setUserCashString(`$0.00`);
           toast({
             description: 'Withdrawal initiated successfully!',
           });
@@ -61,7 +63,7 @@ export const CashOutButton = ({ userCash, userStripeAccount }: CashOutButtonProp
       disabled={isLoading}
       onClick={onClick}
     >
-      Cash Out ${userCash}
+      Cash Out {userCashString}
     </Button>
   );
 };

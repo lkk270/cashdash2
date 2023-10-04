@@ -80,7 +80,7 @@ const StatsPage = async () => {
   }
 
   return (
-    <div className="flex flex-col items-center h-full">
+    <div className="flex flex-col items-center h-full md:pl-16">
       <ScoreChart userGameAverageScores={userGameAverageScores} scores={bestScores} />
     </div>
   );

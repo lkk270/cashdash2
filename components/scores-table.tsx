@@ -12,7 +12,7 @@ import { Lobby, LobbySession, ScoreType } from '@prisma/client';
 import { useUser } from '@clerk/nextjs';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { CompletePopover } from '@/components/complete-popover';
-import { convertMillisecondsToMinExactSec } from '@/lib/utils';
+import { convertMillisecondsToMinExactSec, formatBalance } from '@/lib/utils';
 import { ModifiedScoreType } from '@/app/types';
 
 interface ScoresTableProps {
@@ -77,8 +77,8 @@ export const ScoresTable = ({
         <Table>
           <TableHeader>
             <TableRow className="border-b border-primary/10">
-              <TableHead>Username</TableHead>
-              <TableHead>Score</TableHead>
+              <TableHead className="px-0 pl-4">Username</TableHead>
+              <TableHead className="px-0">Score</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -102,6 +102,8 @@ export const ScoresTable = ({
                 const adjustedScore =
                   scoreType === ScoreType.time
                     ? convertMillisecondsToMinExactSec(exactSeconds)
+                    : scoreType === ScoreType.balance
+                    ? formatBalance(score.score)
                     : score.score;
                 let tableValueColor =
                   rank === 1
@@ -132,21 +134,37 @@ export const ScoresTable = ({
                     }
                    `}
                   >
-                    <TableCell className="flex items-start w-40 space-x-2 text-xs break-all">
-                      <span className="whitespace-nowrap">{rank}.</span>{' '}
-                      <span className="flex-grow">{score.username}</span>
-                      {isCurrentUser && <Badge variant={'gradient1'}>You</Badge>}
+                    <TableCell className="flex items-start space-x-2 text-sm break-all max-w-[185px] pr-0">
+                      <div className="max-w-[150px]">
+                        <span className="whitespace-nowrap">{rank}.</span>{' '}
+                        <span className="">{score.username}</span>
+                      </div>
+                      {isCurrentUser && (
+                        <Badge
+                          className="flex flex-col justify-center w-[10px] h-[50px] leading-3"
+                          variant={'gradient1'}
+                        >
+                          You
+                        </Badge>
+                      )}
                     </TableCell>
-                    <TableCell className="relative pr-8">
+                    <TableCell className="pl-0 relative pr-8">
                       <span className="text-sm">{adjustedScore}</span>
                       {scoreType === ScoreType.time && (
                         <CompletePopover
                           keyProp={i.toString()}
                           title={'Exact Time'}
                           content={[
-                            { title: 'Milliseconds', content: score.score.toString()},
+                            { title: 'Milliseconds', content: score.score.toString() },
                             { title: 'Seconds', content: exactSeconds.toString() },
                           ]}
+                        />
+                      )}
+                      {scoreType === ScoreType.balance && score.score > 9999 && (
+                        <CompletePopover
+                          keyProp={i.toString()}
+                          title={'Exact Balance'}
+                          content={[{ title: 'Balance', content: score.score.toString() }]}
                         />
                       )}
                     </TableCell>

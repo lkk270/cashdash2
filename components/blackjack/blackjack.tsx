@@ -8,7 +8,8 @@ import Loader from '@/components/loader';
 
 interface BlackjackProps {
   props: {
-    userBestScoreParam: ModifiedScoreType | null;
+    top100Scores: ModifiedScoreType[];
+    userBestScoreParam: ModifiedScoreType;
     setScores: (scores: ModifiedScoreType[]) => void;
     setTriggerAnimation: (animate: boolean) => void;
     ids: {
@@ -29,7 +30,7 @@ const PhaserGame = dynamic(() => import('@/components/blackjack/phaser/phaser-ga
 
 export const Blackjack = ({ props }: BlackjackProps) => {
   return (
-    <div className="game-container">
+    <div className="z-20 game-container xl:ml-44">
       {/* <GameLoader /> */}
       <PhaserGame props={props} />
     </div>

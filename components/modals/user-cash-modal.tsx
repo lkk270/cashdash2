@@ -17,10 +17,12 @@ import { Separator } from '@/components/ui/separator';
 import { ToastAction } from '@/components/ui/toast';
 import { useToast } from '@/components/ui/use-toast';
 import { UserStripeAccount } from '@prisma/client';
+import { useUserCash } from '@/components/providers/user-cash-provider';
 
 export const UserCashModal = () => {
   const userCashModal = useUserCashModal();
-  const userCashFloat = parseFloat(userCashModal.userCash);
+  const { userCashString, setUserCashString } = useUserCash();
+  const userCashFloat = parseFloat(userCashString.split('$')[1]);
   const [isMounted, setIsMounted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [dataFetched, setDataFetched] = useState(false);
@@ -76,7 +78,7 @@ export const UserCashModal = () => {
     if (userCashFloat < 20) {
       toast({
         duration: 6000,
-        description: 'You can only cash out a balance of at least $20',
+        description: 'You must have at least $20 to be able to cash out',
         variant: 'warning',
       });
       return;
@@ -85,6 +87,8 @@ export const UserCashModal = () => {
       axios
         .post('/api/stripe-payout', { withdrawalAmount: userCashFloat })
         .then((response) => {
+          // const newCashValue = userCashFloat - response.data.withdrawnAmount;
+          setUserCashString(`$0.00`);
           toast({
             description: 'Withdrawal initiated successfully!',
           });
@@ -116,7 +120,7 @@ export const UserCashModal = () => {
         </DialogHeader>
         <Separator />
         <div className="flex justify-between">
-          <p className="text-2xl font-medium">Total: ${userCashModal.userCash}</p>
+          <p className="text-2xl font-medium">Total: {userCashString}</p>
           <Button onClick={onWithdraw} disabled={loading} variant="gradient2">
             {loading ? 'Loading...' : 'Cash out'}
           </Button>

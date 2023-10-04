@@ -1,6 +1,6 @@
 'use client';
 
-import { Home, Plus, LineChart, Scale, HelpCircle, CreditCard, ShoppingCart } from 'lucide-react';
+import { LineChart, MessageSquarePlus, HelpCircle, CreditCard, Gamepad2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import Logo from '@/components/logo';
 import { usePathname, useRouter } from 'next/navigation';
@@ -26,15 +26,9 @@ export const Sidebar = ({ isPro }: SidebarProps) => {
 
   const routes = [
     {
-      icon: Home,
+      icon: Gamepad2,
       href: '/dashboard',
       label: 'Home',
-      pro: false,
-    },
-    {
-      icon: ShoppingCart,
-      href: '/store',
-      label: 'Store',
       pro: false,
     },
     {
@@ -49,24 +43,29 @@ export const Sidebar = ({ isPro }: SidebarProps) => {
       label: 'Stats',
       pro: false,
     },
-
     {
-      icon: Scale,
-      href: '/legal',
-      label: 'Legal',
+      icon: MessageSquarePlus,
+      href: '/feedback',
+      label: 'Feedback',
       pro: false,
     },
-    {
-      icon: HelpCircle,
-      href: '/about',
-      label: 'About',
-      pro: false,
-    },
+    // {
+    //   icon: HelpCircle,
+    //   href: '/about',
+    //   label: 'About',
+    //   pro: false,
+    // },
+    // {
+    //   icon: ShoppingCart,
+    //   href: '/store',
+    //   label: 'Store',
+    //   pro: false,
+    // },
   ];
 
   return (
-    <div className="flex flex-col h-full space-y-4 overflow-y-scroll text-primary bg-secondary">
-      <div className="px-3 sm:hidden">
+    <div className="flex flex-col h-full space-y-4 overflow-y-scroll border-r border-primary/10 text-primary bg-secondary">
+      <div className="px-3 md:hidden">
         <Logo />
       </div>
       <div className="flex justify-center flex-1 p-3">
@@ -88,6 +87,7 @@ export const Sidebar = ({ isPro }: SidebarProps) => {
               {(index === 2 || index === 5) && <Separator className="bg-primary/10" />}
             </div>
           ))}
+          <div className="text-xs text-center text-primary/10">cashdash © 2023</div>
         </div>
       </div>
     </div>

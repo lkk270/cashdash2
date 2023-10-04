@@ -15,6 +15,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Card, CardFooter, CardHeader } from '@/components/ui/card';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { CardSkeleton } from '@/components/skeletons/card-skeleton';
+import { EmptyState } from '@/components/empty-state';
 
 interface LobbiesProps {
   data: Game & {
@@ -76,9 +77,9 @@ export const Lobbies = ({ data }: LobbiesProps) => {
   if (!accessResults) {
     return (
       <div className="flex justify-center">
-        <div className="grid justify-center grid-cols-1 gap-2 pb-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <div key={index} className="p-4 w-[250px] h-[350px] bg-primary/10 rounded-xl">
+        <div className="grid justify-center grid-cols-1 gap-2 pb-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div key={index} className="p-4 w-[300px] h-[425px] bg-primary/10 rounded-xl">
               <CardSkeleton />
             </div>
           ))}
@@ -89,10 +90,10 @@ export const Lobbies = ({ data }: LobbiesProps) => {
 
   return (
     <div className="flex justify-center">
-      <div className="grid justify-center grid-cols-1 gap-2 pb-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid justify-center grid-cols-1 gap-2 pb-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {data.lobbies.map((item) => {
           if (!item.sessions[0]) {
-            return <div></div>;
+            return <EmptyState title="Uh Oh" subtitle="Something went wrong!" />;
           }
           const accessResult = accessResults[item.id];
           let disableCard = accessResult ? !accessResult.isValid : true;
@@ -109,7 +110,7 @@ export const Lobbies = ({ data }: LobbiesProps) => {
                   <TooltipTrigger asChild>
                     <Card
                       key={item.name}
-                      className={`max-w-lg transition border-0 bg-primary/10 rounded-xl ${
+                      className={`w-[300px] h-[425px]transition border-0 bg-primary/10 rounded-xl ${
                         disableCard ? 'opacity-40' : 'hover:opacity-75 cursor-pointer'
                       }`}
                       onClick={(e) => {
@@ -125,7 +126,13 @@ export const Lobbies = ({ data }: LobbiesProps) => {
                       }}
                     >
                       <Link
-                        href={disableCard ? pathname : `${pathname}/${item.id}`}
+                        href={
+                          !pathname
+                            ? '/dashboard'
+                            : disableCard
+                            ? pathname
+                            : `${pathname}/${item.id}`
+                        }
                         onClick={disableCard ? (event) => event.preventDefault() : undefined}
                         className={`${disableCard ? 'cursor-not-allowed' : ''}`}
                       >
@@ -152,9 +159,11 @@ export const Lobbies = ({ data }: LobbiesProps) => {
                         </div>
 
                         <CardHeader className="flex items-center justify-center text-center text-muted-foreground">
-                          <div className="relative w-48 h-48">
+                          <div className="relative w-56 h-56">
                             <Image
-                              src={`/images/${item.name.toLowerCase()}.png`}
+                              src={`/images/${
+                                item.name.toLowerCase().split(' or new player')[0]
+                              }.png`}
                               fill
                               className="object-cover rounded-xl"
                               alt="Character"

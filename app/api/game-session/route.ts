@@ -2,32 +2,38 @@ import { auth, currentUser } from '@clerk/nextjs';
 import { NextResponse } from 'next/server';
 
 import { calculateSingleWeightedScore } from '@/lib/average-score';
-import { isValidLobbyAccess } from '@/lib/utils';
+// import { isValidLobbyAccess } from '@/lib/utils';
+import {
+  createGameSession,
+  getGameSession,
+  getAllScores,
+  getGame,
+  findScore,
+  createFlaggedScore,
+} from '@/lib/game-session';
 import { processBestScores, prepareScoresForDisplay } from '@/lib/scores';
 import { generateChallengeHash, generateResponseHash } from '@/lib/hash';
 import prismadb from '@/lib/prismadb';
-import { ScoreType, GameSession } from '@prisma/client';
+import { ScoreType } from '@prisma/client';
 
 const acceptedTypesObj: { [key: string]: number } = {
   '05': 3,
-  '05b': 4,
-  '1ub': 4,
-  '2eb': 5,
   '2': 2,
   '3': 7,
 };
-//oldTypes: { [key: string]: number } = { '0': 3, '1': 2};
 export async function POST(req: Request) {
-  const currentDate = new Date();
-  const body = await req.json();
-  const bodyLength = Object.keys(body).length;
   try {
+    const body = await req.json();
+    const bodyLength = Object.keys(body).length;
+    const allValuesDefined = Object.values(body).every(
+      (value) => value !== undefined && value !== null
+    );
     const receivedType: string = body.at;
     const validType = acceptedTypesObj[receivedType];
     const { userId } = auth();
     const user = await currentUser();
 
-    if (!userId || !user) {
+    if (!userId || !user || !allValuesDefined) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
     if (
@@ -39,136 +45,9 @@ export async function POST(req: Request) {
       return new NextResponse('Invalid body', { status: 400 });
     }
 
-    if (receivedType.includes('05')) {
-      const expiresAt = currentDate;
-      expiresAt.setSeconds(expiresAt.getSeconds() + 3599); // 59 minutes 59 seconds from now
-
-      const gameSession = await prismadb.gameSession.create({
-        data: {
-          userId: userId,
-          gameId: body.gameId,
-          lobbySessionId: body.lobbySessionId,
-          isValid: true,
-          expiresAt: expiresAt,
-          startedAt: Date.now(),
-        },
-      });
-      if (receivedType === '05b') {
-        //for balance games like blackjack need to update the balance (score)
-        const currentScore = await prismadb.score.findFirst({
-          where: {
-            userId: userId,
-            gameId: gameSession.gameId,
-            lobbySessionId: body.lobbySessionId,
-          },
-        });
-        if (currentScore) {
-          const newScore = currentScore.score + body.balanceChange;
-
-          await prismadb.score.update({
-            where: {
-              id: currentScore.id,
-            },
-            data: {
-              score: newScore,
-            },
-          });
-          return new NextResponse(JSON.stringify({ gameSessionId: gameSession.id }));
-        } else {
-          return new NextResponse('No balance Found!', { status: 401 });
-        }
-      }
-    } else if (receivedType === '1ub') {
-      const balanceChange = body.balanceChange;
-
-      if (balanceChange > -1) {
-        return new NextResponse('Unauthorized', { status: 401 });
-      }
-      const currentScore = await prismadb.score.findFirst({
-        where: {
-          userId: userId,
-          gameId: body.gameId,
-          lobbySessionId: body.lobbySessionId,
-        },
-      });
-      if (currentScore) {
-        const newScore = currentScore.score + balanceChange;
-        await prismadb.score.update({
-          where: {
-            id: currentScore.id,
-          },
-          data: {
-            score: newScore,
-          },
-        });
-        return new NextResponse('', { status: 200 });
-      } else {
-        return new NextResponse('No balance Found!', { status: 401 });
-      }
-    } else if (receivedType === '2eb') {
-      let displayScores = null;
-      const balanceChange = body.balanceChange;
-      // if (balanceChange > Math.ceil(lastBet * 2.5)) {
-      //   return new NextResponse('Unauthorized', { status: 401 });
-      // }
-      const currentScore = await prismadb.score.findFirst({
-        where: {
-          userId: userId,
-          gameId: body.gameId,
-          lobbySessionId: body.lobbySessionId,
-        },
-      });
-      if (currentScore) {
-        const newScore = currentScore.score + balanceChange;
-        if (balanceChange !== 0) {
-          await prismadb.score.update({
-            where: {
-              id: currentScore.id,
-            },
-            data: {
-              score: currentScore.score + balanceChange,
-            },
-          });
-        }
-
-        if (body.lastHand) {
-          const orderDirection = 'desc';
-
-          //a better score was created so send a new best scores array to be use in the score-table
-          const allScores = await prismadb.score.findMany({
-            where: {
-              lobbySessionId: body.lobbySessionId,
-            },
-            select: {
-              userId: true,
-              username: true,
-              score: true,
-            },
-            orderBy: [
-              {
-                score: orderDirection,
-              },
-              {
-                createdAt: 'asc',
-              },
-            ],
-          });
-          const bestScoresArray = processBestScores({
-            allScores,
-            orderDirection,
-          });
-
-          displayScores = prepareScoresForDisplay(bestScoresArray, userId);
-          if (displayScores[0].userId !== userId || displayScores[0].score !== newScore) {
-            return new NextResponse('No balance Found!', { status: 401 });
-          }
-          return new NextResponse(JSON.stringify({ displayScores: displayScores }));
-        } else {
-          return new NextResponse('', { status: 200 });
-        }
-      } else {
-        return new NextResponse('No balance Found!', { status: 401 });
-      }
+    if (receivedType === '05') {
+      const gameSessionId = await createGameSession(userId, body.gameId, body.lobbySessionId);
+      return new NextResponse(JSON.stringify({ gameSessionId: gameSessionId }));
     }
 
     // else if (receivedType === '0') {
@@ -200,38 +79,11 @@ export async function POST(req: Request) {
     //   return new NextResponse();
     // }
     else if (receivedType === '2' || receivedType === '3') {
-      const gameSession: (GameSession & { lobbySession?: { id: string } }) | null =
-        await prismadb.gameSession.findFirst({
-          where: {
-            id: body.gameSessionId,
-            isValid: true,
-            expiresAt: {
-              gt: currentDate,
-            },
-            lobbySession: {
-              isActive: true,
-              expiredDateTime: {
-                gt: currentDate,
-              },
-              startDateTime: {
-                lt: currentDate,
-              },
-            },
-          },
-          include: {
-            // Include only the id from the lobbySession, to check if it exists
-            lobbySession: {
-              select: {
-                id: true,
-              },
-            },
-          },
-        });
+      const currentDate = new Date();
+
+      const gameSession = await getGameSession(body.gameSessionId, currentDate);
 
       if (!gameSession || !gameSession.lobbySession) {
-        // return new NextResponse('Score not submitted due to session inactivity. Start a new game', {
-        //   status: 401,
-        // });
         return new NextResponse('Attempting refresh', {
           status: 302,
         });
@@ -249,133 +101,149 @@ export async function POST(req: Request) {
         let newWeightedAverageScore;
         const responseHashToCompare = generateResponseHash(body.cHash, body.score);
         if (responseHashToCompare !== body.rHash) {
-          return new NextResponse('Unauthorized1', { status: 401 });
-        } else {
-          const currentMilliseconds = currentDate.getTime();
-          // console.log(currentMilliseconds);
-          // console.log(gameSession.startedAt);
-          // console.log(currentMilliseconds - Number(gameSession.startedAt));
-          // console.log(body.score);
-          const game = await prismadb.game.findUnique({
-            where: {
-              id: gameSession.gameId,
-            },
-            select: {
-              scoreType: true,
-              cheatScore: true,
-              tierBoundaries: true,
-              lobbies: {
-                select: {
-                  id: true,
-                  name: true,
-                  scoreRestriction: true,
-                  numScoresToAccess: true,
-                  sessions: {
-                    where: {
-                      isActive: true,
-                    },
-                    select: {
-                      id: true,
-                      expiredDateTime: true,
-                      startDateTime: true,
-                      scores: {
-                        where: {
-                          userId: userId,
-                        },
-                        take: 1,
-                        select: {
-                          id: true, // Only select the ID
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          });
+          return new NextResponse('Unauthorized', { status: 401 });
+        }
+        const currentMilliseconds = currentDate.getTime();
+        const game = await getGame(userId, gameSession.gameId);
 
-          if (!game) {
-            return new NextResponse('No game?', { status: 401 });
-          }
-          if (game.scoreType === ScoreType.time && body.score < game.cheatScore) {
-            return new NextResponse('Unauthorized2', { status: 401 });
-          }
-          if (
-            (game.scoreType === ScoreType.points || game.scoreType === ScoreType.balance) &&
-            body.score > game.cheatScore
-          ) {
-            return new NextResponse('Unauthorized3', { status: 401 });
-          }
-          if (
-            !gameSession.startedAt ||
-            (game.scoreType === ScoreType.time &&
-              currentMilliseconds - Number(gameSession.startedAt) > body.score + 5000)
-          ) {
-            return new NextResponse('Suspected of cheating', { status: 401 });
-          }
-
-          const lobbyWithScores = game.lobbies.find(
-            (lobby) =>
-              lobby.sessions &&
-              lobby.sessions.some((session) => session.scores && session.scores.length > 0)
+        if (!game) {
+          return new NextResponse('No game?', { status: 401 });
+        }
+        if (game.scoreType === ScoreType.time && body.score < game.cheatScore) {
+          await createFlaggedScore(
+            userId,
+            gameSession.lobbySessionId,
+            body.score,
+            game.cheatScore,
+            'CHEATING'
           );
-
-          const currentLobby = game.lobbies.find(
-            (lobby) =>
-              lobby.sessions && lobby.sessions.some((session) => session.id === body.lobbySessionId)
+          return new NextResponse('Unauthorized', { status: 401 });
+        }
+        if (
+          (game.scoreType === ScoreType.points || game.scoreType === ScoreType.balance) &&
+          body.score > game.cheatScore
+        ) {
+          await createFlaggedScore(
+            userId,
+            gameSession.lobbySessionId,
+            body.score,
+            game.cheatScore,
+            'CHEATING'
           );
-
-          if (!currentLobby) {
-            return new NextResponse('Lobby not found', { status: 404 });
-          }
-
-          const currentGameAverageScore = await prismadb.gameAverageScore.findFirst({
-            where: {
-              userId: userId,
-              gameId: gameSession.gameId,
-            },
-          });
-
-          const userPlayedInSession = currentLobby.sessions[0].scores?.length > 0 ? true : false;
-          let accessResult = isValidLobbyAccess({
-            lobbyId: currentLobby.id,
-            lobbyWithScoresName: lobbyWithScores?.name,
-            lobbyWithScoresId: lobbyWithScores?.id,
-            userPlayedInSession: userPlayedInSession,
-            scoreType: game.scoreType,
-            weightedAverageScore: currentGameAverageScore?.averageScore,
-            timesPlayed: currentGameAverageScore?.timesPlayed || 0,
-            numScoresToAccess: currentLobby.numScoresToAccess,
-            scoreRestriction: currentLobby.scoreRestriction,
-            expiredDateTime: currentLobby.sessions[0].expiredDateTime,
-            startDateTime: currentLobby.sessions[0].startDateTime,
-          });
-          if (!accessResult.isValid) {
-            return new NextResponse('INVALID! ' + accessResult.message, { status: 302 });
-          }
-
-          const weightedScoreObj = await calculateSingleWeightedScore(
-            { score: body.score, createdAt: new Date() },
-            game.tierBoundaries
+          return new NextResponse('Unauthorized', { status: 401 });
+        }
+        if (
+          !gameSession.startedAt ||
+          (game.scoreType === ScoreType.time &&
+            currentMilliseconds - Number(gameSession.startedAt) > body.score + 5000)
+        ) {
+          await createFlaggedScore(
+            userId,
+            gameSession.lobbySessionId,
+            body.score,
+            currentMilliseconds - Number(gameSession.startedAt),
+            'CHEATING_ELAPSED_TIME'
           );
+          return new NextResponse('Suspected of cheating', { status: 401 });
+        }
 
-          let transaction; //make use of transaction - all updates/creates have to succeed for them to all succeed
+        // const lobbyWithScores = game.lobbies.find(
+        //   (lobby) =>
+        //     lobby.sessions &&
+        //     lobby.sessions.some((session) => session.scores && session.scores.length > 0)
+        // );
 
-          if (currentGameAverageScore) {
-            const newTimesPlayed = currentGameAverageScore.timesPlayed + 1;
-            newAverageScore =
-              (currentGameAverageScore.averageScore * currentGameAverageScore.timesPlayed +
-                body.score) /
-              newTimesPlayed;
+        // const currentLobby = game.lobbies.find(
+        //   (lobby) =>
+        //     lobby.sessions && lobby.sessions.some((session) => session.id === body.lobbySessionId)
+        // );
 
-            const newWeightedTimesPlayed =
-              currentGameAverageScore.weightedTimesPlayed + weightedScoreObj.weight;
-            newWeightedAverageScore =
-              (currentGameAverageScore.weightedAverageScore *
-                currentGameAverageScore.weightedTimesPlayed +
-                weightedScoreObj.weightedScore) /
-              newWeightedTimesPlayed;
+        // if (!currentLobby) {
+        //   return new NextResponse('Lobby not found', { status: 404 });
+        // }
 
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        const currentGameAverageScore = await prismadb.gameAverageScore.findFirst({
+          where: {
+            userId: userId,
+            gameId: gameSession.gameId,
+          },
+        });
+
+        if (!currentGameAverageScore) {
+          return new NextResponse('Internal Error, try refreshing the page.', { status: 500 });
+        }
+
+        // const userPlayedInSession = currentLobby.sessions[0].scores?.length > 0 ? true : false;
+        // let accessResult = isValidLobbyAccess({
+        //   lobbyId: currentLobby.id,
+        //   lobbyWithScoresName: lobbyWithScores?.name,
+        //   lobbyWithScoresId: lobbyWithScores?.id,
+        //   userPlayedInSession: userPlayedInSession,
+        //   scoreType: game.scoreType,
+        //   weightedAverageScore: currentGameAverageScore?.averageScore,
+        //   timesPlayed: currentGameAverageScore?.timesPlayed || 0,
+        //   numScoresToAccess: currentLobby.numScoresToAccess,
+        //   scoreRestriction: currentLobby.scoreRestriction,
+        //   expiredDateTime: currentLobby.sessions[0].expiredDateTime,
+        //   startDateTime: currentLobby.sessions[0].startDateTime,
+        // });
+        // if (!accessResult.isValid) {
+        //   return new NextResponse('INVALID! ' + accessResult.message, { status: 302 });
+        // }
+
+        const weightedScoreObj = await calculateSingleWeightedScore(
+          { score: body.score, createdAt: new Date() },
+          game.tierBoundaries
+        );
+
+        //If the incoming score gets a weight of <= 0 then automatically create a flaggedScore
+        if (weightedScoreObj.weight <= 0) {
+          const entryWithZeroWeight = game.tierBoundaries.find((tier) => tier.weight === 0);
+
+          const lowerBoundOfZeroWeight = entryWithZeroWeight ? entryWithZeroWeight.lowerBound : -1;
+          await createFlaggedScore(
+            userId,
+            gameSession.lobbySessionId,
+            body.score,
+            lowerBoundOfZeroWeight,
+            'BAD'
+          );
+        }
+        let transaction; //make use of transaction - all updates/creates have to succeed for them to all succeed
+
+        //if there is a currentGameAverageScore then there must be an existing score.
+        //but if there is an existing score it doesn't mean there is a currentGameAverageScore
+        let currentAverageScore =
+          currentGameAverageScore.averageScore === -1 ? 1 : currentGameAverageScore.averageScore;
+        let currentWeightedAverageScore =
+          currentGameAverageScore.weightedAverageScore === -1
+            ? 1
+            : currentGameAverageScore.weightedAverageScore;
+
+        const newTimesPlayed = currentGameAverageScore.timesPlayed + 1;
+        const newWeightedTimesPlayed =
+          currentGameAverageScore.weightedTimesPlayed + weightedScoreObj.weight;
+
+        //since the timesPlayed and the weightedTimesPlayed are initialized to 0
+        //if it's the first update of the gameAverageScore since its initialization,
+        //newAverageScore = 1 * 0 + currentScore/1 = currentScore
+        //newWeightedAverageScore = (1 * 0 + weightedScoreObj.weightedScore)/1 = weightedScoreObj.weightedScore
+
+        newAverageScore =
+          (currentAverageScore * currentGameAverageScore.timesPlayed + body.score) / newTimesPlayed;
+
+        newWeightedAverageScore =
+          (currentWeightedAverageScore * currentGameAverageScore.weightedTimesPlayed +
+            weightedScoreObj.weightedScore) /
+          newWeightedTimesPlayed;
+
+        // game.scoreType === ScoreType.time && body.score < body.userBestScore.score;
+
+        //if there is no score create a score and update the average
+        if (body.userBestScore === false) {
+          if (weightedScoreObj.weight > 0) {
             transaction = prismadb.$transaction([
               prismadb.gameAverageScore.updateMany({
                 where: {
@@ -399,69 +267,117 @@ export async function POST(req: Request) {
                 },
               }),
             ]);
+            await transaction;
           } else {
+            await prismadb.score.create({
+              data: {
+                userId: userId,
+                gameId: gameSession.gameId,
+                username: user.username || '',
+                lobbySessionId: gameSession.lobbySessionId,
+                score: body.score,
+              },
+            });
+          }
+        }
+        //If the incoming score is better than the current score update the score
+        else if (
+          (game.scoreType === ScoreType.time &&
+            newAverageScore < currentGameAverageScore.averageScore) ||
+          (game.scoreType === ScoreType.points &&
+            newAverageScore > currentGameAverageScore.averageScore)
+        ) {
+          const currentScore = await findScore(
+            userId,
+            gameSession.gameId,
+            gameSession.lobbySessionId
+          );
+          //there will always be a found score (because if there is a currentGameAverageScore then there must be a current score as well),
+          // but if something goes wrong and it doesn't find one we have this check
+          //the second part is if the weight is greater than 0 then in addition to replacing the current score with
+          //the incoming one, we should also modify the gameAverageScore
+          if (currentScore && weightedScoreObj.weight > 0) {
             transaction = prismadb.$transaction([
-              prismadb.gameAverageScore.create({
-                data: {
+              prismadb.gameAverageScore.updateMany({
+                where: {
                   userId: userId,
                   gameId: gameSession.gameId,
-                  timesPlayed: 1,
-                  averageScore: body.score,
-                  weightedAverageScore: weightedScoreObj.weightedScore,
-                  weightedTimesPlayed: weightedScoreObj.weight,
+                },
+                data: {
+                  timesPlayed: newTimesPlayed,
+                  averageScore: newAverageScore,
+                  weightedTimesPlayed: newWeightedTimesPlayed,
+                  weightedAverageScore: newWeightedAverageScore,
                 },
               }),
-              prismadb.score.create({
+              prismadb.score.update({
+                where: {
+                  id: currentScore.id,
+                },
                 data: {
-                  userId: userId,
-                  gameId: gameSession.gameId,
-                  username: user.username || '',
-                  lobbySessionId: gameSession.lobbySessionId,
                   score: body.score,
                 },
               }),
             ]);
+            await transaction;
           }
-          await transaction;
-
-          if (
-            !body.userBestScore.score ||
-            (game.scoreType === ScoreType.points && body.score > body.userBestScore.score) ||
-            (game.scoreType === ScoreType.time && body.score < body.userBestScore.score)
-          ) {
-            const orderDirection = game.scoreType === ScoreType.time ? 'asc' : 'desc';
-
-            //a better score was created so send a new best scores array to be use in the score-table
-            const allScores = await prismadb.score.findMany({
+          // if the weight is <= 0, but since this else if is under the block that the incoming score
+          //is better than the current score, we just update the current score.
+          else if (currentScore) {
+            await prismadb.score.update({
               where: {
-                lobbySessionId: gameSession.lobbySessionId,
+                id: currentScore.id,
               },
-              select: {
-                userId: true,
-                username: true,
-                score: true,
+              data: {
+                score: body.score,
               },
-              orderBy: [
-                {
-                  score: orderDirection,
-                },
-                {
-                  createdAt: 'asc',
-                },
-              ],
             });
-            const bestScoresArray = processBestScores({
-              allScores,
-              orderDirection,
-            });
-
-            displayScores = prepareScoresForDisplay(bestScoresArray, userId);
           }
-          const message =
-            displayScores !== null ? 'New personal best score (for this session)!' : 'Score saved!';
+        }
+        //If incoming score isn't better than the current score
+        //but it's weight > 0, we only update the GameAverageScore
+        else if (weightedScoreObj.weight > 0) {
+          await prismadb.gameAverageScore.updateMany({
+            where: {
+              userId: userId,
+              gameId: gameSession.gameId,
+            },
+            data: {
+              timesPlayed: newTimesPlayed,
+              averageScore: newAverageScore,
+              weightedTimesPlayed: newWeightedTimesPlayed,
+              weightedAverageScore: newWeightedAverageScore,
+            },
+          });
+        }
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        if (
+          !body.userBestScore.score ||
+          (game.scoreType === ScoreType.points && body.score > body.userBestScore.score) ||
+          (game.scoreType === ScoreType.time && body.score < body.userBestScore.score)
+        ) {
+          const orderDirection = game.scoreType === ScoreType.time ? 'asc' : 'desc';
+
+          const allScores = await getAllScores(gameSession.lobbySessionId, orderDirection);
+
+          //a better score was created so send a new best scores array to be use in the score-table
+          const bestScoresArray = processBestScores({
+            allScores,
+            orderDirection,
+          });
+
+          displayScores = prepareScoresForDisplay(bestScoresArray, userId);
+        }
+        const message = 'New personal best score (for this session)!';
+        if (displayScores) {
           return new NextResponse(
             JSON.stringify({ message: message, displayScores: displayScores })
           );
+        } else {
+          return NextResponse.json({
+            status: 400,
+          });
         }
       } else {
         return new NextResponse('Internal Error', { status: 500 });

@@ -73,7 +73,7 @@ export const CountdownTimer = ({ data }: CountdownProps) => {
 
   return (
     <div className="flex flex-col items-center justify-center p-1 font-mono text-xl text-green-400 bg-black rounded shadow-md ">
-      <div className={`font-bold ${textSize} mb-1 text-center `}>{countdownLabel}</div>
+      <div className={`font-bold ${textSize} text-center `}>{countdownLabel}</div>
       <div className="flex space-x-4">
         {timeLeft.days > 0 && (
           <div className="flex flex-col items-center">
@@ -82,15 +82,21 @@ export const CountdownTimer = ({ data }: CountdownProps) => {
           </div>
         )}
         <div className="flex flex-col items-center">
-          <div className={`font-bold ${textSize}`}>{timeLeft.hours.toString().padStart(2, '0')}</div>
+          <div className={`font-bold ${textSize}`}>
+            {timeLeft.hours.toString().padStart(2, '0')}
+          </div>
           <div className={`${textSize}`}>H</div>
         </div>
         <div className="flex flex-col items-center">
-          <div className={`font-bold ${textSize}`}>{timeLeft.minutes.toString().padStart(2, '0')}</div>
+          <div className={`font-bold ${textSize}`}>
+            {timeLeft.minutes.toString().padStart(2, '0')}
+          </div>
           <div className={`${textSize}`}>M</div>
         </div>
         <div className="flex flex-col items-center">
-          <div className={`font-bold ${textSize}`}>{timeLeft.seconds.toString().padStart(2, '0')}</div>
+          <div className={`font-bold ${textSize}`}>
+            {timeLeft.seconds.toString().padStart(2, '0')}
+          </div>
           <div className={`${textSize}`}>S</div>
         </div>
       </div>
