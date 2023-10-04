@@ -96,7 +96,7 @@ export const Notifications = ({ numOfUnreadNotificationsParam }: NotificationPro
   return (
     <DropdownMenu onOpenChange={onBellClick}>
       <DropdownMenuTrigger asChild>
-        <Button className="px-0 py-0" variant="ghost">
+        <Button className="px-0 py-0" variant="ghost2">
           <div className="relative">
             <Bell />
             {numOfUnreadNotifications > 0 && (
