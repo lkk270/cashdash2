@@ -154,7 +154,7 @@ export const ScoreChart = ({ scores, userGameAverageScores }: ScoreChartProps) =
           const timesPlayedText =
             currentScoreType === ScoreType.balance
               ? 'Sessions played in:'
-              : 'Times played (recorded a score):';
+              : 'Times played i.e recorded a meaningful score:';
 
           let formattedAverageScore = 'Not yet available';
           let formattedWeightedAverageScore = 'Not yet available';

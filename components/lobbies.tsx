@@ -161,7 +161,9 @@ export const Lobbies = ({ data }: LobbiesProps) => {
                         <CardHeader className="flex items-center justify-center text-center text-muted-foreground">
                           <div className="relative w-56 h-56">
                             <Image
-                              src={`/images/${item.name.toLowerCase()}.png`}
+                              src={`/images/${
+                                item.name.toLowerCase().split(' or new player')[0]
+                              }.png`}
                               fill
                               className="object-cover rounded-xl"
                               alt="Character"

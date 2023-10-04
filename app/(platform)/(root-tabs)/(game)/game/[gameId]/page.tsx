@@ -44,7 +44,7 @@ const GameIdPage = async ({ params }: GameIdPageProps) => {
           },
         },
         orderBy: {
-          difficulty: 'asc',
+          difficulty: 'desc',
         },
       },
       averageScores: {

@@ -76,7 +76,7 @@ export const GameNavbar = ({ lobby, game, scores }: LobbyHeaderProps) => {
                 className={`${orbitronFont.className} font-bold bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent whitespace-nowrap flex-grow`}
               >
                 {' '}
-                {lobby.name}
+                {lobby.name.split(' or New Player')[0]}
               </span>
             </Link>
           </div>

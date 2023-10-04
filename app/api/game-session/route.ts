@@ -211,7 +211,6 @@ export async function POST(req: Request) {
             'BAD'
           );
         }
-
         let transaction; //make use of transaction - all updates/creates have to succeed for them to all succeed
 
         //if there is a currentGameAverageScore then there must be an existing score.
@@ -242,8 +241,47 @@ export async function POST(req: Request) {
 
         // game.scoreType === ScoreType.time && body.score < body.userBestScore.score;
 
+        //if there is no score create a score and update the average
+        if (body.userBestScore === false) {
+          if (weightedScoreObj.weight > 0) {
+            transaction = prismadb.$transaction([
+              prismadb.gameAverageScore.updateMany({
+                where: {
+                  userId: userId,
+                  gameId: gameSession.gameId,
+                },
+                data: {
+                  timesPlayed: newTimesPlayed,
+                  averageScore: newAverageScore,
+                  weightedTimesPlayed: newWeightedTimesPlayed,
+                  weightedAverageScore: newWeightedAverageScore,
+                },
+              }),
+              prismadb.score.create({
+                data: {
+                  userId: userId,
+                  gameId: gameSession.gameId,
+                  username: user.username || '',
+                  lobbySessionId: gameSession.lobbySessionId,
+                  score: body.score,
+                },
+              }),
+            ]);
+            await transaction;
+          } else {
+            await prismadb.score.create({
+              data: {
+                userId: userId,
+                gameId: gameSession.gameId,
+                username: user.username || '',
+                lobbySessionId: gameSession.lobbySessionId,
+                score: body.score,
+              },
+            });
+          }
+        }
         //If the incoming score is better than the current score update the score
-        if (
+        else if (
           (game.scoreType === ScoreType.time &&
             newAverageScore < currentGameAverageScore.averageScore) ||
           (game.scoreType === ScoreType.points &&
@@ -311,36 +349,35 @@ export async function POST(req: Request) {
               weightedAverageScore: newWeightedAverageScore,
             },
           });
+        }
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-          /////////////////////////////////////////////////////////////////////////////////////////////////////////
+        if (
+          !body.userBestScore.score ||
+          (game.scoreType === ScoreType.points && body.score > body.userBestScore.score) ||
+          (game.scoreType === ScoreType.time && body.score < body.userBestScore.score)
+        ) {
+          const orderDirection = game.scoreType === ScoreType.time ? 'asc' : 'desc';
 
-          if (
-            !body.userBestScore.score ||
-            (game.scoreType === ScoreType.points && body.score > body.userBestScore.score) ||
-            (game.scoreType === ScoreType.time && body.score < body.userBestScore.score)
-          ) {
-            const orderDirection = game.scoreType === ScoreType.time ? 'asc' : 'desc';
+          const allScores = await getAllScores(gameSession.lobbySessionId, orderDirection);
 
-            const allScores = await getAllScores(gameSession.lobbySessionId, orderDirection);
+          //a better score was created so send a new best scores array to be use in the score-table
+          const bestScoresArray = processBestScores({
+            allScores,
+            orderDirection,
+          });
 
-            //a better score was created so send a new best scores array to be use in the score-table
-            const bestScoresArray = processBestScores({
-              allScores,
-              orderDirection,
-            });
-
-            displayScores = prepareScoresForDisplay(bestScoresArray, userId);
-          }
-          const message = 'New personal best score (for this session)!';
-          if (displayScores) {
-            return new NextResponse(
-              JSON.stringify({ message: message, displayScores: displayScores })
-            );
-          } else {
-            return NextResponse.json({
-              status: 400,
-            });
-          }
+          displayScores = prepareScoresForDisplay(bestScoresArray, userId);
+        }
+        const message = 'New personal best score (for this session)!';
+        if (displayScores) {
+          return new NextResponse(
+            JSON.stringify({ message: message, displayScores: displayScores })
+          );
+        } else {
+          return NextResponse.json({
+            status: 400,
+          });
         }
       } else {
         return new NextResponse('Internal Error', { status: 500 });
