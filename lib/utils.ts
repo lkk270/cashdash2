@@ -140,5 +140,5 @@ export const getStartAndExpiredDate = () => {
   const expiredDateTime = new Date(baseDate);
   expiredDateTime.setHours(23, 59, 0, 0); // Hours, Minutes, Seconds, Milliseconds
 
-  return { startDateTime, expiredDateTime };
+  return {currentDate, startDateTime, expiredDateTime };
 };

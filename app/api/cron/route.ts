@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 
-import { getStartAndExpiredDate } from '@/lib/utils';
+import { getStartAndExpiredDate, convertMillisecondsToMinSec } from '@/lib/utils';
 import { calculateSingleWeightedScore } from '@/lib/average-score';
 import { sortScores } from '@/lib/scores';
 import prismadb from '@/lib/prismadb';
@@ -13,7 +13,8 @@ export async function POST(req: Request) {
     const reqHeaders = headers();
     const secret = reqHeaders.get('cron_secret');
     const bodyLength = Object.keys(body).length;
-    const { startDateTime, expiredDateTime } = getStartAndExpiredDate();
+    const { currentDate, startDateTime, expiredDateTime } = getStartAndExpiredDate();
+    const thirtyMinutesFromNow = new Date(currentDate.getTime() + 30 * 60 * 1000);
 
     //query all things now that use isActive = true, because we will set it false first
 
@@ -21,6 +22,7 @@ export async function POST(req: Request) {
     const gameObjs = await prismadb.game.findMany({
       where: {
         scoreType: ScoreType.balance,
+        name: 'Blackjack',
       },
       select: {
         id: true,
@@ -30,6 +32,9 @@ export async function POST(req: Request) {
             sessions: {
               where: {
                 isActive: true,
+                expiredDateTime: {
+                  lt: thirtyMinutesFromNow,
+                },
               },
               select: {
                 scores: {
@@ -49,6 +54,10 @@ export async function POST(req: Request) {
     const lobbySessions = await prismadb.lobbySession.findMany({
       where: {
         isActive: true,
+        expiredDateTime: {
+          lt: thirtyMinutesFromNow,
+        },
+        lobbyId: '6ac5594a-794a-4352-b051-4ae2f31d3340',
       },
       select: {
         id: true,
@@ -89,6 +98,8 @@ export async function POST(req: Request) {
       });
       lobbySessionIds.push(lobbySession.id);
     }
+
+    console.log(newLobbySessions);
 
     //update all in question lobby sessions' inActive to false
     await prismadb.lobbySession.createMany({
@@ -210,6 +221,10 @@ export async function POST(req: Request) {
       for (let i = 0; i < sortedScoresLength; i++) {
         const iPlusOne = i + 1;
         let score = sortedScores[i];
+        const formattedScore =
+          gameObj.scoreType === ScoreType.time
+            ? convertMillisecondsToMinSec(score.score)
+            : score.score;
         let prize = 0;
         if (i === 0) {
           rankText = '1st';
@@ -225,7 +240,7 @@ export async function POST(req: Request) {
           prize = lobby.unspecifiedPlacePrize;
         }
         if (iPlusOne <= lobby.numRewards || iPlusOne <= 3) {
-          notificationText = `${gameObj.name} session ended. Your final score was ${score.score}, which was good enough for ${rankText} place - out of ${sortedScoresLength} scores! The cash prize for ${rankText} place is $${prize}, and it has been delivered.`;
+          notificationText = `${gameObj.name} session ended. Your final score was ${formattedScore}, which was good enough for ${rankText} place - out of ${sortedScoresLength} scores! The cash prize for ${rankText} place is $${prize}, and it has been delivered.`;
           await prismadb.reward.create({
             data: {
               userId: score.userId,
@@ -252,6 +267,7 @@ export async function POST(req: Request) {
             });
           } else {
             const newCurrentUserCash = currentUserCash.cash + prize;
+            console.log('newCurrentUserCash', newCurrentUserCash);
             prismadb.userCash.update({
               where: {
                 userId: score.userId,
@@ -262,7 +278,7 @@ export async function POST(req: Request) {
             });
           }
         } else {
-          notificationText = `${gameObj.name} session ended. Your final score was ${score.score}. Your score ranked #${iPlusOne} out of ${sortedScoresLength} scores.`;
+          notificationText = `${gameObj.name} session ended. Your final score was ${formattedScore}. Your score ranked #${iPlusOne} out of ${sortedScoresLength} scores.`;
         }
 
         await prismadb.notification.create({
@@ -281,7 +297,7 @@ export async function POST(req: Request) {
       return new NextResponse('Invalid body', { status: 400 });
     }
 
-    return new NextResponse(JSON.stringify(tierBoundaryMap), { status: 200 });
+    return new NextResponse(JSON.stringify(lobbySessionIds), { status: 200 });
   } catch (error: any) {
     console.log(error);
     return new NextResponse('Internal Error', { status: 500 });
