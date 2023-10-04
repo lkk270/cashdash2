@@ -148,22 +148,31 @@ export const ScoreChart = ({ scores, userGameAverageScores }: ScoreChartProps) =
           const startIndex = endIndex - 30 > 0 ? endIndex - 30 : 0; // 10th from last, but not less than 0
           const activeGameId = games[gameName]?.[0]?.lobbySession?.lobby?.game?.id;
 
+          let formattedAverageScore = 'Not available';
+          let formattedWeightedAverageScore = 'Not available';
+
           const averageScore = getAverageScoreForGame(activeGameId);
           const weightedAverageScore = getWeightedAverageScoreForGame(activeGameId);
+          if (averageScore > 0) {
+            formattedAverageScore =
+              currentScoreType === ScoreType.time
+                ? convertMillisecondsToMinSec(averageScore)
+                : averageScore.toFixed(2);
+          }
+          if (weightedAverageScore > 0) {
+            formattedWeightedAverageScore =
+              currentScoreType === ScoreType.time
+                ? convertMillisecondsToMinSec(weightedAverageScore)
+                : weightedAverageScore.toFixed(2);
+          }
           const timesPlayed = getTimesPlayedForGame(activeGameId);
           const totalWinnings = getTotalWinningsForGame(games[gameName]);
-          const formattedAverageScore =
-            currentScoreType === ScoreType.time
-              ? convertMillisecondsToMinSec(averageScore)
-              : averageScore.toFixed(2);
-          const formattedWeightedAverageScore =
-            currentScoreType === ScoreType.time
-              ? convertMillisecondsToMinSec(weightedAverageScore)
-              : weightedAverageScore.toFixed(2);
+          
           const timesPlayedText =
             currentScoreType === ScoreType.balance
               ? 'Sessions played in:'
               : 'Times played (recorded a score):';
+
           return (
             <TabsContent
               key={gameName}

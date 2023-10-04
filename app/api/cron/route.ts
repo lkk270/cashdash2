@@ -155,7 +155,7 @@ export async function POST(req: Request) {
       return new NextResponse('No scores', { status: 200 });
     }
 
-    //BALANCES NEVER HAVE A WEIGHT OF 0 SO THIS IS SAFE, THE GAME_AVERAGE WILL EXIST
+    //BALANCES NEVER HAVE A WEIGHT OF 0.
     for (let gameAverageScore of gameAverageScores) {
       const currentScore = scoresMap[gameAverageScore.userId];
       const weightedScoreObj = await calculateSingleWeightedScore(
@@ -170,10 +170,15 @@ export async function POST(req: Request) {
       const newTimesPlayed = gameAverageScore.timesPlayed + 1;
       const newWeightedTimesPlayed = gameAverageScore.weightedTimesPlayed + weightedScoreObj.weight;
 
+      //since the timesPlayed and the weightedTimesPlayed are initialized to 0
+      //if it's the first update of the gameAverageScore since its initialization,
+      //newAverageScore = 1 * 0 + currentScore/1 = currentScore
+      //newWeightedAverageScore = (1 * 0 + weightedScoreObj.weightedScore)/1 = weightedScoreObj.weightedScore
+
       const newAverageScore =
         (currentAverageScore * gameAverageScore.timesPlayed + currentScore) / newTimesPlayed;
 
-      let newWeightedAverageScore =
+      const newWeightedAverageScore =
         (currentWeightedAverageScore * gameAverageScore.weightedTimesPlayed +
           weightedScoreObj.weightedScore) /
         newWeightedTimesPlayed;
