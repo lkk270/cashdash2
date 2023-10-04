@@ -120,3 +120,25 @@ export function formatBalance(balance: number): string {
     return (Math.round(balance / 100_000_000) / 10 + 'B').toString();
   }
 }
+
+export const getStartAndExpiredDate = () => {
+  const currentDate = new Date();
+
+  // For safety check, in case cron runs slightly after 11:59 pm
+  const isPastMidnight = currentDate.getHours() === 0;
+
+  const baseDate = new Date(currentDate);
+  if (!isPastMidnight) {
+    baseDate.setDate(baseDate.getDate() + 1);
+  }
+
+  // Set startDateTime to 00:05 AM
+  const startDateTime = new Date(baseDate);
+  startDateTime.setHours(0, 5, 0, 0); // Hours, Minutes, Seconds, Milliseconds
+
+  // Set expiredDateTime to 11:59 PM
+  const expiredDateTime = new Date(baseDate);
+  expiredDateTime.setHours(23, 59, 0, 0); // Hours, Minutes, Seconds, Milliseconds
+
+  return { startDateTime, expiredDateTime };
+};

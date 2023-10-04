@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 
+import { getStartAndExpiredDate } from '@/lib/utils';
 import { calculateSingleWeightedScore } from '@/lib/average-score';
 import { sortScores } from '@/lib/scores';
 import prismadb from '@/lib/prismadb';
@@ -12,10 +13,11 @@ export async function POST(req: Request) {
     const reqHeaders = headers();
     const secret = reqHeaders.get('cron_secret');
     const bodyLength = Object.keys(body).length;
+    const { startDateTime, expiredDateTime } = getStartAndExpiredDate();
 
-    //Modify average score for balance games
-    //first get the lobbySessions that are balance based
+    //query all things now that use isActive = true, because we will set it false first
 
+    //get the lobbySessions that are balance based
     const gameObjs = await prismadb.game.findMany({
       where: {
         scoreType: ScoreType.balance,
@@ -43,6 +45,68 @@ export async function POST(req: Request) {
       },
     });
 
+    //query isActive = true lobbySessions
+    const lobbySessions = await prismadb.lobbySession.findMany({
+      where: {
+        isActive: true,
+      },
+      select: {
+        id: true,
+        scores: {
+          select: {
+            id: true,
+            userId: true,
+            score: true,
+            createdAt: true,
+          },
+        },
+        lobby: {
+          select: {
+            gameId: true,
+            numRewards: true,
+            firstPlacePrize: true,
+            secondPlacePrize: true,
+            thirdPlacePrize: true,
+            unspecifiedPlacePrize: true,
+          },
+        },
+      },
+    });
+
+    /////////////////////////////////////////////////////////////
+    //Set current lobby sessions isActive to false and create a new lobby session to take its place
+    //unfortunately we have to loop through lobbySessions now and later, but because the other code
+    //can take some time to execute, it's important to first toggle the lobby sessions
+
+    let newLobbySessions = [];
+    let lobbySessionIds = [];
+    for (let lobbySession of lobbySessions) {
+      newLobbySessions.push({
+        lobbyId: lobbySession.id,
+        startDateTime: startDateTime,
+        expiredDateTime: expiredDateTime,
+        isActive: true,
+      });
+      lobbySessionIds.push(lobbySession.id);
+    }
+
+    //update all in question lobby sessions' inActive to false
+    await prismadb.lobbySession.createMany({
+      data: newLobbySessions,
+    });
+
+    await prismadb.lobbySession.updateMany({
+      where: {
+        id: {
+          in: lobbySessionIds,
+        },
+      },
+      data: {
+        isActive: false,
+      },
+    });
+
+    //Modify average score for balance games
     //get currentGameAverageScores for all balance games and all userIds from the corresponding scores of the sessions
     // Extract gameIds and userIds from gameObjs
     let scoresMap;
@@ -135,33 +199,6 @@ export async function POST(req: Request) {
       return acc;
     }, {} as Record<string, { scoreType: string; name: string }>);
 
-    const lobbySessions = await prismadb.lobbySession.findMany({
-      where: {
-        isActive: true,
-      },
-      select: {
-        id: true,
-        scores: {
-          select: {
-            id: true,
-            userId: true,
-            score: true,
-            createdAt: true,
-          },
-        },
-        lobby: {
-          select: {
-            gameId: true,
-            numRewards: true,
-            firstPlacePrize: true,
-            secondPlacePrize: true,
-            thirdPlacePrize: true,
-            unspecifiedPlacePrize: true,
-          },
-        },
-      },
-    });
-
     for (let lobbySession of lobbySessions) {
       let notificationText;
       let rankText;
@@ -188,12 +225,6 @@ export async function POST(req: Request) {
           prize = lobby.unspecifiedPlacePrize;
         }
         if (iPlusOne <= lobby.numRewards || iPlusOne <= 3) {
-          const data = {
-            userId: score.userId,
-            scoreId: score.id,
-            value: prize,
-            place: iPlusOne,
-          };
           notificationText = `${gameObj.name} session ended. Your final score was ${score.score}, which was good enough for ${rankText} place - out of ${sortedScoresLength} scores! The cash prize for ${rankText} place is $${prize}, and it has been delivered.`;
           await prismadb.reward.create({
             data: {
@@ -242,9 +273,6 @@ export async function POST(req: Request) {
         });
       }
     }
-
-    /////////////////////////////////////////////////////////////
-    //Set current lobby sessions isActive to false and create a new lobby session to take its place
 
     if (secret !== process.env.CRON_SECRET) {
       return new NextResponse('Unauthorized', { status: 401 });
