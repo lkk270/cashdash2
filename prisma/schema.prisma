@@ -216,3 +216,19 @@ model UserCash {
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
 }
+
+enum FlaggedScoreReason {
+  CHEATING
+  CHEATING_ELAPSED_TIME
+  BAD
+}
+
+model FlaggedScore {
+  id               String             @id @default(cuid())
+  userId           String
+  lobbySessionId   String
+  score            Float
+  boundaryExceeded Float?
+  reason           FlaggedScoreReason
+  createdAt        DateTime           @default(now())
+}

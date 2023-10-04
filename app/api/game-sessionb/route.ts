@@ -3,7 +3,13 @@ import { NextResponse } from 'next/server';
 
 // import { calculateSingleWeightedScore } from '@/lib/average-score';
 // import { isValidLobbyAccess } from '@/lib/utils';
-import { createGameSession, findScore, getAllScores, getGameSession } from '@/lib/game-session';
+import {
+  createFlaggedScore,
+  createGameSession,
+  findScore,
+  getAllScores,
+  getGameSession,
+} from '@/lib/game-session';
 import { processBestScores, prepareScoresForDisplay } from '@/lib/scores';
 // import { generateChallengeHash, generateResponseHash } from '@/lib/hash';
 import prismadb from '@/lib/prismadb';
@@ -171,6 +177,13 @@ export async function POST(req: Request) {
         }
 
         if (balanceChange > Math.ceil(betTotal * payoutMultiplier)) {
+          await createFlaggedScore(
+            userId,
+            gameSession.lobbySessionId,
+            body.score,
+            Math.ceil(betTotal * payoutMultiplier),
+            'CHEATING'
+          );
           return new NextResponse('Unauthorized', { status: 401 });
         }
 

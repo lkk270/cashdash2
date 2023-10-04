@@ -154,6 +154,8 @@ export async function POST(req: Request) {
     if (!scoresMap) {
       return new NextResponse('No scores', { status: 200 });
     }
+
+    //BALANCES NEVER HAVE A WEIGHT OF 0 SO THIS IS SAFE, THE GAME_AVERAGE WILL EXIST
     for (let gameAverageScore of gameAverageScores) {
       const currentScore = scoresMap[gameAverageScore.userId];
       const weightedScoreObj = await calculateSingleWeightedScore(
@@ -176,8 +178,6 @@ export async function POST(req: Request) {
           weightedScoreObj.weightedScore) /
         newWeightedTimesPlayed;
 
-      //means score is better and the current score should be updated
-      //there will always be a found score, but if something goes wrong and it doesn't find one we have this check
       await prismadb.gameAverageScore.updateMany({
         where: {
           userId: gameAverageScore.userId,

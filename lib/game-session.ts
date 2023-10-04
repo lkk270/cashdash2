@@ -1,4 +1,4 @@
-import { GameSession, Score, Prisma } from '@prisma/client';
+import { GameSession, FlaggedScoreReason, Prisma } from '@prisma/client';
 import { ModifiedScoreType, ModifiedGameType2 } from '@/app/types';
 import prismadb from '@/lib/prismadb';
 
@@ -242,4 +242,22 @@ export const getGame = async (
     },
   });
   return game;
+};
+
+export const createFlaggedScore = async (
+  userId: string,
+  lobbySessionId: string,
+  score: number,
+  boundaryExceeded: number,
+  reason: FlaggedScoreReason
+): Promise<void> => {
+  await prismadb.flaggedScore.create({
+    data: {
+      userId: userId,
+      lobbySessionId: lobbySessionId,
+      score: score,
+      boundaryExceeded: boundaryExceeded,
+      reason: reason,
+    },
+  });
 };

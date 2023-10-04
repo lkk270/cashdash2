@@ -173,8 +173,9 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
           });
           balanceGame = true;
         }
+        //for balance games we need to initialize an gameAverageScore if there isn't one already
+        //this if will execute if the one above does.
         if (!game.averageScores[0]) {
-          //for balance games we need to initialize an gameAverageScore if there isn't one already
           await prismadb.gameAverageScore.create({
             data: {
               userId: userId,
