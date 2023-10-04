@@ -57,10 +57,11 @@ export async function POST(req: Request) {
         expiredDateTime: {
           lt: thirtyMinutesFromNow,
         },
-        lobbyId: '6ac5594a-794a-4352-b051-4ae2f31d3340',
+        // lobbyId: '6ac5594a-794a-4352-b051-4ae2f31d3340',
       },
       select: {
         id: true,
+        lobbyId: true,
         scores: {
           select: {
             id: true,
@@ -91,7 +92,7 @@ export async function POST(req: Request) {
     let lobbySessionIds = [];
     for (let lobbySession of lobbySessions) {
       newLobbySessions.push({
-        lobbyId: lobbySession.id,
+        lobbyId: lobbySession.lobbyId,
         startDateTime: startDateTime,
         expiredDateTime: expiredDateTime,
         isActive: true,
@@ -214,6 +215,9 @@ export async function POST(req: Request) {
       let notificationText;
       let rankText;
       const lobby = lobbySession.lobby;
+      if (!lobby) {
+        continue;
+      }
       const gameObj = allGamesMap[lobby.gameId];
       const orderDirection = gameObj.scoreType === ScoreType.time ? 'asc' : 'desc';
       let sortedScores = sortScores(lobbySession.scores, orderDirection);
@@ -267,8 +271,7 @@ export async function POST(req: Request) {
             });
           } else {
             const newCurrentUserCash = currentUserCash.cash + prize;
-            console.log('newCurrentUserCash', newCurrentUserCash);
-            prismadb.userCash.update({
+            await prismadb.userCash.update({
               where: {
                 userId: score.userId,
               },

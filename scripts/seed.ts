@@ -87,6 +87,37 @@ async function main() {
     // await db.notification.createMany({
     //   data: data,
     // });
+    // const thirtyMinutesFromNow = new Date(new Date().getTime() + 30 * 60 * 1000);
+    //  await db.score.deleteMany({
+    //   where: {
+    //     gameId: '95342055-5033-49a9-8231-c0b1841a8238',
+    //   },
+    // });
+    // await db.gameSession.deleteMany({
+    //   where: {
+    //     gameId: '95342055-5033-49a9-8231-c0b1841a8238',
+    //   },
+    // });
+    // await db.lobbySession.deleteMany({
+    //   where: {
+    //     lobbyId: '6ac5594a-794a-4352-b051-4ae2f31d3340',
+    //   },
+    // });
+    // const lobbies = await db.lobby.findMany({
+    //   select: {
+    //     id: true,
+    //     sessions: true,
+    //   },
+    // });
+    // if (!lobbies) {
+    //   console.log('Lobby with the given ID does not exist');
+    // } else {
+    //   console.log(lobbies);
+    //   console.log(lobbies.length);
+    // }
+    // await db.score.deleteMany({});
+    // await db.gameSession.deleteMany({});
+    // await db.lobbySession.deleteMany({});
   } catch (error) {
     console.error('Error seeding default categories:', error);
   } finally {
