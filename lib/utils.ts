@@ -33,6 +33,7 @@ export function isValidLobbyAccess(inputs: {
   const currentDate = new Date();
 
   let errorMessages: string[] = [];
+  let needMorePlays = false;
 
   // Check if expiredDateTime or startDateTime is before the current Zulu time
   if (inputs.expiredDateTime < currentDate && inputs.startDateTime < currentDate) {
@@ -43,20 +44,8 @@ export function isValidLobbyAccess(inputs: {
     errorMessages.push('This lobby is not yet accessible');
   }
 
-  if (inputs.userPlayedInSession === false && inputs.weightedAverageScore) {
-    //if the there is at least one score for this lobby session then even if the user becomes too good for the session, they are still allowed to access it for the remainder of the lobby session.
-    if (
-      inputs.scoreRestriction !== -1 &&
-      ((inputs.scoreType === ScoreType.time &&
-        inputs.weightedAverageScore < inputs.scoreRestriction) ||
-        ((inputs.scoreType === ScoreType.points || inputs.scoreType === ScoreType.balance) &&
-          inputs.weightedAverageScore > inputs.scoreRestriction))
-    ) {
-      errorMessages.push("You're too good of a player to access this tier!");
-    }
-  }
-
   if (inputs.timesPlayed < inputs.numScoresToAccess) {
+    needMorePlays = true;
     const moreTimes = inputs.numScoresToAccess - inputs.timesPlayed;
     const timesStr = moreTimes === 1 ? '' : 's';
     if (inputs.scoreType === ScoreType.balance) {
@@ -71,6 +60,23 @@ export function isValidLobbyAccess(inputs: {
           inputs.numScoresToAccess - inputs.timesPlayed
         } more time${timesStr} to gain access to this tier - skill level permitting`
       );
+    }
+  }
+
+  if (
+    needMorePlays === false &&
+    inputs.userPlayedInSession === false &&
+    inputs.weightedAverageScore
+  ) {
+    //if the there is at least one score for this lobby session then even if the user becomes too good for the session, they are still allowed to access it for the remainder of the lobby session.
+    if (
+      inputs.scoreRestriction !== -1 &&
+      ((inputs.scoreType === ScoreType.time &&
+        inputs.weightedAverageScore < inputs.scoreRestriction) ||
+        ((inputs.scoreType === ScoreType.points || inputs.scoreType === ScoreType.balance) &&
+          inputs.weightedAverageScore > inputs.scoreRestriction))
+    ) {
+      errorMessages.push("You're too good of a player to access this tier!");
     }
   }
 
