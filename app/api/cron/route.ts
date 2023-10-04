@@ -23,7 +23,6 @@ export async function POST(req: Request) {
     const gameObjs = await prismadb.game.findMany({
       where: {
         scoreType: ScoreType.balance,
-        name: 'Blackjack',
       },
       select: {
         id: true,
@@ -58,7 +57,6 @@ export async function POST(req: Request) {
         expiredDateTime: {
           lt: thirtyMinutesFromNow,
         },
-        // lobbyId: '6ac5594a-794a-4352-b051-4ae2f31d3340',
       },
       select: {
         id: true,
@@ -100,8 +98,6 @@ export async function POST(req: Request) {
       });
       lobbySessionIds.push(lobbySession.id);
     }
-
-    console.log(newLobbySessions);
 
     //update all in question lobby sessions' inActive to false
     await prismadb.lobbySession.createMany({
