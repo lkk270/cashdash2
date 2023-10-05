@@ -15,8 +15,9 @@ const NotFound: React.FC<NotFoundProps> = ({ error }) => {
           userCashString: '$0.00',
           numOfUnreadNotifications: undefined,
         }}
-        children={<EmptyState title="Uh Oh" subtitle="404 - Page not Found 👾" />}
-      />
+      >
+        <EmptyState title="Uh Oh" subtitle="404 - Page not Found 👾" />
+      </DashboardLayout>
     </>
   );
 };

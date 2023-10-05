@@ -14,7 +14,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
     numOfUnreadNotifications: numOfUnreadNotifications,
   };
 
-  return <DashboardLayout userValues={userValues} children={children} />;
+  return <DashboardLayout userValues={userValues}>{children}</DashboardLayout>;
 };
 
 export default RootLayout;

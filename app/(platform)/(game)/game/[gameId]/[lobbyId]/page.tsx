@@ -228,15 +228,14 @@ const LobbyIdPage = async ({ params }: LobbyIdPageProps) => {
           userCashString: '$0.00',
           numOfUnreadNotifications: undefined,
         }}
-        children={
-          <EmptyState
-            withBackButton={true}
-            title="👾 Invalid Access 👾"
-            subtitle={'Reasons:'}
-            reasons={accessResult.message.split('&')}
-          />
-        }
-      />
+      >
+        <EmptyState
+          withBackButton={true}
+          title="👾 Invalid Access 👾"
+          subtitle={'Reasons:'}
+          reasons={accessResult.message.split('&')}
+        />
+      </DashboardLayout>
     );
   }
   return (

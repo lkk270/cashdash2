@@ -20,8 +20,9 @@ const ErrorState: React.FC<ErrorStateProps> = ({ error }) => {
           userCashString: '$0.00',
           numOfUnreadNotifications: undefined,
         }}
-        children={<EmptyState title="Uh Oh" subtitle="Something went wrong!" />}
-      />
+      >
+        <EmptyState title="Uh Oh" subtitle="Something went wrong!" />
+      </DashboardLayout>
     </>
   );
 };

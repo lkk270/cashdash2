@@ -11,8 +11,9 @@ const Loading = () => {
           userCashString: '$0.00',
           numOfUnreadNotifications: undefined,
         }}
-        children={<Loader />}
-      />
+      >
+        <Loader />
+      </DashboardLayout>
     </>
   );
 };
