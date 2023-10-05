@@ -122,7 +122,7 @@ export const ScoreChart = ({ scores, userGameAverageScores }: ScoreChartProps) =
     <div className="flex flex-col items-center justify-center w-full pt-5 space-y-5 font-sans text-primary">
       <div className="text-sm text-center text-primary/50">
         <h1 className="items-center text-4xl font-bold">Player Stats</h1>
-        <p className="mt-4">The graph shows the your best score per session entered.</p>
+        <p className="mt-4">The graphs show your best score per session entered.</p>
       </div>
       <Tabs defaultValue={activeTab} className="w-full rounded-sm ">
         <TabsList className={`${tabsClassName} flex min-w-0 overflow-x-scroll  scrollbar-hide`}>
