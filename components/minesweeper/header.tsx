@@ -43,6 +43,7 @@ export const Header: React.FC<HeaderProps> = ({
     }, 1000);
 
     return () => clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameStarted, gameStatus, setTimeElapsed]);
 
   let StatusIcon;

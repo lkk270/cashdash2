@@ -55,6 +55,7 @@ export const UserCashModal = () => {
           setLoading(false);
         });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userCashModal.isOpen, dataFetched]);
 
   const onWithdraw = () => {

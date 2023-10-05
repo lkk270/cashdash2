@@ -72,6 +72,7 @@ export const Lobbies = ({ data }: LobbiesProps) => {
     });
 
     setAccessResults(results);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data.lobbies]);
 
   if (!accessResults) {
@@ -91,9 +92,9 @@ export const Lobbies = ({ data }: LobbiesProps) => {
   return (
     <div className="flex justify-center">
       <div className="grid justify-center grid-cols-1 gap-2 pb-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {data.lobbies.map((item) => {
+        {data.lobbies.map((item, index) => {
           if (!item.sessions[0]) {
-            return <EmptyState title="Uh Oh" subtitle="Something went wrong!" />;
+            return <EmptyState key={index} title="Uh Oh" subtitle="Something went wrong!" />;
           }
           const accessResult = accessResults[item.id];
           let disableCard = accessResult ? !accessResult.isValid : true;

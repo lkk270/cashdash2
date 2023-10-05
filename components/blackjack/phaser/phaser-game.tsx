@@ -4,7 +4,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import Phaser from 'phaser';
 import axios from 'axios';
 
-import { generateResponseHash } from '@/lib/hash';
 import { processBestScores, prepareScoresForDisplay } from '@/lib/scores';
 import { ModifiedScoreType } from '@/app/types';
 //import { BlackjackScene, HomeScene } from './phaser-scene';
@@ -228,6 +227,7 @@ const PhaserGame = ({ props }: BlackjackProps) => {
     return () => {
       game.destroy(true); // Clean up on component unmount
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <div id="phaser-game" className="max-w-[100vw]"></div>;

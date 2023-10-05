@@ -45,6 +45,7 @@ export const UserPayoutHistoryModal = () => {
           setLoading(false);
         });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [usePayoutHistory.isOpen, dataFetched]);
 
   if (!isMounted) {

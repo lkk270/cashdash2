@@ -117,6 +117,7 @@ export const Minesweeper = ({
     const newGrid = initializeGrid(rows, cols, numMines, min3bv);
     setGrid(newGrid);
     setLoading(false); // Set loading to false after initializing the grid
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onGameStart = () => {

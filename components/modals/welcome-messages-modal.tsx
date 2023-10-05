@@ -67,17 +67,19 @@ export const WelcomeMessagesModal = () => {
             <DialogTitle className="text-center text-sky-500">Some News</DialogTitle>
             <div className="justify-center mt-6">
               <p>
-                CashDash is currently in beta! We're excited about the future and have plans to
+                CashDash is currently in beta! We&apos;re excited about the future and have plans to
                 offer enticing cash prizes. However, we cannot offer prizes until a critical mass of
                 users is reached. So once we hit our initial target of 10,000 users, the top 3
-                scores of every game's session will share a total prize pool of $500. And here's the
-                thrilling part: as our user base grows, so will the rewards! The more players we
-                have, the bigger the cash rewards. We truly appreciate you being a part of CashDash.
+                scores of every game&apos;s session will share a total prize pool of $500. And
+                here&apos;s the thrilling part: as our user base grows, so will the rewards! The
+                more players we have, the bigger the cash rewards. We truly appreciate you being a
+                part of CashDash.
               </p>
               <br />
               <p>
-                Your feedback is invaluable to us. If you'd like to provide feedback on anything you
-                can do so anonymously by clicking the feedback button located on the side menu.
+                Your feedback is invaluable to us. If you&apos;d like to provide feedback on
+                anything you can do so anonymously by clicking the feedback button located on the
+                side menu.
               </p>
               <br />
               <p>Thank you! Welcome to CashDash 👾</p>

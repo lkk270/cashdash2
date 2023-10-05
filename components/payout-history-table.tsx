@@ -10,8 +10,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import Image from 'next/image';
+
 import { ModifiedPaymentType } from '@/app/types';
-import { CardSkeleton } from '@/components/skeletons/card-skeleton';
 
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
@@ -73,10 +74,10 @@ export const PayoutHistoryTable = ({
               <TableRow>
                 <TableCell colSpan={3}>
                   <div className="text-lg font-bold text-center">No payouts</div>
-                  <img
+                  <Image
                     draggable={false}
-                    height={600}
-                    width={600}
+                    height={350}
+                    width={350}
                     src="/images/empty.png"
                     alt="Empty"
                   />
@@ -85,7 +86,7 @@ export const PayoutHistoryTable = ({
             ) : (
               payouts.map((payout, i) => {
                 return (
-                  <TableRow key={payout.id}>
+                  <TableRow key={i}>
                     <TableCell>{payout.createdAt.split('T')[0]}</TableCell>
                     <TableCell>${payout.amount.toString()}</TableCell>
                     <TableCell>{payout.status}</TableCell>

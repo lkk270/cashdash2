@@ -3,7 +3,6 @@
 import dynamic from 'next/dynamic';
 
 import React from 'react';
-import { ModifiedScoreType } from '@/app/types';
 import Loader from '@/components/loader';
 
 const PhaserGame = dynamic(() => import('@/components/blackjack/phaser/phaser-game-playground'), {

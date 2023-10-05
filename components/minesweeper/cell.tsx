@@ -56,6 +56,7 @@ export const Cell = ({
       // Clear any existing timeouts
       clearTimeout(touchStartTime);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Mouse down event to set the isPressed state

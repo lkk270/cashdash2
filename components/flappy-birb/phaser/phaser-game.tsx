@@ -160,6 +160,7 @@ const PhaserGame = ({ props }: FlappyBirbProps) => {
     return () => {
       game.destroy(true); // Clean up on component unmount
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <div id="phaser-game" className="max-w-[100vw]"></div>;

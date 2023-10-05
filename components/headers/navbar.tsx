@@ -39,13 +39,13 @@ export const Navbar = ({ userValues }: NavbarProps) => {
 
   useEffect(() => {
     setUserCashString(userValues.userCashString);
-  }, [userValues.userCashString]);
+  }, [setUserCashString, userValues.userCashString]);
 
   useEffect(() => {
     if (typeof userValues.isPro === 'boolean') {
       setIsPro(userValues.isPro);
     }
-  }, [userValues.isPro]);
+  }, [setIsPro, userValues.isPro]);
 
   return (
     <div className="fixed z-50 flex items-center justify-between w-full h-16 px-4 py-2 border-b border-primary/10 bg-secondary">

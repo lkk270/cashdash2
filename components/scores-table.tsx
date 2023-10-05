@@ -7,6 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Lobby, LobbySession, ScoreType } from '@prisma/client';
 import { useUser } from '@clerk/nextjs';
@@ -56,7 +57,7 @@ export const ScoresTable = ({
 
       return () => clearTimeout(timeout);
     }
-  });
+  }, [triggerAnimation, setTriggerAnimation]);
 
   return (
     <div className="flex flex-col h-full space-y-3 overflow-y-scroll text-primary bg-secondary">
@@ -86,7 +87,7 @@ export const ScoresTable = ({
               <TableRow>
                 <TableCell colSpan={2}>
                   <div className="text-lg font-bold text-center">No scores</div>
-                  <img
+                  <Image
                     draggable={false}
                     height={600}
                     width={600}
