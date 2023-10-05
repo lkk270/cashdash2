@@ -37,6 +37,7 @@ export const WelcomeMessagesModal = () => {
         infoModal.onOpen();
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   if (!isMounted) {
