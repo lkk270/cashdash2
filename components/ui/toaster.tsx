@@ -23,8 +23,8 @@ export function Toaster() {
               {description && <ToastDescription>{description}</ToastDescription>}
               <ol className="pl-3 text-sm list-decimal">
                 {reasons &&
-                  reasons.map((reason) => (
-                    <li className="flex">
+                  reasons.map((reason, index) => (
+                    <li className="flex" key={index}>
                       <span className="w-5">{reasons.indexOf(reason) + 1}.</span>
                       <span className="flex-1 pl-1">{reason}</span>
                     </li>

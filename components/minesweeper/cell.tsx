@@ -20,7 +20,6 @@ import {
 } from './image-components';
 
 interface CellProps {
-  keyProp: string;
   cell: CellType;
   onReveal: (e: React.MouseEvent) => void;
   onFlag: (e: React.MouseEvent) => void;
@@ -36,7 +35,6 @@ interface CellProps {
 }
 
 export const Cell = ({
-  keyProp,
   row,
   col,
   cols,
@@ -178,7 +176,6 @@ export const Cell = ({
     <div
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
-      key={keyProp}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseEnter={handleMouseEnter}

@@ -31,9 +31,9 @@ export const EmptyState = ({ title, subtitle, reasons, withBackButton }: EmptySt
         <p className="pb-3 font-bold">{subtitle}</p>
         <ol className="pl-3 text-sm list-decimal">
           {reasons &&
-            reasons.map((reason) => (
-              <li className="flex">
-                <span className="w-5">{reasons.indexOf(reason) + 1}.</span>
+            reasons.map((reason, index) => (
+              <li className="flex" key={index}>
+                <span className="w-5">{index + 1}.</span>
                 <span className="flex-1 pl-1">{reason}</span>
               </li>
             ))}

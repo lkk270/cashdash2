@@ -112,9 +112,9 @@ export const Notifications = ({ numOfUnreadNotificationsParam }: NotificationPro
           {loading ? (
             <NotificationsSkeleton />
           ) : (
-            notifications.map((item) => {
+            notifications.map((item, index) => {
               return (
-                <div>
+                <div key={index}>
                   <DropdownMenuItem className="flex flex-col items-start">
                     <span className="flex items-center mb-1 text-primary/40">
                       {new Date(item.createdAt).toLocaleString().split(',')[0]}

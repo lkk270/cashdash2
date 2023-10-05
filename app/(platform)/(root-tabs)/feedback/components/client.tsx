@@ -8,7 +8,8 @@ export const FeedbackClient = () => {
         <h1 className="text-4xl font-bold">Feedback</h1>
         <div className="max-w-lg mt-4 text-left">
           <p>
-            If you'd like to suggest features and/or improvements you can do so here anonymously.
+            If you&apos;d like to suggest features and/or improvements you can do so here
+            anonymously.
           </p>
         </div>
       </div>
