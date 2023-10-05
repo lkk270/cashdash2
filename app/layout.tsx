@@ -37,6 +37,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       }}
     >
       <html lang="en" suppressHydrationWarning>
+        <meta
+          name="google-site-verification"
+          content="c1R3I5EHZrUwOwR6ECJkSTAF_6lc0mKYORwqkGad0iQ"
+        />
         <body className={cn('bg-secondary', inter.className)}>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
             <LobbyAboutModal />
