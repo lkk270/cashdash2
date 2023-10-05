@@ -66,8 +66,8 @@ export const LinkStripeAboutModal = () => {
           <p className="text-sm text-zinc-500">Use the below answers:</p>
           <ul className="list-disc list-inside">
             <li className="text-sm">{'For "industry" choose software--> game'}</li>
-            <li className="text-sm">For "website" put "cashdash.me/your_username"</li>
-            <li className="text-sm ">For "description" put "-"</li>
+            <li className="text-sm">{'For "website" put "cashdash.me/your_username"'}</li>
+            <li className="text-sm ">{'For "description" put "-"'}</li>
           </ul>
         </div>
 

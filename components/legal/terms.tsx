@@ -23,8 +23,9 @@ const Terms = () => {
       <div className="text-left">
         <div className="font-sans text-base leading-relaxed text-gray-600">
           <span>
-            We are ("<strong>Company</strong>," "<strong>we</strong>," "<strong>us</strong>," "
-            <strong>our</strong>")
+            We are (&quot;<strong>Company</strong>,&quot; &quot;<strong>we</strong>,&quot; &quot;
+            <strong>us</strong>,&quot; &quot;
+            <strong>our</strong>&quot;)
             <span>
               <span>
                 <span></span>
@@ -39,9 +40,10 @@ const Terms = () => {
       <div className="text-left">
         <div className="font-sans text-base leading-relaxed text-gray-600">
           <span>
-            We operate the website (the "<strong>Site</strong>"), as well as any other related
-            products and services that refer or link to these legal terms (the "
-            <strong>Legal Terms</strong>") (collectively, the "<strong>Services</strong>").
+            We operate the website (the &quot;<strong>Site</strong>&quot;), as well as any other
+            related products and services that refer or link to these legal terms (the &quot;
+            <strong>Legal Terms</strong>&quot;) (collectively, the &quot;<strong>Services</strong>
+            &quot;).
           </span>
         </div>
         <div className="MsoNormal">
@@ -54,11 +56,11 @@ const Terms = () => {
         <div className="font-sans text-base leading-relaxed text-gray-600">
           <span>
             These Legal Terms constitute a legally binding agreement made between you, whether
-            personally or on behalf of an entity ("<strong>you</strong>"), and , concerning your
-            access to and use of the Services. You agree that by accessing the Services, you have
-            read, understood, and agreed to be bound by all of these Legal Terms. IF YOU DO NOT
-            AGREE WITH ALL OF THESE LEGAL TERMS, THEN YOU ARE EXPRESSLY PROHIBITED FROM USING THE
-            SERVICES AND YOU MUST DISCONTINUE USE IMMEDIATELY.
+            personally or on behalf of an entity (&quot;<strong>you</strong>&quot;), and ,
+            concerning your access to and use of the Services. You agree that by accessing the
+            Services, you have read, understood, and agreed to be bound by all of these Legal Terms.
+            IF YOU DO NOT AGREE WITH ALL OF THESE LEGAL TERMS, THEN YOU ARE EXPRESSLY PROHIBITED
+            FROM USING THE SERVICES AND YOU MUST DISCONTINUE USE IMMEDIATELY.
           </span>
         </div>
         <div className="MsoNormal">
@@ -69,12 +71,13 @@ const Terms = () => {
             Supplemental terms and conditions or documents that may be posted on the Services from
             time to time are hereby expressly incorporated herein by reference. We reserve the
             right, in our sole discretion, to make changes or modifications to these Legal Terms at
-            any time and for any reason. We will alert you about any changes by updating the "Last
-            updated" date of these Legal Terms, and you waive any right to receive specific notice
-            of each such change. It is your responsibility to periodically review these Legal Terms
-            to stay informed of updates. You will be subject to, and will be deemed to have been
-            made aware of and to have accepted, the changes in any revised Legal Terms by your
-            continued use of the Services after the date such revised Legal Terms are posted.
+            any time and for any reason. We will alert you about any changes by updating the
+            &quot;Last updated&quot; date of these Legal Terms, and you waive any right to receive
+            specific notice of each such change. It is your responsibility to periodically review
+            these Legal Terms to stay informed of updates. You will be subject to, and will be
+            deemed to have been made aware of and to have accepted, the changes in any revised Legal
+            Terms by your continued use of the Services after the date such revised Legal Terms are
+            posted.
           </span>
         </div>
       </div>
@@ -454,8 +457,9 @@ const Terms = () => {
           <span>
             We are the owner or the licensee of all intellectual property rights in our Services,
             including all source code, databases, functionality, software, website designs, audio,
-            video, text, photographs, and graphics in the Services (collectively, the "Content"), as
-            well as the trademarks, service marks, and logos contained therein (the "Marks").
+            video, text, photographs, and graphics in the Services (collectively, the
+            &quot;Content&quot;), as well as the trademarks, service marks, and logos contained
+            therein (the &quot;Marks&quot;).
           </span>
         </div>
         <div className="leading-relaxed MsoNormal">
@@ -473,8 +477,8 @@ const Terms = () => {
         </div>
         <div className="font-sans text-base leading-relaxed text-gray-600">
           <span>
-            The Content and Marks are provided in or through the Services "AS IS" for your personal,
-            non-commercial use only.
+            The Content and Marks are provided in or through the Services &quot;AS IS&quot; for your
+            personal, non-commercial use only.
           </span>
         </div>
         <div className="leading-relaxed MsoNormal">
@@ -487,12 +491,13 @@ const Terms = () => {
           <br />
         </div>
         <div className="font-sans text-base leading-relaxed text-gray-600">
-          <span>Subject to your compliance with these Legal Terms, including the "</span>
+          <span>Subject to your compliance with these Legal Terms, including the &quot;</span>
           <a data-custom-className="link" href="#prohibited">
             <span>PROHIBITED ACTIVITIES</span>
           </a>
           <span>
-            " section below, we grant you a non-exclusive, non-transferable, revocable license to:
+            &quot; section below, we grant you a non-exclusive, non-transferable, revocable license
+            to:
           </span>
         </div>
         <ul>
@@ -566,12 +571,12 @@ const Terms = () => {
       </div>
       <div className="font-sans text-base leading-relaxed text-gray-600">
         <span>
-          Please review this section and the "
+          Please review this section and the &quot;
           <a data-custom-className="link" href="#prohibited">
             PROHIBITED ACTIVITIES
           </a>
-          " section carefully prior to using our Services to understand the (a) rights you give us
-          and (b) obligations you have when you post or upload any content through the Services.
+          &quot; section carefully prior to using our Services to understand the (a) rights you give
+          us and (b) obligations you have when you post or upload any content through the Services.
         </span>
       </div>
       <div className="leading-relaxed MsoNormal">
@@ -580,10 +585,11 @@ const Terms = () => {
       <div className="font-sans text-base leading-relaxed text-gray-600">
         <span>
           <strong>Submissions:</strong> By directly sending us any question, comment, suggestion,
-          idea, feedback, or other information about the Services ("Submissions"), you agree to
-          assign to us all intellectual property rights in such Submission. You agree that we shall
-          own this Submission and be entitled to its unrestricted use and dissemination for any
-          lawful purpose, commercial or otherwise, without acknowledgment or compensation to you.
+          idea, feedback, or other information about the Services (&quot;Submissions&quot;), you
+          agree to assign to us all intellectual property rights in such Submission. You agree that
+          we shall own this Submission and be entitled to its unrestricted use and dissemination for
+          any lawful purpose, commercial or otherwise, without acknowledgment or compensation to
+          you.
         </span>
       </div>
       <div className="leading-relaxed MsoNormal">
@@ -597,12 +603,12 @@ const Terms = () => {
       </div>
       <ul>
         <li className="font-sans text-base leading-relaxed text-gray-600">
-          <span>confirm that you have read and agree with our "</span>
+          <span>confirm that you have read and agree with our &quot;</span>
           <a data-custom-className="link" href="#prohibited">
             <span>PROHIBITED ACTIVITIES</span>
           </a>
           <span>
-            " and will not post, send, publish, upload, or transmit through the Services any
+            &quot; and will not post, send, publish, upload, or transmit through the Services any
             Submission that is illegal, harassing, hateful, harmful, defamatory, obscene, bullying,
             abusive, discriminatory, threatening to any person or group, sexually explicit, false,
             inaccurate, deceitful, or misleading;
@@ -1029,9 +1035,9 @@ const Terms = () => {
                           Upload or transmit (or attempt to upload or to transmit) any material that
                           acts as a passive or active information collection or transmission
                           mechanism, including without limitation, clear graphics interchange
-                          formats ("gifs"), 1×1 pixels, web bugs, cookies, or other similar devices
-                          (sometimes referred to as "spyware" or "passive collection mechanisms" or
-                          "pcms").
+                          formats (&quot;gifs&quot;), 1×1 pixels, web bugs, cookies, or other
+                          similar devices (sometimes referred to as &quot;spyware&quot; or
+                          &quot;passive collection mechanisms&quot; or &quot;pcms&quot;).
                         </span>
                       </span>
                     </span>
@@ -1086,8 +1092,8 @@ const Terms = () => {
                     <span>
                       <span>
                         <span>
-                          Copy or adapt the Services' software, including but not limited to Flash,
-                          PHP, HTML, JavaScript, or other code.
+                          Copy or adapt the Services&apos; software, including but not limited to
+                          Flash, PHP, HTML, JavaScript, or other code.
                         </span>
                       </span>
                     </span>
@@ -1390,17 +1396,18 @@ const Terms = () => {
       <div className="font-sans text-base leading-relaxed text-gray-600">
         <span>
           The Services may contain (or you may be sent via the Site) links to other websites
-          ("Third-Party Websites") as well as articles, photographs, text, graphics, pictures,
-          designs, music, sound, video, information, applications, software, and other content or
-          items belonging to or originating from third parties ("Third-Party Content"). Such{' '}
-          <span>Third-Party</span> Websites and <span>Third-Party</span> Content are not
-          investigated, monitored, or checked for accuracy, appropriateness, or completeness by us,
-          and we are not responsible for any Third-Party Websites accessed through the Services or
-          any <span>Third-Party</span> Content posted on, available through, or installed from the
-          Services, including the content, accuracy, offensiveness, opinions, reliability, privacy
-          practices, or other policies of or contained in the <span>Third-Party</span> Websites or
-          the <span>Third-Party</span> Content. Inclusion of, linking to, or permitting the use or
-          installation of any <span>Third-Party</span> Websites or any <span>Third-Party </span>
+          (&quot;Third-Party Websites&quot;) as well as articles, photographs, text, graphics,
+          pictures, designs, music, sound, video, information, applications, software, and other
+          content or items belonging to or originating from third parties (&quot;Third-Party
+          Content&quot;). Such <span>Third-Party</span> Websites and <span>Third-Party</span>{' '}
+          Content are not investigated, monitored, or checked for accuracy, appropriateness, or
+          completeness by us, and we are not responsible for any Third-Party Websites accessed
+          through the Services or any <span>Third-Party</span> Content posted on, available through,
+          or installed from the Services, including the content, accuracy, offensiveness, opinions,
+          reliability, privacy practices, or other policies of or contained in the{' '}
+          <span>Third-Party</span> Websites or the <span>Third-Party</span> Content. Inclusion of,
+          linking to, or permitting the use or installation of any <span>Third-Party</span> Websites
+          or any <span>Third-Party </span>
           Content does not imply approval or endorsement thereof by us. If you decide to leave the
           Services and access the <span>Third-Party</span> Websites or to use or install any{' '}
           <span>Third-Party</span> Content, you do so at your own risk, and you should be aware
@@ -1686,14 +1693,14 @@ const Terms = () => {
       <div className="font-sans text-base text-gray-600">
         <span>
           Any legal action of whatever nature brought by either you or us (collectively, the
-          "Parties" and individually, a "Party") shall be commenced or prosecuted in the state and
-          federal courts located in , , and the Parties hereby consent to, and waive all defenses of
-          lack of personal jurisdiction and forum non conveniens with respect to venue and
-          jurisdiction in such state and federal courts. Application of the United Nations
-          Convention on Contracts for the International Sale of Goods and the Uniform Computer
-          Information Transaction Act (UCITA) are excluded from these Legal Terms. In no event shall
-          any claim, action, or proceeding brought by either Party related in any way to the
-          Services be commenced more than years after the cause of action arose.
+          &quot;Parties&quot; and individually, a &quot;Party&quot;) shall be commenced or
+          prosecuted in the state and federal courts located in , , and the Parties hereby consent
+          to, and waive all defenses of lack of personal jurisdiction and forum non conveniens with
+          respect to venue and jurisdiction in such state and federal courts. Application of the
+          United Nations Convention on Contracts for the International Sale of Goods and the Uniform
+          Computer Information Transaction Act (UCITA) are excluded from these Legal Terms. In no
+          event shall any claim, action, or proceeding brought by either Party related in any way to
+          the Services be commenced more than years after the cause of action arose.
         </span>
       </div>
       <div className="MsoNormal"></div>
@@ -1757,8 +1764,8 @@ const Terms = () => {
           DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, IN CONNECTION WITH THE SERVICES AND YOUR USE
           THEREOF, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS
           FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. WE MAKE NO WARRANTIES OR REPRESENTATIONS
-          ABOUT THE ACCURACY OR COMPLETENESS OF THE SERVICES' CONTENT OR THE CONTENT OF ANY WEBSITES
-          OR MOBILE APPLICATIONS LINKED TO THE SERVICES AND WE WILL ASSUME NO LIABILITY OR
+          ABOUT THE ACCURACY OR COMPLETENESS OF THE SERVICES&apos; CONTENT OR THE CONTENT OF ANY
+          WEBSITES OR MOBILE APPLICATIONS LINKED TO THE SERVICES AND WE WILL ASSUME NO LIABILITY OR
           RESPONSIBILITY FOR ANY (1) ERRORS, MISTAKES, OR INACCURACIES OF CONTENT AND MATERIALS, (2)
           PERSONAL INJURY OR PROPERTY DAMAGE, OF ANY NATURE WHATSOEVER, RESULTING FROM YOUR ACCESS
           TO AND USE OF THE SERVICES, (3) ANY UNAUTHORIZED ACCESS TO OR USE OF OUR SECURE SERVERS
