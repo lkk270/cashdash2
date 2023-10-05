@@ -1,4 +1,3 @@
-// import { Navbar } from "@/components/navbar";
 import Loader from '@/components/loader';
 import { DashboardLayout } from '@/components/dashboard-layout';
 
