@@ -12,7 +12,7 @@ export const LandingHero = () => {
   const { isSignedIn } = useAuth();
 
   return (
-    <div className="pt-12 pb-24 space-y-5 font-bold text-center text-white ">
+    <div className="pt-12 pb-12 space-y-5 font-bold text-center text-white ">
       <div className="flex flex-col items-center space-y-5 text-4xl font-extrabold sm:text-5xl md:text-4xl lg:text-5xl">
         <h1>IMAGINE A PLACE...</h1>
         <div className="justify-center w-2/3 text-lg font-light text-center items-marker:center md:text-xl text-zinc-400">
