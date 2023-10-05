@@ -4,7 +4,7 @@ import axios from 'axios';
 
 import { useToast } from '@/components/ui/use-toast';
 import { useState } from 'react';
-
+import Image from 'next/image';
 import { Button } from './ui/button';
 import { Bell, Dot } from 'lucide-react';
 import { Notification } from '@prisma/client';
@@ -111,6 +111,17 @@ export const Notifications = ({ numOfUnreadNotificationsParam }: NotificationPro
         <DropdownMenuGroup>
           {loading ? (
             <NotificationsSkeleton />
+          ) : notifications.length === 0 ? (
+            <div className="flex flex-col items-center justify-center mt-3 text-center text-primary/60">
+              <h2 className="text-lg font-bold">No Notifications</h2>
+              <Image
+                draggable={false}
+                height={250}
+                width={250}
+                src="/images/empty.png"
+                alt="Empty"
+              />
+            </div>
           ) : (
             notifications.map((item, index) => {
               return (
