@@ -12,7 +12,7 @@ export const LandingHero = () => {
   const { isSignedIn } = useAuth();
 
   return (
-    <div className="pt-12 pb-12 space-y-5 font-bold text-center text-white ">
+    <div className="pt-12 pb-12 space-y-5 font-bold text-center text-white lg:pb-24 ">
       <div className="flex flex-col items-center space-y-5 text-4xl font-extrabold sm:text-5xl md:text-4xl lg:text-5xl">
         <h1>IMAGINE A PLACE...</h1>
         <div className="justify-center w-2/3 text-lg font-light text-center items-marker:center md:text-xl text-zinc-400">
@@ -41,7 +41,7 @@ export const LandingHero = () => {
         <Link href={isSignedIn ? '/dashboard' : '/sign-up'}>
           <Button
             variant="premium"
-            className="w-full p-6 font-semibold rounded-full md:text-lg md:p-6 xl:mt-10"
+            className="w-full p-6 font-semibold rounded-full md:text-lg md:p-6 xl:mt-20"
           >
             Start playing today!
           </Button>
