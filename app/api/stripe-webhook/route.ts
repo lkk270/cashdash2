@@ -50,7 +50,6 @@ export async function POST(req: Request) {
         stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
       },
     });
-    return new NextResponse(null, { status: 200 });
   }
 
   if (event.type === 'account.updated') {
@@ -82,7 +81,6 @@ export async function POST(req: Request) {
         },
       });
     }
-
-    return new NextResponse(null, { status: 200 });
   }
+  return new NextResponse(null, { status: 200 });
 }
