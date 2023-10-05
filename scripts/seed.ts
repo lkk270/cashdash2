@@ -54,12 +54,28 @@ async function main() {
     //   ],
     // });
     // let data = [];
-    // for (let i = 120; i < 160; i++) {
+    // let userNames = [
+    //   'blackbeard',
+    //   'wanderingBear89',
+    //   'trantor',
+    //   'dantheman',
+    //   'dragonSlayer',
+    //   'yankeesFan22',
+    //   'milkshake',
+    //   'tinyfoot',
+    //   'bigfoot',
+    //   'myNameJeff',
+    //   'holdthedoor',
+    //   'MichaelScott',
+    //   'human29394',
+    // ];
+    // for (let i = 0; i < userNames.length; i++) {
     //   let obj = {
-    //     userId: 'user_' + i.toString(),
-    //     username: 'user_' + i.toString(),
-    //     lobbySessionId: 'f8ab962c-60b9-41d9-a689-be731f8a8ce5',
-    //     score: 120000 + (i / 10) * 1000,
+    //     userId: 'user_' + userNames[i] + i.toString(),
+    //     username: userNames[i],
+    //     gameId: '0b6f7335-841e-464e-b0e1-c924358e9de3',
+    //     lobbySessionId: 'd4c6181d-51da-4ebf-9d6d-19308b3f6d94',
+    //     score: Math.floor(Math.random() * (100000 - 45000 + 1)) + 45000,
     //   };
     //   data.push(obj);
     // }
