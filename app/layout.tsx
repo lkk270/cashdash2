@@ -41,6 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           name="google-site-verification"
           content="c1R3I5EHZrUwOwR6ECJkSTAF_6lc0mKYORwqkGad0iQ"
         />
+        <meta name="monetag" content="816ed538b1021c1e81c0a381a39c7f2f"></meta>
         <body className={cn('bg-secondary', inter.className)}>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
             <LobbyAboutModal />
