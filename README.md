@@ -24,7 +24,7 @@ Follow these steps to get the app running on your local machine:
 git clone <your-repo-link>
 ```
 
-2. **Clone the repository:**
+2. **Install the dependencies:**
    
 ```bash
 npm install
