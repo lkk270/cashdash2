@@ -1,6 +1,6 @@
 # [CASHDASH](https://cashdash.space/)
 
-## Next.js App built in Typescript and Prisma, Clerk, and More!
+## Next.js App built with Typescript and Prisma, Clerk, and More!
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app). This app integrates the following technologies:
 
