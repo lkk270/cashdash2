@@ -1,4 +1,4 @@
-# CASHDASH
+# [CASHDASH](https://cashdash.space/)
 
 ## Next.js App built in Typescript and Prisma, Clerk, and More!
 
