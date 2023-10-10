@@ -1,7 +1,7 @@
 import { Elsie_Swash_Caps } from 'next/font/google';
 import gameEvents from './event-emitter';
 import { initialize } from 'next/dist/server/lib/render-server';
-import { TrendingUp } from 'lucide-react';
+// import { TrendingUp } from 'lucide-react';
 import { formatBalance } from '@/lib/utils';
 
 // const CHIPS = [
