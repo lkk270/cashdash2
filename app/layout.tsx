@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Head from 'next/head';
 import { Inter } from 'next/font/google';
 import { dark, neobrutalism } from '@clerk/themes';
 import { ClerkProvider } from '@clerk/nextjs';
@@ -36,12 +37,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         },
       }}
     >
-      <html lang="en" suppressHydrationWarning>
+      <Head>
+        <title>{metadata.title as string}</title>
+        <meta name="description" content={metadata.description as string} />
         <meta
           name="google-site-verification"
           content="c1R3I5EHZrUwOwR6ECJkSTAF_6lc0mKYORwqkGad0iQ"
         />
-        <meta name="monetag" content="816ed538b1021c1e81c0a381a39c7f2f"></meta>
+        <meta name="monetag" content="816ed538b1021c1e81c0a381a39c7f2f" />
+      </Head>
+      <html lang="en" suppressHydrationWarning>
         <body className={cn('bg-secondary', inter.className)}>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
             <LobbyAboutModal />

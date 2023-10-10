@@ -228,7 +228,7 @@ export default class FlappyBirdScene extends Phaser.Scene {
     // this.physics.world.createDebugGraphic();
     this.cleanUp();
     this.gameOver = false;
-    this.add.image(centerX, centerY, 'sky').setScale(1.17);
+    this.add.image(centerX, centerY, 'sky').setScale(1.5);
     this.scoreText = this.add.text(16, 16, 'Score: 0', {
       fontSize: '20px',
       color: '#580d82',
