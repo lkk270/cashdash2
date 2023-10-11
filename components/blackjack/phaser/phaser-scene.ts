@@ -46,7 +46,7 @@ const CHIPS = [
   { name: 'c100', value: 100, originalX: 101, originalY: 628 },
   { name: 'c1000', value: 1000, originalX: 238, originalY: 628 },
   { name: 'c2000', value: 2000, originalX: 375, originalY: 628 },
-  { name: 'c10000', value: 10000, originalX: 101, originalY: 628 },
+  { name: 'c10000', value: 10000, originalX: 512, originalY: 628 },
 ];
 
 const PLACED_CHIP_X = 400;
