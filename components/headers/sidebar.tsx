@@ -31,12 +31,12 @@ export const Sidebar = ({ isPro }: SidebarProps) => {
       label: 'Home',
       pro: false,
     },
-    {
-      icon: CreditCard,
-      href: '/money-settings',
-      label: 'Money',
-      pro: false,
-    },
+    // {
+    //   icon: CreditCard,
+    //   href: '/money-settings',
+    //   label: 'Money',
+    //   pro: false,
+    // },
     {
       icon: LineChart,
       href: '/stats',
