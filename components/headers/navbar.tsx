@@ -10,12 +10,12 @@ import Logo from '@/components/logo';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
 import { MobileSidebar } from '@/components/headers/mobile-sidebar';
-import { useProModal } from '@/hooks/use-pro-modal';
-import { useUserCashModal } from '@/hooks/use-user-cash-modal';
+// import { useProModal } from '@/hooks/use-pro-modal';
+// import { useUserCashModal } from '@/hooks/use-user-cash-modal';
 import { UserStripeAccount } from '@prisma/client';
 import { Notifications } from '@/components/notifications';
-import { useUserCash } from '@/components/providers/user-cash-provider';
-import { useIsPro } from '@/components/providers/is-pro-provider';
+// import { useUserCash } from '@/components/providers/user-cash-provider';
+// import { useIsPro } from '@/components/providers/is-pro-provider';
 
 // const font = Poppins({
 //   weight: '600',
@@ -32,20 +32,20 @@ interface NavbarProps {
 }
 
 export const Navbar = ({ userValues }: NavbarProps) => {
-  const proModal = useProModal();
-  const userCashModal = useUserCashModal();
-  const { userCashString, setUserCashString } = useUserCash();
-  const { isPro, setIsPro } = useIsPro();
+  // const proModal = useProModal();
+  // const userCashModal = useUserCashModal();
+  // const { userCashString, setUserCashString } = useUserCash();
+  // const { isPro, setIsPro } = useIsPro();
 
-  useEffect(() => {
-    setUserCashString(userValues.userCashString);
-  }, [setUserCashString, userValues.userCashString]);
+  // useEffect(() => {
+  //   setUserCashString(userValues.userCashString);
+  // }, [setUserCashString, userValues.userCashString]);
 
-  useEffect(() => {
-    if (typeof userValues.isPro === 'boolean') {
-      setIsPro(userValues.isPro);
-    }
-  }, [setIsPro, userValues.isPro]);
+  // useEffect(() => {
+  //   if (typeof userValues.isPro === 'boolean') {
+  //     setIsPro(userValues.isPro);
+  //   }
+  // }, [setIsPro, userValues.isPro]);
 
   return (
     <div className="fixed z-50 flex items-center justify-between w-full h-16 px-4 py-2 border-b border-primary/10 bg-secondary">
@@ -67,7 +67,7 @@ export const Navbar = ({ userValues }: NavbarProps) => {
       </div>
       <div className="flex items-center">
         <div className="flex items-center sm:flex gap-x-4">
-          {userCashString && (
+          {/* {userCashString && (
             <Button
               onClick={() => userCashModal.onOpen(userCashString)}
               variant="gradient2"
@@ -75,7 +75,6 @@ export const Navbar = ({ userValues }: NavbarProps) => {
               className="hidden xs:flex"
             >
               {userCashString}
-              {/* {userCashModal.valueChanged ? userCashModal.userCashString : userCashString} */}
             </Button>
           )}
           {isPro !== undefined && isPro === false && (
@@ -87,7 +86,7 @@ export const Navbar = ({ userValues }: NavbarProps) => {
             >
               <Ban className="w-4 h-4 text-white" /> Ads
             </Button>
-          )}
+          )} */}
           {typeof userValues.numOfUnreadNotifications === 'number' && (
             <Notifications numOfUnreadNotificationsParam={userValues.numOfUnreadNotifications} />
           )}

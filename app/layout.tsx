@@ -54,14 +54,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <UserPayoutHistoryModal />
             <GamePlaygroundInfoModal />
             <WelcomeMessagesModal />
-            <UserCashProvider initialCash={'$0.00'}>
-              <UserCashModal />
-              <IsProProvider initialIsPro={true}>
-                <ProModal />
-                {children}
-                <Toaster />
-              </IsProProvider>
-            </UserCashProvider>
+            {/* <UserCashProvider initialCash={'$0.00'}> */}
+            {/* <UserCashModal /> */}
+            {/* <IsProProvider initialIsPro={true}> */}
+            {/* <ProModal /> */}
+            {children}
+            <Toaster />
+            {/* </IsProProvider> */}
+            {/* </UserCashProvider> */}
           </ThemeProvider>
         </body>
       </html>
