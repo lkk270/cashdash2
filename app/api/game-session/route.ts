@@ -239,10 +239,16 @@ export async function POST(req: Request) {
             weightedScoreObj.weightedScore) /
           newWeightedTimesPlayed;
 
+        const currentScore = await findScore(
+          userId,
+          gameSession.gameId,
+          gameSession.lobbySessionId
+        );
+
         // game.scoreType === ScoreType.time && body.score < body.userBestScore.score;
 
         //if there is no score create a score and update the average
-        if (body.userBestScore === false) {
+        if (!currentScore) {
           if (weightedScoreObj.weight > 0) {
             transaction = prismadb.$transaction([
               prismadb.gameAverageScore.updateMany({
@@ -282,16 +288,9 @@ export async function POST(req: Request) {
         }
         //If the incoming score is better than the current score update the score
         else if (
-          (game.scoreType === ScoreType.time &&
-            newAverageScore < currentGameAverageScore.averageScore) ||
-          (game.scoreType === ScoreType.points &&
-            newAverageScore > currentGameAverageScore.averageScore)
+          (game.scoreType === ScoreType.time && body.score < currentScore.score) ||
+          (game.scoreType === ScoreType.points && body.score > currentScore.score)
         ) {
-          const currentScore = await findScore(
-            userId,
-            gameSession.gameId,
-            gameSession.lobbySessionId
-          );
           //there will always be a found score (because if there is a currentGameAverageScore then there must be a current score as well),
           // but if something goes wrong and it doesn't find one we have this check
           //the second part is if the weight is greater than 0 then in addition to replacing the current score with
