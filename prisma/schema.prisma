@@ -107,12 +107,14 @@ model Score {
   username       String
   gameId         String
   lobbySessionId String
-  createdAt      DateTime     @default(now())
   score          Float
   betTotalHand1  Float? //only to be used for balance games, postive value
   betTotalHand2  Float? //""
   lobbySession   LobbySession @relation(fields: [lobbySessionId], references: [id])
   reward         Reward?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([lobbySessionId])
 }

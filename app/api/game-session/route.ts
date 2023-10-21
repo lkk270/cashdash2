@@ -321,9 +321,9 @@ export async function POST(req: Request) {
             ]);
             await transaction;
           }
-          // if the weight is <= 0, but since this else if is under the block that the incoming score
+          // if the weight is = 0, but since this else if is under the block that the incoming score
           //is better than the current score, we just update the current score.
-          else if (currentScore) {
+          else if (currentScore && weightedScoreObj.weight === 0) {
             await prismadb.score.update({
               where: {
                 id: currentScore.id,
