@@ -17,6 +17,12 @@ export async function POST(req: Request) {
     const currentDate = new Date();
     const thirtyMinutesFromNow = new Date(currentDate.getTime() + 30 * 60 * 1000);
 
+    if (secret !== process.env.CRON_SECRET) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+    if (bodyLength > 0) {
+      return new NextResponse('Invalid body', { status: 400 });
+    }
     //query all things now that use isActive = true, because we will set it false first
 
     //get the lobbySessions that are balance based
@@ -249,41 +255,41 @@ export async function POST(req: Request) {
           notificationText = `${gameObj.name} session ended. Your final score was ${formattedScore}, which was good enough for ${rankText} place - out of ${sortedScoresLength} scores!`;
           //once I am giving out rewards, I will switch the notificationText to this one
           // notificationText = `${gameObj.name} session ended. Your final score was ${formattedScore}, which was good enough for ${rankText} place - out of ${sortedScoresLength} scores! The cash prize for ${rankText} place is $${prize}, and it has been delivered.`;
-          await prismadb.reward.create({
-            data: {
-              userId: score.userId,
-              scoreId: score.id,
-              value: prize,
-              place: iPlusOne,
-            },
-          });
-          let currentUserCash;
-          currentUserCash = await prismadb.userCash.findUnique({
-            where: {
-              userId: score.userId,
-            },
-            select: {
-              cash: true,
-            },
-          });
-          if (!currentUserCash) {
-            await prismadb.userCash.create({
-              data: {
-                userId: score.userId,
-                cash: prize,
-              },
-            });
-          } else {
-            const newCurrentUserCash = currentUserCash.cash + prize;
-            await prismadb.userCash.update({
-              where: {
-                userId: score.userId,
-              },
-              data: {
-                cash: newCurrentUserCash,
-              },
-            });
-          }
+          // await prismadb.reward.create({
+          //   data: {
+          //     userId: score.userId,
+          //     scoreId: score.id,
+          //     value: prize,
+          //     place: iPlusOne,
+          //   },
+          // });
+          // let currentUserCash;
+          // currentUserCash = await prismadb.userCash.findUnique({
+          //   where: {
+          //     userId: score.userId,
+          //   },
+          //   select: {
+          //     cash: true,
+          //   },
+          // });
+          // if (!currentUserCash) {
+          //   await prismadb.userCash.create({
+          //     data: {
+          //       userId: score.userId,
+          //       cash: prize,
+          //     },
+          //   });
+          // } else {
+          //   const newCurrentUserCash = currentUserCash.cash + prize;
+          //   await prismadb.userCash.update({
+          //     where: {
+          //       userId: score.userId,
+          //     },
+          //     data: {
+          //       cash: newCurrentUserCash,
+          //     },
+          //   });
+          // }
         } else {
           notificationText = `${gameObj.name} session ended. Your final score was ${formattedScore}. Your score ranked #${iPlusOne} out of ${sortedScoresLength} scores.`;
         }
@@ -295,13 +301,6 @@ export async function POST(req: Request) {
           },
         });
       }
-    }
-
-    if (secret !== process.env.CRON_SECRET) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
-    if (bodyLength > 0) {
-      return new NextResponse('Invalid body', { status: 400 });
     }
 
     return new NextResponse(JSON.stringify(lobbySessionIds), { status: 200 });
