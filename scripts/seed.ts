@@ -1,6 +1,6 @@
-const { PrismaClient } = require('@prisma/client');
+// const { PrismaClient } = require('@prisma/client');
 
-const db = new PrismaClient();
+// const db = new PrismaClient();
 
 async function main() {
   try {
@@ -156,7 +156,7 @@ async function main() {
   } catch (error) {
     console.error('Error seeding default categories:', error);
   } finally {
-    await db.$disconnect();
+    // await db.$disconnect();
   }
 }
 
