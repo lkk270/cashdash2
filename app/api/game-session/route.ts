@@ -83,9 +83,17 @@ export async function POST(req: Request) {
 
       const gameSession = await getGameSession(body.gameSessionId, currentDate);
 
-      if (!gameSession || !gameSession.lobbySession) {
-        return new NextResponse('Attempting refresh', {
-          status: 302,
+      if (!gameSession) {
+        console.log('IN 87');
+
+        return new NextResponse('!gameSession Attempting refresh', {
+          status: 401,
+        });
+      }
+      if (!gameSession.lobbySession) {
+        console.log('IN 92');
+        return new NextResponse('!!gameSession.lobbySession Attempting refresh', {
+          status: 401,
         });
       }
 
