@@ -9,7 +9,6 @@ import { ScoreType, TierBoundary } from '@prisma/client';
 
 export async function POST(req: Request) {
   try {
-    console.log('IN 19');
     // const body = await req.json();
 
     const reqHeaders = headers();
@@ -38,10 +37,10 @@ export async function POST(req: Request) {
           select: {
             sessions: {
               where: {
-                isActive: true,
-                expiredDateTime: {
-                  lt: thirtyMinutesFromNow,
-                },
+                isActive: false,
+                // expiredDateTime: {
+                //   lt: thirtyMinutesFromNow,
+                // },
               },
               select: {
                 scores: {
@@ -93,7 +92,7 @@ export async function POST(req: Request) {
     //Set current lobby sessions isActive to false and create a new lobby session to take its place
     //unfortunately we have to loop through lobbySessions now and later, but because the other code
     //can take some time to execute, it's important to first toggle the lobby sessions
-
+    console.log('lobbySessions.length', lobbySessions.length);
     let newLobbySessions = [];
     let lobbySessionIds = [];
     for (let lobbySession of lobbySessions) {
@@ -148,65 +147,65 @@ export async function POST(req: Request) {
     }
 
     // get currentGameAverageScores
-    const gameAverageScores = await prismadb.gameAverageScore.findMany({
-      where: {
-        userId: {
-          in: Array.from(new Set(userIds)), // Ensuring unique userIds
-        },
-        gameId: {
-          in: gameIds,
-        },
-      },
-    });
-    if (!scoresMap) {
-      return new NextResponse('No scores', { status: 200 });
-    }
+    // const gameAverageScores = await prismadb.gameAverageScore.findMany({
+    //   where: {
+    //     userId: {
+    //       in: Array.from(new Set(userIds)), // Ensuring unique userIds
+    //     },
+    //     gameId: {
+    //       in: gameIds,
+    //     },
+    //   },
+    // });
+    // if (!scoresMap) {
+    //   return new NextResponse('No scores', { status: 200 });
+    // }
 
     //BALANCES NEVER HAVE A WEIGHT OF 0.
-    for (let gameAverageScore of gameAverageScores) {
-      const currentScore = scoresMap[gameAverageScore.userId];
-      const weightedScoreObj = await calculateSingleWeightedScore(
-        { score: currentScore, createdAt: new Date() },
-        tierBoundaryMap[gameAverageScore.gameId]
-      );
-      let currentAverageScore =
-        gameAverageScore.averageScore === -1 ? 1 : gameAverageScore.averageScore;
-      let currentWeightedAverageScore =
-        gameAverageScore.weightedAverageScore === -1 ? 1 : gameAverageScore.weightedAverageScore;
+    // for (let gameAverageScore of gameAverageScores) {
+    //   const currentScore = [scoresMap][gameAverageScore.userId];
+    //   const weightedScoreObj = await calculateSingleWeightedScore(
+    //     { score: currentScore, createdAt: new Date() },
+    //     tierBoundaryMap[gameAverageScore.gameId]
+    //   );
+    //   let currentAverageScore =
+    //     gameAverageScore.averageScore === -1 ? 1 : gameAverageScore.averageScore;
+    //   let currentWeightedAverageScore =
+    //     gameAverageScore.weightedAverageScore === -1 ? 1 : gameAverageScore.weightedAverageScore;
 
-      const newTimesPlayed = gameAverageScore.timesPlayed + 1;
-      const newWeightedTimesPlayed = gameAverageScore.weightedTimesPlayed + weightedScoreObj.weight;
+    //   const newTimesPlayed = gameAverageScore.timesPlayed + 1;
+    //   const newWeightedTimesPlayed = gameAverageScore.weightedTimesPlayed + weightedScoreObj.weight;
 
-      //since the timesPlayed and the weightedTimesPlayed are initialized to 0
-      //if it's the first update of the gameAverageScore since its initialization,
-      //newAverageScore = 1 * 0 + currentScore/1 = currentScore
-      //newWeightedAverageScore = (1 * 0 + weightedScoreObj.weightedScore)/1 = weightedScoreObj.weightedScore
+    //   //since the timesPlayed and the weightedTimesPlayed are initialized to 0
+    //   //if it's the first update of the gameAverageScore since its initialization,
+    //   //newAverageScore = 1 * 0 + currentScore/1 = currentScore
+    //   //newWeightedAverageScore = (1 * 0 + weightedScoreObj.weightedScore)/1 = weightedScoreObj.weightedScore
 
-      const newAverageScore =
-        (currentAverageScore * gameAverageScore.timesPlayed + currentScore) / newTimesPlayed;
+    //   const newAverageScore =
+    //     (currentAverageScore * gameAverageScore.timesPlayed + currentScore) / newTimesPlayed;
 
-      const newWeightedAverageScore =
-        (currentWeightedAverageScore * gameAverageScore.weightedTimesPlayed +
-          weightedScoreObj.weightedScore) /
-        newWeightedTimesPlayed;
+    //   const newWeightedAverageScore =
+    //     (currentWeightedAverageScore * gameAverageScore.weightedTimesPlayed +
+    //       weightedScoreObj.weightedScore) /
+    //     newWeightedTimesPlayed;
 
-      try {
-        await prismadb.gameAverageScore.updateMany({
-          where: {
-            userId: gameAverageScore.userId,
-            gameId: gameAverageScore.gameId,
-          },
-          data: {
-            timesPlayed: newTimesPlayed,
-            averageScore: newAverageScore,
-            weightedTimesPlayed: newWeightedTimesPlayed,
-            weightedAverageScore: newWeightedAverageScore,
-          },
-        });
-      } catch (e) {
-        continue;
-      }
-    }
+    //   // try {
+    //   //   await prismadb.gameAverageScore.updateMany({
+    //   //     where: {
+    //   //       userId: gameAverageScore.userId,
+    //   //       gameId: gameAverageScore.gameId,
+    //   //     },
+    //   //     data: {
+    //   //       timesPlayed: newTimesPlayed,
+    //   //       averageScore: newAverageScore,
+    //   //       weightedTimesPlayed: newWeightedTimesPlayed,
+    //   //       weightedAverageScore: newWeightedAverageScore,
+    //   //     },
+    //   //   });
+    //   // } catch (e) {
+    //   //   continue;
+    //   // }
+    // }
 
     /////////////////////////////////////////////////////////////
     //parse scores and give rewards to the score and notifications no matter the score

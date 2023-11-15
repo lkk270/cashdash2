@@ -137,18 +137,21 @@ export function formatBalance(balance: number): string {
 }
 
 export const getStartAndExpiredDate = () => {
-  const currentDateInEST = DateTime.now().setZone('America/New_York');
+  // const currentDateInEST = DateTime.now().setZone('America/New_York');
+  const currentDateInEST = DateTime.now();
+
   const isPastMidnight = currentDateInEST.hour === 0;
 
-  let baseDate;
-  if (isPastMidnight) {
-    baseDate = currentDateInEST;
-  } else {
-    baseDate = currentDateInEST.plus({ days: 1 });
-  }
+  let baseDate = currentDateInEST;
+  // if (isPastMidnight) {
+  //   baseDate = currentDateInEST;
+  // } else {
+  //   baseDate = currentDateInEST.plus({ days: 1 });
+  // }
 
   // Set startDateTime to 00:05 AM
-  const startDateTime = baseDate.set({ hour: 0, minute: 5, second: 0, millisecond: 0 }).toJSDate();
+  // const startDateTime = baseDate.set({ hour: 0, minute: 5, second: 0, millisecond: 0 }).toJSDate();
+  const startDateTime = baseDate.toJSDate();
 
   // Set expiredDateTime to 11:59 PM
   const expiredDateTime = baseDate
