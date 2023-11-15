@@ -87,13 +87,13 @@ export async function POST(req: Request) {
         console.log('IN 87');
 
         return new NextResponse('!gameSession Attempting refresh', {
-          status: 401,
+          status: 302,
         });
       }
       if (!gameSession.lobbySession) {
         console.log('IN 92');
         return new NextResponse('!!gameSession.lobbySession Attempting refresh', {
-          status: 401,
+          status: 302,
         });
       }
 

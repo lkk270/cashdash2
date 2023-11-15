@@ -142,7 +142,7 @@ export const getStartAndExpiredDate = () => {
 
   const isPastMidnight = currentDateInEST.hour === 0;
 
-  let baseDate = currentDateInEST;
+  let baseDate = currentDateInEST.plus({ days: 1 });
   // if (isPastMidnight) {
   //   baseDate = currentDateInEST;
   // } else {
@@ -155,7 +155,7 @@ export const getStartAndExpiredDate = () => {
 
   // Set expiredDateTime to 11:59 PM
   const expiredDateTime = baseDate
-    .set({ hour: 23, minute: 59, second: 0, millisecond: 0 })
+    .set({ hour: 17, minute: 59, second: 0, millisecond: 0 })
     .toJSDate();
 
   return { startDateTime, expiredDateTime };
