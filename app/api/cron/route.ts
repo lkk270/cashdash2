@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 
 import { getStartAndExpiredDate, convertMillisecondsToMinSec } from '@/lib/utils';
@@ -7,16 +7,22 @@ import { sortScores } from '@/lib/scores';
 import prismadb from '@/lib/prismadb';
 import { ScoreType, TierBoundary } from '@prisma/client';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     // const body = await req.json();
 
-    const reqHeaders = headers();
+    // const reqHeaders = headers();
 
-    const secret = reqHeaders.get('cron_secret');
+    // const secret = reqHeaders.get('cron_secret');
 
-    if (secret !== process.env.CRON_SECRET) {
-      return new NextResponse(`Unauthorized cron_secret = ${secret}`, { status: 400 });
+    // if (secret !== process.env.CRON_SECRET) {
+    //   return new NextResponse(`Unauthorized cron_secret = ${secret}`, { status: 400 });
+    // }
+    const authHeader = request.headers.get('authorization');
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+      return new Response('Unauthorized', {
+        status: 401,
+      });
     }
     // const bodyLength = Object.keys(body).length;
     const { startDateTime, expiredDateTime } = getStartAndExpiredDate();
