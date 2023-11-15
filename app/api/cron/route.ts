@@ -16,7 +16,7 @@ export async function GET() {
     const secret = reqHeaders.get('cron_secret');
 
     if (secret !== process.env.CRON_SECRET) {
-      return new NextResponse(`Unauthorized cron_secret = ${secret}`, { status: 401 });
+      return new NextResponse(`Unauthorized cron_secret = ${secret}`, { status: 400 });
     }
     // const bodyLength = Object.keys(body).length;
     const { startDateTime, expiredDateTime } = getStartAndExpiredDate();
