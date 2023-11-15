@@ -7,7 +7,7 @@ import { sortScores } from '@/lib/scores';
 import prismadb from '@/lib/prismadb';
 import { ScoreType, TierBoundary } from '@prisma/client';
 
-export async function POST(req: Request) {
+export async function GET() {
   try {
     // const body = await req.json();
 
