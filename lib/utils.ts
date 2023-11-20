@@ -154,9 +154,9 @@ export const getStartAndExpiredDate = () => {
   const startDateTime = currentDateInEST.toJSDate();
 
   // Set expiredDateTime to 11:59 PM
-  const expiredDateTime = baseDate
-    .set({ hour: 17, minute: 59, second: 0, millisecond: 0 })
-    .toJSDate();
-
+  // const expiredDateTime = baseDate
+  //   .set({ hour: 17, minute: 59, second: 0, millisecond: 0 })
+  //   .toJSDate();
+  const expiredDateTime = baseDate.toJSDate();
   return { startDateTime, expiredDateTime };
 };
