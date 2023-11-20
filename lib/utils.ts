@@ -157,6 +157,6 @@ export const getStartAndExpiredDate = () => {
   // const expiredDateTime = baseDate
   //   .set({ hour: 17, minute: 59, second: 0, millisecond: 0 })
   //   .toJSDate();
-  const expiredDateTime = baseDate.toJSDate();
+  const expiredDateTime = baseDate.minus({ seconds: 30 }).toJSDate();
   return { startDateTime, expiredDateTime };
 };
