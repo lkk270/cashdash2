@@ -1,5 +1,5 @@
-import { authMiddleware } from '@clerk/nextjs';
-import type { NextRequest } from 'next/server';
+import { authMiddleware, withClerkMiddleware } from '@clerk/nextjs';
+import { NextResponse, type NextRequest } from 'next/server';
 
 // This example protects all routes including api/trpc routes
 // Please edit this to allow other routes to be public as needed.
@@ -8,11 +8,11 @@ import type { NextRequest } from 'next/server';
 //   publicRoutes: ['/', '/api/stripe-webhook', '/api/cron'],
 // });
 
-// export default withClerkMiddleware((req: NextRequest) => {
-//   return NextResponse.next();
-// });
+export default withClerkMiddleware((req: NextRequest) => {
+  return NextResponse.next();
+});
 
-export default authMiddleware({});
+// export default authMiddleware({});
 export const config = {
   matcher: ['/((?!.*\\..*|_next).*)', '/', '/(api|trpc)(.*)'],
 };
