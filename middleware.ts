@@ -5,7 +5,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 // Please edit this to allow other routes to be public as needed.
 // See https://clerk.com/docs/nextjs/middleware for more information about configuring your middleware
 export default authMiddleware({
-  ignoredRoutes: ['/'],
+  ignoredRoutes: ['/', '/api/cron'],
   publicRoutes: ['/', '/api/stripe-webhook', '/api/cron'],
 });
 
