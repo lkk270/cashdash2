@@ -16,6 +16,7 @@ import { GamePlaygroundInfoModal } from '@/components/modals/game-playground-inf
 import { WelcomeMessagesModal } from '@/components/modals/welcome-messages-modal';
 import { UserCashProvider } from '@/components/providers/user-cash-provider';
 import { IsProProvider } from '@/components/providers/is-pro-provider';
+import NextTopLoader from 'nextjs-toploader';
 
 import './globals.css';
 
@@ -50,6 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </Head>
       <html lang="en" suppressHydrationWarning>
         <body className={cn('bg-secondary', inter.className)}>
+          <NextTopLoader color="#4f5eff" />
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
             <LobbyAboutModal />
             <LinkStripeAboutModal />
