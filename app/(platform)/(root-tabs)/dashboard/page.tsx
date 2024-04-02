@@ -18,6 +18,9 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
     },
   });
 
+  // const te = await prismadb.score.findMany();
+  // console.log(te);
+  // console.log(games);
   // const categories = await prismadb.category.findMany({
   //   orderBy: {
   //     createdAt: 'asc',
