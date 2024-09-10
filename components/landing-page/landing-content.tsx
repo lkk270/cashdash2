@@ -50,7 +50,7 @@ export const LandingContent = () => {
           </Card>
         ))}
       </div>
-      <div className="pt-10 text-xs text-center text-primary/20">cashdash © 2023</div>
+      <div className="pt-10 text-xs text-center text-primary/20">cashdash © 2024</div>
     </div>
   );
 };
